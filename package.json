@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "@types/jest": "27.5.2",
-    "@types/node": "18.14.2",
+    "@types/node": "20.10.3",
     "@types/react": "18.0.28",
     "concurrently": "8.2.1",
     "dotenv-load": "3.0.0",
