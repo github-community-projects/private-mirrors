@@ -1,0 +1,59 @@
+{
+  "name": "repo-sync-app",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A GitHub App that allows you to contribute upstream using a 'private fork'",
+  "author": "Andrew Henry <ajhenry@github.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/github-community-projects/repo-sync-app",
+  "scripts": {
+    "dev": "concurrently \"dotenv-load node scripts/probot-forwarder.js\" \"next dev\"",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "bot:build": "tsc ./src/bot/index.ts --noEmit false --esModuleInterop --outDir ./build",
+    "bot:start": "probot run ./build/index.js",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@octokit/auth-app": "6.0.1",
+    "@octokit/auth-token": "4.0.0",
+    "@octokit/rest": "20.0.2",
+    "@octokit/types": "12.4.0",
+    "@primer/octicons-react": "19.8.0",
+    "@primer/react": "36.3.1",
+    "@tanstack/react-query": "4.36.1",
+    "@trpc/client": "10.44.1",
+    "@trpc/next": "10.44.1",
+    "@trpc/react-query": "10.44.1",
+    "@trpc/server": "10.44.1",
+    "next": "13.5.5",
+    "next-auth": "4.24.5",
+    "probot": "12.3.3",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "simple-git": "3.21.0",
+    "styled-components": "5",
+    "swr": "2.2.4",
+    "tempy": "3.1.0",
+    "tslog": "4.9.2",
+    "zod": "3.22.4"
+  },
+  "devDependencies": {
+    "@types/jest": "27.5.2",
+    "@types/node": "18.14.2",
+    "@types/react": "18.0.28",
+    "concurrently": "8.2.1",
+    "dotenv-load": "3.0.0",
+    "eslint": "8.31.0",
+    "eslint-config-next": "13.2.3",
+    "jest": "27.5.1",
+    "nock": "13.3.0",
+    "smee-client": "1.2.3",
+    "ts-jest": "27.1.5",
+    "typescript": "4.9.5"
+  },
+  "engines": {
+    "node": ">= 18"
+  }
+}

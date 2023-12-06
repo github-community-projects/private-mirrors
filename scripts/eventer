@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+echo "Running eventer for $1 $2"
+echo "Running the following command:"
+echo "node_modules/.bin/probot receive -e $1 -p $2 src/bot/index.ts"
+
+node_modules/.bin/probot receive -e "$1" -p "$2 src/bot/index.ts"
