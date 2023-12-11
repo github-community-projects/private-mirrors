@@ -69,8 +69,7 @@
     "skipLibCheck": true,
     "incremental": true
   },
-  "files": ["src/test/setupJest.d.ts"],
   "include": ["src"],
-  "exclude": ["node_modules"],
+  "exclude": ["node_modules", "test"],
   "compileOnSave": false
 }
