@@ -42,7 +42,7 @@
   "devDependencies": {
     "@types/jest": "27.5.2",
     "@types/node": "18.14.2",
-    "@types/react": "18.0.28",
+    "@types/react": "18.2.43",
     "concurrently": "8.2.1",
     "dotenv-load": "3.0.0",
     "eslint": "8.31.0",
