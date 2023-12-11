@@ -9,6 +9,6 @@ module.exports = {
   coveragePathIgnorePatterns: [
     "<rootDir>/node_modules/",
     "<rootDir>/test/",
-    "<rootDir>/utils/",
+    "<rootDir>/src/utils/",
   ],
 };
