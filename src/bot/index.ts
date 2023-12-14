@@ -6,7 +6,7 @@ import { branchProtectionGQL } from "./graphql";
 const botLogger = logger.getSubLogger({ name: "bot" });
 
 // Helper function to get the metadata from the repository description
-const getMetadata = (description: string | null) => {
+export const getMetadata = (description: string | null) => {
   botLogger.debug("Getting metadata from repository description", {
     description,
   });

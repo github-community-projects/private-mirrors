@@ -2,12 +2,13 @@ import nock from "nock";
 
 // Requiring our app implementation
 import { Probot, ProbotOctokit } from "probot";
-import app from "../src/bot";
+import * as app from "../src/bot";
 
 // Requiring our fixtures
 import fs from "fs";
 import path from "path";
-import payload from "./fixtures/installation.created.json";
+import { branchProtectionGQL } from "../src/bot/graphql";
+import repoCreatedPayload from "./fixtures/repository.created.json";
 const issueCreatedBody = { body: "Thanks for opening this issue!" };
 
 const privateKey = fs.readFileSync(
@@ -15,7 +16,7 @@ const privateKey = fs.readFileSync(
   "utf-8"
 );
 
-describe("My Probot app", () => {
+describe("Webhooks events", () => {
   let probot: Probot;
 
   beforeEach(() => {
@@ -30,37 +31,109 @@ describe("My Probot app", () => {
       }),
     });
     // Load our app into probot
-    probot.load(app);
+    probot.load(app.default);
   });
 
-  test("creates a comment when an issue is opened", (done) => {
+  test("creates branch protections for a fork", async () => {
     const mock = nock("https://api.github.com")
-      // Test that we correctly return a test token
-      .post("/app/installations/2/access_tokens")
+      // Test that we can hit the app endpoints
+      .get("/app")
       .reply(200, {
-        token: "test",
+        // Return data about the app
+        data: {
+          id: 123,
+          node_id: "fake-node-id",
+        },
+      })
+
+      // Test that we correctly return a test token
+      .post("/app/installations/12345/access_tokens")
+      .reply(200, {
+        token: "test-token",
         permissions: {
           issues: "write",
         },
       })
 
-      // Test that a comment is posted
-      .post("/repos/hiimbex/testing-things/issues/1/comments", (body) => {
-        done(expect(body).toMatchObject(issueCreatedBody));
+      // Test we hit the correct endpoint for creating branch protections with gql
+      .post("/graphql", (body) => {
+        expect(body).toMatchObject({
+          query: branchProtectionGQL,
+          variables: {
+            pattern: "*",
+            repositoryId: repoCreatedPayload.repository.node_id,
+          },
+        });
         return body;
       })
       .reply(200);
 
     // Receive a webhook event
-    probot
-      .receive({
-        id: payload.action,
-        name: "installation",
-        payload: payload as any,
+    await probot.receive({
+      id: repoCreatedPayload.action,
+      name: "repository",
+      payload: repoCreatedPayload as any,
+    });
+
+    expect(mock.pendingMocks()).toStrictEqual([]);
+  });
+
+  test("creates branch protections for a fork", async () => {
+    const mock = nock("https://api.github.com")
+      // Test that we can hit the app endpoints
+      .get("/app")
+      .reply(200, {
+        // Return data about the app
+        data: {
+          id: 123,
+          node_id: "fake-node-id",
+        },
       })
-      .then(() => {
-        expect(mock.pendingMocks()).toStrictEqual([]);
-      });
+
+      // Test that we correctly return a test token
+      .post("/app/installations/12345/access_tokens")
+      .reply(200, {
+        token: "test-token",
+        permissions: {
+          issues: "write",
+        },
+      })
+
+      // Test we hit the correct endpoint for creating branch protections with gql
+      .post("/graphql", (body) => {
+        expect(body).toMatchObject({
+          query: branchProtectionGQL,
+          variables: {
+            pattern: "*",
+            repositoryId: repoCreatedPayload.repository.node_id,
+          },
+        });
+        return body;
+      })
+      .reply(200);
+
+    // Receive a webhook event
+    await probot.receive({
+      id: repoCreatedPayload.action,
+      name: "repository",
+      payload: repoCreatedPayload as any,
+    });
+
+    expect(mock.pendingMocks()).toStrictEqual([]);
+  });
+
+  test("gets metadata correctly", () => {
+    const nonJson = "This is a normal json string";
+    const mirrorString =
+      '{"mirror":"github-ospo-test/test","branch":"test-mirror"}';
+    let noDescription: any;
+
+    expect(app.getMetadata(nonJson)).toEqual({});
+    expect(app.getMetadata(mirrorString)).toEqual({
+      mirror: "github-ospo-test/test",
+      branch: "test-mirror",
+    });
+    expect(app.getMetadata(noDescription)).toEqual({});
   });
 
   afterEach(() => {

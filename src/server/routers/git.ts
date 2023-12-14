@@ -1,14 +1,17 @@
 // This holds the elevated git permissions needed to run the git commands
+import simpleGit, { SimpleGitOptions } from "simple-git";
+import * as tempy from "tempy";
+import { z } from "zod";
 import {
   appOctokit,
   generateAppAccessToken,
   installationOctokit,
-} from "bot/octokit";
-import simpleGit, { SimpleGitOptions } from "simple-git";
-import { temporaryDirectory } from "tempy";
-import { logger } from "utils/logger";
-import { z } from "zod";
+} from "../../bot/octokit";
+import { logger } from "../../utils/logger";
 import { procedure, router } from "../trpc";
+
+// FIXME: Had to downgrade tempy to not use esm
+const temporaryDirectory = () => tempy.directory();
 
 const gitLogger = logger.getSubLogger({ name: "git" });
 
@@ -204,11 +207,11 @@ export const gitRouter = router({
         }
       } catch (e) {
         // We just threw this error, so we know it's safe to rethrow
-        if ((e as any).message.includes("already exists")) {
+        if ((e as Error).message.includes("already exists")) {
           throw e;
         }
 
-        if (!(e as any).message.includes("Not Found")) {
+        if (!(e as Error).message.includes("Not Found")) {
           gitLogger.error(e);
           throw e;
         }
@@ -272,7 +275,7 @@ export const gitRouter = router({
           repo: opts.input.newRepoName,
         });
 
-        console.error(e);
+        logger.error(e);
 
         throw e;
       }

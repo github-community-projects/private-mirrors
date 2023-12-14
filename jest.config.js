@@ -1,13 +1,14 @@
+/** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
 module.exports = {
-  roots: ["<rootDir>/src/", "<rootDir>/test/"],
-  transform: {
-    "^.+\\.tsx?$": "ts-jest",
-  },
+  preset: "ts-jest",
+  setupFilesAfterEnv: ["./test/setupJest.ts"],
   testRegex: "(/__tests__/.*|\\.(test|spec))\\.[tj]sx?$",
-  moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
   testEnvironment: "node",
-  moduleNameMapper: {
-    "^@/bot/(.*)$": "<rootDir>/src/$1",
-    "^@/utils/(.*)$": "<rootDir>/common/$1",
-  },
+  moduleDirectories: ["node_modules", "src"],
+  collectCoverage: true,
+  coveragePathIgnorePatterns: [
+    "<rootDir>/node_modules/",
+    "<rootDir>/test/",
+    "<rootDir>/src/utils/",
+  ],
 };
