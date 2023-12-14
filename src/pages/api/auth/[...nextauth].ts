@@ -10,7 +10,7 @@ const authLogger = logger.getSubLogger({ name: "auth" });
  * @param token Token of the session
  * @returns boolean — Whether the session is valid
  */
-const verifySession = async (token: string | undefined) => {
+export const verifySession = async (token: string | undefined) => {
   if (!token) return false;
 
   const octokit = personalOctokit(token);
@@ -37,13 +37,13 @@ export const nextAuthOptions: AuthOptions = {
     session: async ({ session, token }) => {
       authLogger.debug("Session callback");
 
-      // Check if the user has a valid accessToken
       // TODO: Need to figure out how to do this more efficiently
-      const validSession = await verifySession(token?.accessToken as string);
+      // Check if the user has a valid accessToken
+      // const validSession = await verifySession(token?.accessToken as string);
 
-      if (!validSession) {
-        return undefined as any;
-      }
+      // if (!validSession) {
+      //   return undefined as any;
+      // }
 
       // This is fine when the session is invalid
       if (!token) {

@@ -1,9 +1,6 @@
 import { createAppAuth } from "@octokit/auth-app";
 import { Octokit } from "@octokit/rest";
 
-// Global octokit instance for the user app
-let personalOctokitInstance: Octokit | null = null;
-
 // This is a bug with the way the private key is stored in the docker env
 // See https://github.com/moby/moby/issues/46773
 let privateKey = process.env.PRIVATE_KEY?.includes("\\n")
@@ -82,13 +79,7 @@ export const installationOctokit = (installationId: string) => {
  * @returns Octokit authorized with the personal access token
  */
 export const personalOctokit = (token: string) => {
-  if (personalOctokitInstance) {
-    return personalOctokitInstance;
-  }
-
-  personalOctokitInstance = new Octokit({
+  return new Octokit({
     auth: token,
   });
-
-  return personalOctokitInstance;
 };
