@@ -27,7 +27,7 @@
     "@trpc/next": "10.44.1",
     "@trpc/react-query": "10.44.1",
     "@trpc/server": "10.44.1",
-    "next": "13.5.5",
+    "next": "14.0.4",
     "next-auth": "4.24.5",
     "probot": "12.3.3",
     "react": "18.2.0",
