@@ -43,7 +43,7 @@
     "@types/jest": "29.5.11",
     "@types/node": "18.14.2",
     "@types/node-fetch": "2.6.9",
-    "@types/react": "18.0.28",
+    "@types/react": "18.2.46",
     "@types/ws": "8.5.10",
     "abort-controller": "3.0.0",
     "concurrently": "8.2.1",
