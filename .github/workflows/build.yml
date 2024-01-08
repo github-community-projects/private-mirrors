@@ -1,0 +1,19 @@
+name: Run Build
+
+on:
+  - push
+  - workflow_dispatch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Build
+        run: NEXT_TELEMETRY_DISABLED=1 npm run build
