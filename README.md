@@ -12,10 +12,10 @@
   <a href="#license">MIT License</a>
 </p>
 
-This is a Next.js project with an accompanying GitHub App that allows you to contribute to an upstream project using a private repository in your own organization. This is useful for organizations that want to keep their code private and perform their own checks before making any code public.
+This is a Next.js project with an accompanying GitHub App that allows you to contribute to an upstream project using a private repository in your own organization. This is useful for organizations that want to keep their code private and perform their own checks before making any code changes public.
 
 > [!WARNING]
-> This app is still a work in progress and is not considered stable just yet. We still recommend trying out the app because we'd love to hear from you!
+> This app is still a work in progress and is not considered stable just yet. We still recommend trying out the app because [we'd love to hear from you](https://github.com/github-community-projects/internal-contribution-forks/issues/new)!
 
 ## Background
 
@@ -26,11 +26,11 @@ To succeed, open source advocates and OSPOs need to address their stakeholders' 
 - Credential leaks
 - Intellectual property leaks
 - PII / PHI disclosure
-- Liability and/or reputation damage resulting from bad code
+- Liability and/or reputational damage resulting from bad code
 
 Solving these concerns creates opportunities for enterprise development teams to participate more deeply in open source and foster a collaborative relationship with the open source community.
 
-> Our proposed solution is a GitHub app paired with a UI that manages the lifecycle of “private forks”, as well as the synchronization of code between them.
+> Internal Contribution Forks (ICF) is a GitHub app paired with a UI that manages the lifecycle of private mirrors, as well as the synchronization of code between the public fork of an upstream project and the private mirrors where the enterprise teams are working.
 
 ## Key Features
 
@@ -61,13 +61,11 @@ High Level Flow:
         commit id:"up3"
 ```
 
-In essence, we use an intermediary public fork to merge the private fork into, and then merge the public fork into the upstream repository. This allows us to keep the private repo private while still allowing us to contribute to the upstream repository. Check out this [application flow diagram](./docs/architecture.md) for a more detailed look at how the app works.
-
-## Usage
-
-> The app is not yet available on the GitHub Marketplace. We are working on that and will update this section once it is available. Until then, you'll need to self-host the app. See the section on [Developing](#developing) for more information.
+The app uses an intermediary public fork to merge the private mirror into, and then enables the normal OSS contributor workflow into the upstream repository. This allows users to keep the private repo private while still allowing us to contribute to the upstream repository. Check out this [application flow diagram](./docs/architecture.md) for a more detailed look at how the app works.
 
 ## Hosting
+
+The app is not yet available on the GitHub Marketplace. We are working on that and will update this section once it is available. Until then, you'll need to self-host the app. See the section on [Developing](#developing) for more information.
 
 This app was created with the idea of self-hosting in mind and can be deployed to any hosting provider that supports Next.js/Docker.
 
@@ -82,6 +80,10 @@ docker-compose up
 ```
 
 We recommend using Node 20.x or higher, though any Node LTS version should work.
+
+## Usage
+
+Once the app is installed, follow this document on [docs/using-the-app.md](Using the ICF App) to get the repository fork and mirrors set up for work.
 
 ## Developing
 
@@ -136,6 +138,7 @@ We recommend that you have a dedicated GitHub organization for your contribution
 Permissions:
 
 - The GitHub App must be installed on the organization you plan on contributing from
+- Currently, any member of the organization can access the app and create additional private mirror repositories
 
 ## License
 
@@ -147,4 +150,4 @@ Check out the [CODEOWNERS](./CODEOWNERS) file to see who to contact for code cha
 
 ## Support
 
-If you need support using this project or have questions about it, please open up an issue in this repository and we'd be happy to help. Requests made directly to GitHub staff or the support team will be redirected here to open an issue. GitHub SLA's and support/services contracts do not apply to this repository.
+If you need support using this project or have questions about it, please [open an issue in this repository](https://github.com/github-community-projects/internal-contribution-forks/issues/new) and we'd be happy to help. Requests made directly to GitHub staff or the support team will be redirected here to open an issue. GitHub SLA's and support/services contracts do not apply to this repository.
