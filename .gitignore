@@ -8,3 +8,4 @@ build
 .next
 .env.*
 !.env.example
+.DS_Store
