@@ -31,7 +31,7 @@
     "@trpc/server": "10.44.1",
     "next": "13.5.5",
     "next-auth": "4.24.5",
-    "probot": "12.3.3",
+    "probot": "13.0.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "simple-git": "3.21.0",
