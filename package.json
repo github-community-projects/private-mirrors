@@ -15,7 +15,7 @@
     "bot:build": "tsc ./src/bot/index.ts --noEmit false --esModuleInterop --outDir ./build",
     "bot:start": "probot run ./build/index.js",
     "test": "ts-node -O '{\"module\":\"commonjs\"}' node_modules/jest/bin/jest.js",
-    "prepare": "husky"
+    "prepare": "test -d node_modules/husky && husky install || echo \"husky is not installed\""
   },
   "dependencies": {
     "@octokit/auth-app": "6.0.3",
@@ -53,6 +53,7 @@
     "eslint": "8.56.0",
     "eslint-config-next": "14.0.4",
     "husky": "9.0.11",
+    "is-ci": "^3.0.1",
     "jest": "29.7.0",
     "lint-staged": "15.2.2",
     "nock": "13.4.0",
