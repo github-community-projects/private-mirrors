@@ -1,6 +1,6 @@
 import { createAppAuth } from '@octokit/auth-app'
+import { Octokit } from 'octokit'
 import { logger } from 'utils/logger'
-import { Octokit } from './rest'
 
 const personalOctokitLogger = logger.getSubLogger({ name: 'personal-octokit' })
 const appOctokitLogger = logger.getSubLogger({ name: 'app-octokit' })

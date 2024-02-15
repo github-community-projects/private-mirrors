@@ -5,18 +5,18 @@ import { getAuthServerSideProps } from 'components/auth-guard'
 import { CreateMirrorDialog } from 'components/create-mirror'
 import { useRouter } from 'next/router'
 import type { InferGetServerSidePropsType } from 'next/types'
+import { Octokit } from 'octokit'
 import { useCallback, useEffect, useState } from 'react'
 import { trpc } from 'utils/trpc'
-import { Octokit } from '../../../../bot/rest'
 
 const getOrgInformation = async (accessToken: string, orgId: string) => {
-  return (await personalOctokit(accessToken).orgs.get({ org: orgId })).data
+  return (await personalOctokit(accessToken).rest.orgs.get({ org: orgId })).data
 }
 
 const getForkById = async (
   accessToken: string,
   repoId: string,
-): Promise<Awaited<ReturnType<Octokit['repos']['get']>>['data']> => {
+): Promise<Awaited<ReturnType<Octokit['rest']['repos']['get']>>['data']> => {
   return (
     await personalOctokit(accessToken).request('GET /repositories/:id', {
       id: repoId,
@@ -30,7 +30,7 @@ const findMirrors = async (
   forkName: string,
 ) => {
   return (
-    await personalOctokit(accessToken).search.repos({
+    await personalOctokit(accessToken).rest.search.repos({
       q: `org:${orgName} in:description "mirror:${orgName}/${forkName}"`,
     })
   ).data

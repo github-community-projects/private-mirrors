@@ -15,7 +15,7 @@ export const verifySession = async (token: string | undefined) => {
 
   const octokit = personalOctokit(token)
   try {
-    await octokit.users.getAuthenticated()
+    await octokit.rest.users.getAuthenticated()
     return true
   } catch (error) {
     return false

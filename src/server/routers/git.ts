@@ -10,6 +10,11 @@ import {
 import { logger } from '../../utils/logger'
 import { procedure, router } from '../trpc'
 
+const config = {
+  contributionOrg: 'github-ospo-test',
+  privateOrg: 'github-ospo-test-emu',
+}
+
 /**
  * Generates a git url with the access token in it
  * @param accessToken Access token for the app
@@ -46,18 +51,18 @@ export const gitRouter = router({
     )
     .mutation(async (opts) => {
       gitLogger.info('getDiff', { input: opts.input })
-      const installationId = await appOctokit().apps.getOrgInstallation({
+      const installationId = await appOctokit().rest.apps.getOrgInstallation({
         org: opts.input.orgId,
       })
 
       const octokit = installationOctokit(String(installationId.data.id))
 
-      const forkRepo = await octokit.repos.get({
+      const forkRepo = await octokit.rest.repos.get({
         owner: opts.input.forkOwner,
         repo: opts.input.forkName,
       })
 
-      const mirrorRepo = await octokit.repos.get({
+      const mirrorRepo = await octokit.rest.repos.get({
         owner: opts.input.mirrorOwner,
         repo: opts.input.mirrorName,
       })
@@ -108,7 +113,7 @@ export const gitRouter = router({
     )
     .mutation(async (opts) => {
       gitLogger.info('syncRepos', { input: opts.input })
-      const installationId = await appOctokit().apps.getOrgInstallation({
+      const installationId = await appOctokit().rest.apps.getOrgInstallation({
         org: opts.input.orgId,
       })
 
@@ -118,12 +123,12 @@ export const gitRouter = router({
         String(installationId.data.id),
       )
 
-      const forkRepo = await octokit.repos.get({
+      const forkRepo = await octokit.rest.repos.get({
         owner: opts.input.forkOwner,
         repo: opts.input.forkName,
       })
 
-      const mirrorRepo = await octokit.repos.get({
+      const mirrorRepo = await octokit.rest.repos.get({
         owner: opts.input.mirrorOwner,
         repo: opts.input.mirrorName,
       })
@@ -213,7 +218,7 @@ export const gitRouter = router({
     )
     .mutation(async (opts) => {
       gitLogger.info('createMirror', { input: opts.input })
-      const installationId = await appOctokit().apps.getOrgInstallation({
+      const installationId = await appOctokit().rest.apps.getOrgInstallation({
         org: opts.input.orgId,
       })
 
@@ -222,12 +227,12 @@ export const gitRouter = router({
       )
       const octokit = installationOctokit(String(installationId.data.id))
 
-      const orgData = await octokit.orgs.get({
+      const orgData = await octokit.rest.orgs.get({
         org: opts.input.orgId,
       })
 
       try {
-        const exists = await octokit.repos.get({
+        const exists = await octokit.rest.repos.get({
           owner: orgData.data.login,
           repo: opts.input.newRepoName,
         })
@@ -252,7 +257,7 @@ export const gitRouter = router({
       }
 
       try {
-        const forkData = await octokit.repos.get({
+        const forkData = await octokit.rest.repos.get({
           owner: opts.input.forkRepoOwner,
           repo: opts.input.forkRepoName,
         })
@@ -280,7 +285,7 @@ export const gitRouter = router({
           branch: opts.input.newBranchName,
         }
 
-        const newRepo = await octokit.repos.createInOrg({
+        const newRepo = await octokit.rest.repos.createInOrg({
           name: opts.input.newRepoName,
           org: opts.input.orgId,
           private: true,
@@ -308,7 +313,7 @@ export const gitRouter = router({
         }
       } catch (e) {
         // Clean up the repo made
-        await octokit.repos.delete({
+        await octokit.rest.repos.delete({
           owner: orgData.data.login,
           repo: opts.input.newRepoName,
         })
