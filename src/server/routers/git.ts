@@ -10,11 +10,6 @@ import {
 import { logger } from '../../utils/logger'
 import { procedure, router } from '../trpc'
 
-const config = {
-  contributionOrg: 'github-ospo-test',
-  privateOrg: 'github-ospo-test-emu',
-}
-
 /**
  * Generates a git url with the access token in it
  * @param accessToken Access token for the app
