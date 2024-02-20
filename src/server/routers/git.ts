@@ -1,4 +1,5 @@
 // This holds the elevated git permissions needed to run the git commands
+import { getConfig } from 'bot/config'
 import simpleGit, { SimpleGitOptions } from 'simple-git'
 import * as tempy from 'tempy'
 import { z } from 'zod'
@@ -10,9 +11,54 @@ import {
 import { logger } from '../../utils/logger'
 import { procedure, router } from '../trpc'
 
-const config = {
-  contributionOrg: 'github-ospo-test',
-  privateOrg: 'github-ospo-test-emu',
+/**
+ * Fetches octokit installations for both the contribution org and the private org
+ * @param contributionOrgId Id of the contribution org
+ * @param privateOrgId Id of the private org
+ * @returns octokit instances for both the contribution and private orgs
+ */
+const getAuthenticatedOctokit = async (
+  contributionOrgId: string,
+  privateOrgId: string,
+) => {
+  gitLogger.info('Fetching app installations')
+  const contributionInstallationId =
+    await appOctokit().rest.apps.getOrgInstallation({
+      org: contributionOrgId,
+    })
+
+  const contributionAccessToken = await generateAppAccessToken(
+    String(contributionInstallationId.data.id),
+  )
+  const contributionOctokit = installationOctokit(
+    String(contributionInstallationId.data.id),
+  )
+
+  const privateInstallationId = await appOctokit().rest.apps.getOrgInstallation(
+    {
+      org: privateOrgId,
+    },
+  )
+
+  const privateAccessToken = await generateAppAccessToken(
+    String(privateInstallationId.data.id),
+  )
+  const privateOctokit = installationOctokit(
+    String(privateInstallationId.data.id),
+  )
+
+  return {
+    contribution: {
+      accessToken: contributionAccessToken,
+      octokit: contributionOctokit,
+      installationId: String(contributionInstallationId.data.id),
+    },
+    private: {
+      accessToken: privateAccessToken,
+      octokit: privateOctokit,
+      installationId: String(privateInstallationId.data.id),
+    },
+  }
 }
 
 /**
@@ -38,97 +84,42 @@ export const gitRouter = router({
   // Queries
 
   // Mutations
-  getDiff: procedure
-    .input(
-      z.object({
-        forkOwner: z.string(),
-        forkName: z.string(),
-        mirrorName: z.string(),
-        mirrorOwner: z.string(),
-        branchName: z.string(),
-        orgId: z.string(),
-      }),
-    )
-    .mutation(async (opts) => {
-      gitLogger.info('getDiff', { input: opts.input })
-      const installationId = await appOctokit().rest.apps.getOrgInstallation({
-        org: opts.input.orgId,
-      })
-
-      const octokit = installationOctokit(String(installationId.data.id))
-
-      const forkRepo = await octokit.rest.repos.get({
-        owner: opts.input.forkOwner,
-        repo: opts.input.forkName,
-      })
-
-      const mirrorRepo = await octokit.rest.repos.get({
-        owner: opts.input.mirrorOwner,
-        repo: opts.input.mirrorName,
-      })
-
-      gitLogger.debug('Fetched both fork and mirror repos')
-
-      // First clone the fork and mirror repos into the same folder
-      const workingDir = temporaryDirectory()
-      const git = simpleGit(workingDir)
-      await git.init()
-      await git.addRemote('fork', forkRepo.data.clone_url)
-      await git.addRemote('mirror', mirrorRepo.data.clone_url)
-      await git.fetch(['fork'])
-      await git.fetch(['mirror'])
-      const remotes = await git.remote(['-v'])
-
-      gitLogger.debug('Remotes', remotes)
-
-      const diffSummary = await git.diffSummary([
-        '--stat',
-        `fork/${opts.input.branchName}`,
-        `mirror/${opts.input.branchName}`,
-      ])
-
-      const diff = await git.diff([
-        `fork/${opts.input.branchName}`,
-        `mirror/${opts.input.branchName}`,
-      ])
-
-      return {
-        success: true,
-        data: { diffSummary, diff },
-      }
-    }),
-
   syncRepos: procedure
     .input(
       z.object({
+        orgId: z.string(),
         destinationTo: z.enum(['mirror', 'fork']),
         forkOwner: z.string(),
         forkName: z.string(),
         mirrorName: z.string(),
         mirrorOwner: z.string(),
-        orgId: z.string(),
         mirrorBranchName: z.string(),
         forkBranchName: z.string(),
       }),
     )
     .mutation(async (opts) => {
       gitLogger.info('syncRepos', { input: opts.input })
-      const installationId = await appOctokit().rest.apps.getOrgInstallation({
-        org: opts.input.orgId,
-      })
 
-      const octokit = installationOctokit(String(installationId.data.id))
+      const config = await getConfig(opts.input.orgId)
 
-      const accessToken = await generateAppAccessToken(
-        String(installationId.data.id),
-      )
+      gitLogger.debug('Fetched config', config)
 
-      const forkRepo = await octokit.rest.repos.get({
+      const { publicOrg, privateOrg } = config
+
+      const octokitData = await getAuthenticatedOctokit(publicOrg, privateOrg)
+      const contributionOctokit = octokitData.contribution.octokit
+      const contributionAccessToken = octokitData.contribution.accessToken
+
+      const privateOctokit = octokitData.private.octokit
+      const privateInstallationId = octokitData.private.installationId
+      const privateAccessToken = octokitData.private.accessToken
+
+      const forkRepo = await contributionOctokit.rest.repos.get({
         owner: opts.input.forkOwner,
         repo: opts.input.forkName,
       })
 
-      const mirrorRepo = await octokit.rest.repos.get({
+      const mirrorRepo = await privateOctokit.rest.repos.get({
         owner: opts.input.mirrorOwner,
         repo: opts.input.mirrorName,
       })
@@ -136,12 +127,12 @@ export const gitRouter = router({
       gitLogger.debug('Fetched both fork and mirror repos')
 
       const forkRemote = generateAuthUrl(
-        accessToken,
+        contributionAccessToken,
         forkRepo.data.owner.login,
         forkRepo.data.name,
       )
       const mirrorRemote = generateAuthUrl(
-        accessToken,
+        privateAccessToken,
         mirrorRepo.data.owner.login,
         mirrorRepo.data.name,
       )
@@ -151,8 +142,8 @@ export const gitRouter = router({
 
       const options: Partial<SimpleGitOptions> = {
         config: [
-          `user.name=repo-sync[bot]`,
-          `user.email=${installationId.data.id}+repo-sync[bot]@users.noreply.github.com`,
+          `user.name=internal-contribution-forks[bot]`,
+          `user.email=${privateInstallationId}+internal-contribution-forks[bot]@users.noreply.github.com`,
         ],
       }
 
@@ -218,21 +209,27 @@ export const gitRouter = router({
     )
     .mutation(async (opts) => {
       gitLogger.info('createMirror', { input: opts.input })
-      const installationId = await appOctokit().rest.apps.getOrgInstallation({
-        org: opts.input.orgId,
-      })
 
-      const accessToken = await generateAppAccessToken(
-        String(installationId.data.id),
-      )
-      const octokit = installationOctokit(String(installationId.data.id))
+      const config = await getConfig(opts.input.orgId)
 
-      const orgData = await octokit.rest.orgs.get({
-        org: opts.input.orgId,
+      gitLogger.debug('Fetched config', config)
+
+      const { publicOrg, privateOrg } = config
+
+      const octokitData = await getAuthenticatedOctokit(publicOrg, privateOrg)
+      const contributionOctokit = octokitData.contribution.octokit
+      const contributionAccessToken = octokitData.contribution.accessToken
+
+      const privateOctokit = octokitData.private.octokit
+      const privateInstallationId = octokitData.private.installationId
+      const privateAccessToken = octokitData.private.accessToken
+
+      const orgData = await contributionOctokit.rest.orgs.get({
+        org: publicOrg,
       })
 
       try {
-        const exists = await octokit.rest.repos.get({
+        const exists = await contributionOctokit.rest.repos.get({
           owner: orgData.data.login,
           repo: opts.input.newRepoName,
         })
@@ -257,7 +254,7 @@ export const gitRouter = router({
       }
 
       try {
-        const forkData = await octokit.rest.repos.get({
+        const forkData = await contributionOctokit.rest.repos.get({
           owner: opts.input.forkRepoOwner,
           repo: opts.input.forkRepoName,
         })
@@ -267,13 +264,14 @@ export const gitRouter = router({
 
         const options: Partial<SimpleGitOptions> = {
           config: [
-            `user.name=repo-sync[bot]`,
-            `user.email=${installationId.data.id}+repo-sync[bot]@users.noreply.github.com`,
+            `user.name=internal-contribution-forks[bot]`,
+            // We want to use the private installation ID as the email so that we can push to the private repo
+            `user.email=${privateInstallationId}+internal-contribution-forks[bot]@users.noreply.github.com`,
           ],
         }
         const git = simpleGit(tempDir, options)
         const remote = generateAuthUrl(
-          accessToken,
+          contributionAccessToken,
           opts.input.forkRepoOwner,
           opts.input.forkRepoName,
         )
@@ -285,9 +283,10 @@ export const gitRouter = router({
           branch: opts.input.newBranchName,
         }
 
-        const newRepo = await octokit.rest.repos.createInOrg({
+        // This repo needs to be created in the private org
+        const newRepo = await privateOctokit.rest.repos.createInOrg({
           name: opts.input.newRepoName,
-          org: opts.input.orgId,
+          org: privateOrg,
           private: true,
           description: JSON.stringify(description),
         })
@@ -296,7 +295,7 @@ export const gitRouter = router({
 
         // Add the mirror remote
         const upstreamRemote = generateAuthUrl(
-          accessToken,
+          privateAccessToken,
           newRepo.data.owner.login,
           newRepo.data.name,
         )
@@ -313,7 +312,7 @@ export const gitRouter = router({
         }
       } catch (e) {
         // Clean up the repo made
-        await octokit.rest.repos.delete({
+        await privateOctokit.rest.repos.delete({
           owner: orgData.data.login,
           repo: opts.input.newRepoName,
         })
