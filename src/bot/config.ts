@@ -22,12 +22,13 @@ type InternalContributionForksConfig = z.infer<
  */
 export const getConfig = async (orgId?: string) => {
   // First check if there's a config file in the environment
-  if (process.env.config) {
-    configLogger.info('Using config from environment')
+  if (process.env.CONFIG) {
+    configLogger.info(`Using config from environment. Validating config file.`)
     try {
       const config = internalContributionForksConfig.parse(
-        JSON.parse(process.env.config),
+        JSON.parse(process.env.CONFIG!),
       )
+      configLogger.info('Config from environment is valid!')
       return config
     } catch (e) {
       configLogger.error('Invalid config found in environment!')
