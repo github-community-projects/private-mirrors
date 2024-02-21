@@ -154,4 +154,4 @@ If you need support using this project or have questions about it, please [open 
 
 ## More OSPO Tools
 
-Looking for more resources for your open source program office (OSPO)? Check out the [`github-ospo`](https://github.com/github/github-ospo) repo for a variety of tools designed to support your needs. 
+Looking for more resources for your open source program office (OSPO)? Check out the [`github-ospo`](https://github.com/github/github-ospo) repo for a variety of tools designed to support your needs.

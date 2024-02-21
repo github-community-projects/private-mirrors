@@ -15,7 +15,7 @@ export const octokitRouter = router({
       const { orgId } = opts.input
 
       try {
-        const installationId = await appOctokit().apps.getOrgInstallation({
+        const installationId = await appOctokit().rest.apps.getOrgInstallation({
           org: orgId,
         })
 

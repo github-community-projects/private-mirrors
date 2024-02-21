@@ -14,13 +14,12 @@
     "lint:fix": "next lint --fix && prettier --write .",
     "bot:build": "tsc ./src/bot/index.ts --noEmit false --esModuleInterop --outDir ./build",
     "bot:start": "probot run ./build/index.js",
-    "test": "ts-node -O '{\"module\":\"commonjs\"}' node_modules/jest/bin/jest.js"
+    "test": "ts-node -O '{\"module\":\"commonjs\"}' node_modules/jest/bin/jest.js",
+    "prepare": "test -d node_modules/husky && husky install || echo \"husky is not installed\""
   },
   "dependencies": {
     "@octokit/auth-app": "6.0.3",
     "@octokit/auth-token": "4.0.0",
-    "@octokit/core": "5.0.2",
-    "@octokit/plugin-throttling": "8.1.3",
     "@octokit/types": "12.4.0",
     "@primer/octicons-react": "19.8.0",
     "@primer/react": "35.32.2",
@@ -31,6 +30,7 @@
     "@trpc/server": "10.44.1",
     "next": "13.5.5",
     "next-auth": "4.24.5",
+    "octokit": "3.1.2",
     "probot": "12.3.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -52,9 +52,12 @@
     "dotenv-load": "3.0.0",
     "eslint": "8.56.0",
     "eslint-config-next": "14.0.4",
+    "husky": "9.0.11",
+    "is-ci": "^3.0.1",
     "jest": "29.7.0",
+    "lint-staged": "15.2.2",
     "nock": "13.4.0",
-    "prettier": "^3.1.1",
+    "prettier": "3.1.1",
     "smee-client": "2.0.0",
     "ts-jest": "29.1.1",
     "ts-node": "10.9.2",
@@ -63,5 +66,8 @@
   },
   "engines": {
     "node": ">= 18"
+  },
+  "lint-staged": {
+    "*": "npm run lint:fix"
   }
 }

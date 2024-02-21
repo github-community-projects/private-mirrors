@@ -14,12 +14,12 @@ const getOrganizationInformation = async (
   accessToken: string,
   orgId: string,
 ) => {
-  return (await personalOctokit(accessToken).orgs.get({ org: orgId })).data
+  return (await personalOctokit(accessToken).rest.orgs.get({ org: orgId })).data
 }
 
 const getForksInOrg = async (accessToken: string, owner: string) => {
   return (
-    await personalOctokit(accessToken).repos.listForOrg({
+    await personalOctokit(accessToken).rest.repos.listForOrg({
       per_page: 100,
       type: 'forks',
       org: owner,
@@ -29,7 +29,7 @@ const getForksInOrg = async (accessToken: string, owner: string) => {
 
 const getParent = async (accessToken: string, owner: string, repo: string) => {
   return (
-    await personalOctokit(accessToken).repos.get({
+    await personalOctokit(accessToken).rest.repos.get({
       owner,
       repo,
     })

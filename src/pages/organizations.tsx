@@ -16,7 +16,7 @@ const Organizations: FC<OrganizationsProps> = () => {
   // fetch all the organizations a user is in via octokit
   const getAllOrganizations = async (accessToken: string) => {
     const octokit = personalOctokit(accessToken)
-    const data = await octokit.orgs.listForAuthenticatedUser()
+    const data = await octokit.rest.orgs.listForAuthenticatedUser()
     return data.data
   }
 

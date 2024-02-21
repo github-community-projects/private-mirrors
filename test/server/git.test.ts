@@ -77,13 +77,13 @@ describe('Git router', () => {
   test('should create a mirror when repo does not exist exist', async () => {
     const caller = gitRouter.createCaller({})
 
-    om.mockFunctions.apps.getOrgInstallation.mockResolvedValue(
+    om.mockFunctions.rest.apps.getOrgInstallation.mockResolvedValue(
       fakeOrgInstallation,
     )
-    om.mockFunctions.orgs.get.mockResolvedValue(fakeOrg)
-    om.mockFunctions.repos.get.mockResolvedValueOnce(repoNotFound)
-    om.mockFunctions.repos.get.mockResolvedValueOnce(fakeForkRepo)
-    om.mockFunctions.repos.createInOrg.mockResolvedValue(fakeMirrorRepo)
+    om.mockFunctions.rest.orgs.get.mockResolvedValue(fakeOrg)
+    om.mockFunctions.rest.repos.get.mockResolvedValueOnce(repoNotFound)
+    om.mockFunctions.rest.repos.get.mockResolvedValueOnce(fakeForkRepo)
+    om.mockFunctions.rest.repos.createInOrg.mockResolvedValue(fakeMirrorRepo)
 
     const res = await caller.createMirror({
       forkId: 'test',
@@ -95,7 +95,7 @@ describe('Git router', () => {
     })
 
     // TODO: use real git operations and verify fs state after
-    expect(om.mockFunctions.repos.get).toHaveBeenCalledTimes(2)
+    expect(om.mockFunctions.rest.repos.get).toHaveBeenCalledTimes(2)
     expect(stubbedGit.clone).toHaveBeenCalledTimes(1)
     expect(stubbedGit.addRemote).toHaveBeenCalledTimes(1)
     expect(stubbedGit.push).toHaveBeenCalledTimes(2)
@@ -109,12 +109,12 @@ describe('Git router', () => {
   test('should throw an error when repo already exists', async () => {
     const caller = gitRouter.createCaller({})
 
-    om.mockFunctions.apps.getOrgInstallation.mockResolvedValue(
+    om.mockFunctions.rest.apps.getOrgInstallation.mockResolvedValue(
       fakeOrgInstallation,
     )
-    om.mockFunctions.orgs.get.mockResolvedValue(fakeOrg)
-    om.mockFunctions.repos.get.mockResolvedValue(fakeMirrorRepo)
-    om.mockFunctions.repos.delete.mockResolvedValue({})
+    om.mockFunctions.rest.orgs.get.mockResolvedValue(fakeOrg)
+    om.mockFunctions.rest.repos.get.mockResolvedValue(fakeMirrorRepo)
+    om.mockFunctions.rest.repos.delete.mockResolvedValue({})
 
     await caller
       .createMirror({
@@ -129,21 +129,21 @@ describe('Git router', () => {
         expect(error.message).toEqual('Repo github-test/test already exists')
       })
 
-    expect(om.mockFunctions.repos.get).toHaveBeenCalledTimes(1)
-    expect(om.mockFunctions.repos.delete).toHaveBeenCalledTimes(0)
+    expect(om.mockFunctions.rest.repos.get).toHaveBeenCalledTimes(1)
+    expect(om.mockFunctions.rest.repos.delete).toHaveBeenCalledTimes(0)
     expect(stubbedGit.clone).toHaveBeenCalledTimes(0)
   })
 
   test('should cleanup repos when there is an error', async () => {
     const caller = gitRouter.createCaller({})
 
-    om.mockFunctions.apps.getOrgInstallation.mockResolvedValue(
+    om.mockFunctions.rest.apps.getOrgInstallation.mockResolvedValue(
       fakeOrgInstallation,
     )
-    om.mockFunctions.orgs.get.mockResolvedValue(fakeOrg)
-    om.mockFunctions.repos.get.mockResolvedValueOnce(repoNotFound)
-    om.mockFunctions.repos.get.mockResolvedValueOnce(fakeMirrorRepo)
-    om.mockFunctions.repos.delete.mockResolvedValue({})
+    om.mockFunctions.rest.orgs.get.mockResolvedValue(fakeOrg)
+    om.mockFunctions.rest.repos.get.mockResolvedValueOnce(repoNotFound)
+    om.mockFunctions.rest.repos.get.mockResolvedValueOnce(fakeMirrorRepo)
+    om.mockFunctions.rest.repos.delete.mockResolvedValue({})
 
     stubbedGit.clone.mockRejectedValue(new Error('clone error'))
 
@@ -160,8 +160,8 @@ describe('Git router', () => {
         expect(error.message).toEqual('clone error')
       })
 
-    expect(om.mockFunctions.repos.get).toHaveBeenCalledTimes(2)
-    expect(om.mockFunctions.repos.delete).toHaveBeenCalledTimes(1)
+    expect(om.mockFunctions.rest.repos.get).toHaveBeenCalledTimes(2)
+    expect(om.mockFunctions.rest.repos.delete).toHaveBeenCalledTimes(1)
     expect(stubbedGit.clone).toHaveBeenCalledTimes(1)
   })
 })
