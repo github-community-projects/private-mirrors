@@ -1,4 +1,4 @@
-// This holds the elevated git permissions needed to run the app installation commands
+// This holds the elevated permissions to fetch data from the private org
 import { getConfig } from 'bot/config'
 import { appOctokit, installationOctokit } from 'bot/octokit'
 import { z } from 'zod'
