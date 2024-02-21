@@ -46,16 +46,20 @@ const SingleFork = (
     isLoading,
   } = trpc.git.createMirror.useMutation()
 
-  const { data: mirrors, isLoading: mirrorsLoading } =
-    trpc.repos.listMirrors.useQuery(
-      {
-        orgId: organizationId as string,
-        forkName: fork?.name as string,
-      },
-      {
-        enabled: !!organizationId && !!fork?.name,
-      },
-    )
+  const {
+    data: mirrors,
+    error: mirrorsError,
+    isLoading: mirrorsLoading,
+    refetch: refetchMirrors,
+  } = trpc.repos.listMirrors.useQuery(
+    {
+      orgId: organizationId as string,
+      forkName: fork?.name as string,
+    },
+    {
+      enabled: Boolean(organizationId) && Boolean(fork?.name),
+    },
+  )
 
   const loadAllData = useCallback(async () => {
     const orgInfo = await getOrgInformation(
@@ -81,6 +85,10 @@ const SingleFork = (
 
     loadAllData()
   }, [organizationId, accessToken, loadAllData])
+
+  useEffect(() => {
+    refetchMirrors()
+  }, [isOpen, refetchMirrors])
 
   const handleOnCreateMirror = useCallback(
     ({ repoName, branchName }: { repoName: string; branchName: string }) => {
@@ -170,6 +178,9 @@ const SingleFork = (
         {mirrorsLoading && <Box>Loading mirrors...</Box>}
         {mirrors && mirrors.items.length === 0 && (
           <Box>No mirrors found for this fork</Box>
+        )}
+        {mirrorsError && (
+          <Box>Failed to fetch mirrors. {mirrorsError?.message}</Box>
         )}
         <Box>
           {mirrors &&
