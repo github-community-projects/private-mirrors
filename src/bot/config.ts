@@ -15,39 +15,7 @@ type InternalContributionForksConfig = z.infer<
 > &
   Configuration
 
-/**
- * Fetches a configuration file from the organization's .github repository
- * @param orgId Organization ID
- * @returns Configuration file
- */
-export const getConfig = async (orgId?: string) => {
-  // First check if there's a config file in the environment
-  if (process.env.CONFIG) {
-    configLogger.info(`Using config from environment. Validating config file.`)
-    try {
-      const config = internalContributionForksConfig.parse(
-        JSON.parse(process.env.CONFIG!),
-      )
-      configLogger.info('Config from environment is valid!')
-      return config
-    } catch (e) {
-      configLogger.error('Invalid config found in environment!')
-      configLogger.error(e)
-      throw new Error(
-        'Invalid config found in environment! Please check the config file and error log for more details.',
-      )
-    }
-  }
-
-  // Fallback to pull from the .github repository if no orgId is provided
-
-  if (!orgId) {
-    logger.error(
-      'No orgId present, Organization ID is required to fetch a config when not using environment variables',
-    )
-    throw new Error('Organization ID is required to fetch a config!')
-  }
-
+export const getGitHubConfig = async (orgId: string) => {
   const installationId = await appOctokit().rest.apps.getOrgInstallation({
     org: orgId,
   })
@@ -73,18 +41,61 @@ export const getConfig = async (orgId?: string) => {
     }
   }
 
-  // Make sure config is valid
-  configLogger.info(`Found config file! Validating config for org: '${orgId}'`)
+  return config.config
+}
+
+export const getEnvConfig = () => {
+  if (!process.env.PUBLIC_ORG) {
+    return null
+  }
+
+  const config = {
+    publicOrg: process.env.PUBLIC_ORG as string,
+    privateOrg: process.env.PUBLIC_ORG as string,
+  } as InternalContributionForksConfig
+
+  if (process.env.PRIVATE_ORG) {
+    config.privateOrg = process.env.PRIVATE_ORG
+  }
+  return config
+}
+
+export const validateConfig = (config: InternalContributionForksConfig) => {
   try {
-    internalContributionForksConfig.parse(config.config)
-    configLogger.info(`Config for org: '${orgId}' is valid!`)
+    internalContributionForksConfig.parse(config)
   } catch (e) {
-    configLogger.error(`Invalid config found for org: '${orgId}'!`)
+    configLogger.error('Invalid config found!')
     configLogger.error(e)
     throw new Error(
-      'Invalid config found! Please check the config file and error log for more details.',
+      'Invalid config found! Please check the config and error log for more details.',
     )
   }
 
-  return config.config
+  return config
+}
+
+/**
+ * Fetches a configuration file from the organization's .github repository
+ * @param orgId Organization ID
+ * @returns Configuration file
+ */
+export const getConfig = async (orgId?: string) => {
+  let config: InternalContributionForksConfig | null = null
+
+  // First check for environment variables
+  config = getEnvConfig()
+  if (config) {
+    return validateConfig(config)
+  }
+
+  // Lastly check github for a config
+  if (!orgId) {
+    logger.error(
+      'No orgId present, Organization ID is required to fetch a config when not using environment variables',
+    )
+    throw new Error('Organization ID is required to fetch a config!')
+  }
+
+  config = await getGitHubConfig(orgId)
+  return validateConfig(config)
 }

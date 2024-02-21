@@ -20,24 +20,8 @@ export const env = createEnv({
     WEBHOOK_PROXY_URL: z.string().url().optional(),
     LOG_LEVEL: z.string().optional().default('debug'),
     NODE_ENV: z.string().optional().default('development'),
-    CONFIG: z
-      .string()
-      .refine(
-        (value) => {
-          if (!value) return true
-
-          try {
-            JSON.parse(value)
-            return true
-          } catch (error) {
-            return false
-          }
-        },
-        {
-          message: 'CONFIG must be a valid JSON string',
-        },
-      )
-      .optional(),
+    PUBLIC_ORG: z.string().optional(),
+    PRIVATE_ORG: z.string().optional(),
   },
   /*
    * Environment variables available on the client (and server).
@@ -62,6 +46,7 @@ export const env = createEnv({
     WEBHOOK_PROXY_URL: process.env.WEBHOOK_PROXY_URL,
     LOG_LEVEL: process.env.LOG_LEVEL,
     NODE_ENV: process.env.NODE_ENV,
-    CONFIG: process.env.CONFIG,
+    PUBLIC_ORG: process.env.PUBLIC_ORG,
+    PRIVATE_ORG: process.env.PRIVATE_ORG,
   },
 })

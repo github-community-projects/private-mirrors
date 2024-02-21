@@ -1,6 +1,11 @@
 // This is taken from https://github.com/Chocrates/octomock
 
+const deepClone = (obj: unknown) => JSON.parse(JSON.stringify(obj))
+
 let mockFunctions = {
+  config: {
+    get: jest.fn(),
+  },
   rest: {
     apps: {
       getOrgInstallation: jest.fn(),
@@ -294,7 +299,10 @@ let mockFunctions = {
 }
 
 export class Octomock {
-  mockFunctions: { rest: Record<string, Record<string, jest.Mock>> }
+  mockFunctions: {
+    rest: Record<string, Record<string, jest.Mock>>
+    config: Record<string, jest.Mock>
+  }
   defaultContext: { payload: { issue: { body: string; user: {} } } }
 
   mockGitHubImplementation: {
@@ -383,11 +391,7 @@ export class Octomock {
   }
 
   resetMocks() {
-    for (let ctx in this.mockFunctions.rest) {
-      for (let func in this.mockFunctions.rest[ctx]) {
-        this.mockFunctions.rest[ctx][func].mockClear()
-      }
-    }
+    jest.resetAllMocks()
   }
 
   updateContext(context: {

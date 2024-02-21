@@ -13,10 +13,12 @@ jest.mock('simple-git', () => {
   return () => stubbedGit
 })
 
+import * as config from '../../src/bot/config'
 import { gitRouter } from '../../src/server/routers/git'
 import { Octomock } from '../octomock'
 const om = new Octomock()
 
+jest.mock('../../src/bot/config')
 jest.mock('../../src/bot/octokit', () => ({
   generateAppAccessToken: async () => 'fake-token',
   appOctokit: () => om.getOctokitImplementation(),
@@ -74,8 +76,13 @@ describe('Git router', () => {
     jest.resetAllMocks()
   })
 
-  test('should create a mirror when repo does not exist exist', async () => {
+  it('should create a mirror when repo does not exist exist', async () => {
     const caller = gitRouter.createCaller({})
+
+    const configSpy = jest.spyOn(config, 'getConfig').mockResolvedValue({
+      publicOrg: 'github',
+      privateOrg: 'github-test',
+    })
 
     om.mockFunctions.rest.apps.getOrgInstallation.mockResolvedValue(
       fakeOrgInstallation,
@@ -95,19 +102,26 @@ describe('Git router', () => {
     })
 
     // TODO: use real git operations and verify fs state after
+    expect(configSpy).toHaveBeenCalledTimes(1)
     expect(om.mockFunctions.rest.repos.get).toHaveBeenCalledTimes(2)
     expect(stubbedGit.clone).toHaveBeenCalledTimes(1)
     expect(stubbedGit.addRemote).toHaveBeenCalledTimes(1)
     expect(stubbedGit.push).toHaveBeenCalledTimes(2)
     expect(stubbedGit.checkoutBranch).toHaveBeenCalledTimes(1)
+
     expect(res).toEqual({
       success: true,
       data: fakeMirrorRepo.data,
     })
   })
 
-  test('should throw an error when repo already exists', async () => {
+  it('should throw an error when repo already exists', async () => {
     const caller = gitRouter.createCaller({})
+
+    const configSpy = jest.spyOn(config, 'getConfig').mockResolvedValue({
+      publicOrg: 'github',
+      privateOrg: 'github-test',
+    })
 
     om.mockFunctions.rest.apps.getOrgInstallation.mockResolvedValue(
       fakeOrgInstallation,
@@ -129,13 +143,19 @@ describe('Git router', () => {
         expect(error.message).toEqual('Repo github-test/test already exists')
       })
 
+    expect(configSpy).toHaveBeenCalledTimes(1)
     expect(om.mockFunctions.rest.repos.get).toHaveBeenCalledTimes(1)
     expect(om.mockFunctions.rest.repos.delete).toHaveBeenCalledTimes(0)
     expect(stubbedGit.clone).toHaveBeenCalledTimes(0)
   })
 
-  test('should cleanup repos when there is an error', async () => {
+  it('should cleanup repos when there is an error', async () => {
     const caller = gitRouter.createCaller({})
+
+    const configSpy = jest.spyOn(config, 'getConfig').mockResolvedValue({
+      publicOrg: 'github',
+      privateOrg: 'github-test',
+    })
 
     om.mockFunctions.rest.apps.getOrgInstallation.mockResolvedValue(
       fakeOrgInstallation,
@@ -160,6 +180,7 @@ describe('Git router', () => {
         expect(error.message).toEqual('clone error')
       })
 
+    expect(configSpy).toHaveBeenCalledTimes(1)
     expect(om.mockFunctions.rest.repos.get).toHaveBeenCalledTimes(2)
     expect(om.mockFunctions.rest.repos.delete).toHaveBeenCalledTimes(1)
     expect(stubbedGit.clone).toHaveBeenCalledTimes(1)
