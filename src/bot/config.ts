@@ -20,7 +20,33 @@ type InternalContributionForksConfig = z.infer<
  * @param orgId Organization ID
  * @returns Configuration file
  */
-export const getConfig = async (orgId: string) => {
+export const getConfig = async (orgId?: string) => {
+  // First check if there's a config file in the environment
+  if (process.env.config) {
+    configLogger.info('Using config from environment')
+    try {
+      const config = internalContributionForksConfig.parse(
+        JSON.parse(process.env.config),
+      )
+      return config
+    } catch (e) {
+      configLogger.error('Invalid config found in environment!')
+      configLogger.error(e)
+      throw new Error(
+        'Invalid config found in environment! Please check the config file and error log for more details.',
+      )
+    }
+  }
+
+  // Fallback to pull from the .github repository if no orgId is provided
+
+  if (!orgId) {
+    logger.error(
+      'No orgId present, Organization ID is required to fetch a config when not using environment variables',
+    )
+    throw new Error('Organization ID is required to fetch a config!')
+  }
+
   const installationId = await appOctokit().rest.apps.getOrgInstallation({
     org: orgId,
   })
