@@ -32,7 +32,7 @@
     "next": "14.1.0",
     "next-auth": "4.24.5",
     "octokit": "3.1.2",
-    "probot": "12.3.3",
+    "probot": "13.0.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "simple-git": "3.21.0",
