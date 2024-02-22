@@ -43,7 +43,6 @@
     "zod": "3.22.4"
   },
   "devDependencies": {
-    "@types/is-ci": "3.0.4",
     "@types/jest": "29.5.11",
     "@types/node": "20.11.19",
     "@types/node-fetch": "2.6.9",
