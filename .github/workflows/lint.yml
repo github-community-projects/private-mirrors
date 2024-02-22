@@ -15,5 +15,8 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
+      - name: Setup CI Environment
+        run: mv .env.example .env
+
       - name: Run Lint
         run: npm run lint
