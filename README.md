@@ -14,7 +14,9 @@
 
 This is a Next.js project with an accompanying GitHub App that allows you to contribute to an upstream project using a private repository in your own organization. This is useful for organizations that want to keep their code private and perform their own checks before making any code changes public.
 
-> [!WARNING]
+> [!IMPORTANT]
+> 📣 EMU support is now available! Check out the [hosting - GHEC](#integrating-the-app-into-ghec) section for more information.
+>
 > This app is still a work in progress and is not considered stable just yet. We still recommend trying out the app because [we'd love to hear from you](https://github.com/github-community-projects/internal-contribution-forks/issues/new)!
 
 ## Background
@@ -39,6 +41,7 @@ Solving these concerns creates opportunities for enterprise development teams to
 - No datastore — no need to worry about storing your code on a third-party server
 - Reduces risk of making open source contributions to upstream projects because your work stays private until it passes approval
 - Adapt the app to your workflow to ensure approvals, checks, and other requirements are met before code is merged upstream
+- Works with GitHub Enterprise Managed Users (EMUs) and GitHub Enterprise Cloud (GHEC)
 
 High Level Flow:
 
@@ -65,7 +68,7 @@ The app uses an intermediary public fork to merge the private mirror into, and t
 
 ## Hosting
 
-The app is not yet available on the GitHub Marketplace. We are working on that and will update this section once it is available. Until then, you'll need to self-host the app. See the section on [Developing](#developing) for more information.
+You'll need to self-host the app. See the section on [Developing](#developing) for more information.
 
 This app was created with the idea of self-hosting in mind and can be deployed to any hosting provider that supports Next.js/Docker.
 
@@ -75,15 +78,30 @@ You will still need to create a GitHub App and configure it to point to your dep
 docker build -t internal-contribution-forks .
 docker run --env-file=.env -p 3000:3000 internal-contribution-forks
 
-# alternatively, you can use docker-compose
-docker-compose up
+# alternatively, you can use docker compose
+docker compose up
 ```
 
-We recommend using Node 20.x or higher, though any Node LTS version should work.
+We recommend using Node 20.x or higher, though any Node LTS version >18 should work.
+
+## Integrating the App into GHEC
+
+The app can be integrated into GitHub Enterprise Cloud (GHEC) by following the same steps as GitHub.com. The app is designed to work with GHEC and GitHub Enterprise Managed Users (EMUs).
+
+The only tradeoff is that a single **App instance will only work between a single GitHub instance and a single GHEC instance**. If you have multiple GitHub instances and GHEC instances, you will need to deploy multiple instances of the app.
+
+To enable the app to work with GHEC, you will need to set the following environment variables in addition to installing the App on your GHEC organization instance.
+
+```sh
+PUBLIC_ORG=name-of-your-public-org    # Where your public forks will be created
+PRIVATE_ORG=name-of-your-ghec-org     # Where your private mirrors will be created
+```
+
+The authentication of the UI will still need to be a user's github.com user, but the app will be able to create forks and mirrors in the GHEC instance.
 
 ## Usage
 
-Once the app is installed, follow this document on [docs/using-the-app.md](Using the ICF App) to get the repository fork and mirrors set up for work.
+Once the app is installed, follow this document on [Using the ICF App](docs/using-the-app.md) to get the repository fork and mirrors set up for work.
 
 ## Developing
 
@@ -133,11 +151,11 @@ Copy the URL and paste it into the `WEBHOOK_PROXY_URL` environment variable in `
 
 We recommend that you have a dedicated GitHub organization for your contributions. This will allow you to keep your contributions separate from your organization's daily operations.
 
-> 📣 This does not work with EMU accounts or GHES at this time. Please follow [this issue](https://github.com/github-community-projects/internal-contribution-forks/issues/12) for more updates.
+> We have added support for GitHub Enterprise Managed Users (EMUs) and GitHub Enterprise Cloud (GHEC) in the app. If you are using GitHub Enterprise, you will need to make sure that the app is installed on your GitHub Enterprise instance.
 
 Permissions:
 
-- The GitHub App must be installed on the organization you plan on contributing from
+- The GitHub App must be installed on the organization(s) you plan on contributing from
 - Currently, any member of the organization can access the app and create additional private mirror repositories
 
 ## License

@@ -4,12 +4,34 @@
 
 The project is a Node.js application that uses the [Probot framework](https://probot.github.io/) to listen for events from GitHub. It uses a GitHub App to perform elevated actions on behalf of the user while the user has little or no permissions at all.
 
-## Sequence Diagram
+## EMU Flow
 
 ```mermaid
 sequenceDiagram
     participant U as upstream *Public
-    box github.com/your-organization
+    box github.com/public-organization
+        participant F as fork *Public
+    end
+    box github.com/emu-organization
+        participant M as mirror *Private
+    end
+    U->>F: User forks upstream into Organization
+    F-->>F: Bot creates branch protection rules
+    F-->>F: User requests mirror to be made
+    F->>M: Bot creates a mirror of the fork
+    M-->>M: Bot creates branch protection rules
+    M-->>M: User makes all changes in non-default branches
+    M-->>M: User merges into `default` branch
+    M->>F: Bot automatically syncs mirror to fork
+    F->>U: User opens PR to upstream
+```
+
+## Single Organization Flow
+
+```mermaid
+sequenceDiagram
+    participant U as upstream *Public
+    box github.com/your-public-organization
         participant F as fork *Public
         participant M as mirror *Private
     end
@@ -18,6 +40,7 @@ sequenceDiagram
     F-->>F: User requests mirror to be made
     F->>M: Bot creates a mirror of the fork
     M-->>M: Bot creates branch protection rules
+    M-->>M: User makes all changes in non-default branches
     M-->>M: User merges into `default` branch
     M->>F: Bot automatically syncs mirror to fork
     F->>U: User opens PR to upstream
