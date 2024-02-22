@@ -16,8 +16,5 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Setup CI Environment
-        run: mv .env.example .env
-
       - name: Run Build
         run: NEXT_TELEMETRY_DISABLED=1 npm run build

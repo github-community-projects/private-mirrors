@@ -49,4 +49,5 @@ export const env = createEnv({
     PUBLIC_ORG: process.env.PUBLIC_ORG,
     PRIVATE_ORG: process.env.PRIVATE_ORG,
   },
+  skipValidation: process.env.SKIP_ENV_VALIDATIONS === 'true',
 })
