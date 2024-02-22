@@ -17,7 +17,7 @@ export const env = createEnv({
     PRIVATE_KEY: z.string(),
 
     // Optional environment variables
-    WEBHOOK_PROXY_URL: z.string().url().optional(),
+    WEBHOOK_PROXY_URL: z.string().url().optional().or(z.literal('')),
     LOG_LEVEL: z.string().optional().default('debug'),
     NODE_ENV: z.string().optional().default('development'),
     PUBLIC_ORG: z.string().optional(),

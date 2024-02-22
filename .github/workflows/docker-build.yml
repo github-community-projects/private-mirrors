@@ -3,6 +3,7 @@ name: Build Docker Image
 on:
   - push
   - workflow_dispatch
+  - pull_request
 
 jobs:
   build:
@@ -11,6 +12,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Setup CI Environment
+        run: mv .env.example .env
 
       - name: Build Docker image
         run: docker build -t internal-contribution-forks .

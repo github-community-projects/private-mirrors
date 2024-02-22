@@ -1,4 +1,4 @@
-import './src/env.mjs'
+import './env.mjs'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
