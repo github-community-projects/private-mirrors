@@ -1,7 +1,5 @@
 // This is taken from https://github.com/Chocrates/octomock
 
-const deepClone = (obj: unknown) => JSON.parse(JSON.stringify(obj))
-
 let mockFunctions = {
   config: {
     get: jest.fn(),
