@@ -8,14 +8,14 @@
   "homepage": "https://github.com/github-community-projects/internal-contribution-forks",
   "scripts": {
     "dev": "concurrently \"dotenv-load node scripts/probot-forwarder.js\" \"next dev\"",
-    "build": "next build",
+    "build": "SKIP_ENV_VALIDATIONS='true' next build",
     "start": "next start",
-    "lint": "next lint && prettier --check .",
-    "lint:fix": "next lint --fix && prettier --write .",
+    "lint": "SKIP_ENV_VALIDATIONS='true' next lint && prettier --check .",
+    "lint:fix": "SKIP_ENV_VALIDATIONS='true' next lint --fix && prettier --write .",
     "bot:build": "tsc ./src/bot/index.ts --noEmit false --esModuleInterop --outDir ./build",
     "bot:start": "probot run ./build/index.js",
     "test": "ts-node -O '{\"module\":\"commonjs\"}' node_modules/jest/bin/jest.js",
-    "prepare": "test -d node_modules/husky && husky install || echo \"husky is not installed\""
+    "prepare": "test -d node_modules/husky && husky || echo \"husky is not installed\""
   },
   "dependencies": {
     "@octokit/auth-app": "6.0.3",
@@ -29,7 +29,6 @@
     "@trpc/next": "10.44.1",
     "@trpc/react-query": "10.44.1",
     "@trpc/server": "10.44.1",
-    "is-ci": "3.0.1",
     "next": "14.1.0",
     "next-auth": "4.24.5",
     "octokit": "3.1.2",

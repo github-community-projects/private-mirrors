@@ -1,17 +1,5 @@
 import { createEnv } from '@t3-oss/env-nextjs'
-import fs from 'fs'
-import isCI from 'is-ci'
 import { z } from 'zod'
-
-// This is to make builds play nicely on CI
-if (isCI) {
-  if (fs.existsSync('.env.example')) {
-    console.log('Running on CI, using .env.example file.')
-    require('dotenv').config({
-      path: '.env.example',
-    })
-  }
-}
 
 export const env = createEnv({
   /*
@@ -61,4 +49,5 @@ export const env = createEnv({
     PUBLIC_ORG: process.env.PUBLIC_ORG,
     PRIVATE_ORG: process.env.PRIVATE_ORG,
   },
+  skipValidation: process.env.SKIP_ENV_VALIDATIONS === 'true',
 })
