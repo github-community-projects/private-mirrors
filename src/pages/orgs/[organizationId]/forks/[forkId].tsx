@@ -24,18 +24,6 @@ const getForkById = async (
   ).data
 }
 
-const findMirrors = async (
-  accessToken: string,
-  orgName: string,
-  forkName: string,
-) => {
-  return (
-    await personalOctokit(accessToken).rest.search.repos({
-      q: `org:${orgName} in:description "mirror:${orgName}/${forkName}"`,
-    })
-  ).data
-}
-
 const SingleFork = (
   props: InferGetServerSidePropsType<typeof getServerSideProps>,
 ) => {
@@ -51,15 +39,27 @@ const SingleFork = (
   const [fork, setFork] = useState<Awaited<
     ReturnType<typeof getForkById>
   > | null>(null)
-  const [mirrors, setMirrors] = useState<Awaited<
-    ReturnType<typeof findMirrors>
-  > | null>(null)
   const {
     mutate: createMirror,
     error: mirrorError,
     data,
     isLoading,
   } = trpc.git.createMirror.useMutation()
+
+  const {
+    data: mirrors,
+    error: mirrorsError,
+    isLoading: mirrorsLoading,
+    refetch: refetchMirrors,
+  } = trpc.repos.listMirrors.useQuery(
+    {
+      orgId: organizationId as string,
+      forkName: fork?.name as string,
+    },
+    {
+      enabled: Boolean(organizationId) && Boolean(fork?.name),
+    },
+  )
 
   const loadAllData = useCallback(async () => {
     const orgInfo = await getOrgInformation(
@@ -76,15 +76,7 @@ const SingleFork = (
       console.error(e)
       return
     }
-
-    const mirrorInfo = await findMirrors(
-      accessToken,
-      orgInfo.login,
-      forkInfo.name,
-    )
-    setMirrors(mirrorInfo)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accessToken, organizationId, forkId, data])
+  }, [accessToken, organizationId, forkId])
 
   useEffect(() => {
     if (!accessToken || !organizationId) {
@@ -93,6 +85,10 @@ const SingleFork = (
 
     loadAllData()
   }, [organizationId, accessToken, loadAllData])
+
+  useEffect(() => {
+    refetchMirrors()
+  }, [isOpen, refetchMirrors])
 
   const handleOnCreateMirror = useCallback(
     ({ repoName, branchName }: { repoName: string; branchName: string }) => {
@@ -179,9 +175,12 @@ const SingleFork = (
         </Box>
       </Box>
       <Box>
-        {!mirrors && <Box>Loading mirrors...</Box>}
+        {mirrorsLoading && <Box>Loading mirrors...</Box>}
         {mirrors && mirrors.items.length === 0 && (
           <Box>No mirrors found for this fork</Box>
+        )}
+        {mirrorsError && (
+          <Box>Failed to fetch mirrors. {mirrorsError?.message}</Box>
         )}
         <Box>
           {mirrors &&
@@ -196,10 +195,7 @@ const SingleFork = (
                     my: 2,
                   }}
                 >
-                  <Link
-                    href={`https://github.com/${orgData.login}/${mirror.name}`}
-                    target="_blank"
-                  >
+                  <Link href={mirror.html_url} target="_blank">
                     {mirror.name}
                   </Link>
                 </Box>
