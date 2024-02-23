@@ -88,7 +88,7 @@ We recommend using Node 20.x or higher, though any Node LTS version >18 should w
 
 The app can be integrated into GitHub Enterprise Cloud (GHEC) by following the same steps as GitHub.com. The app is designed to work with GHEC and GitHub Enterprise Managed Users (EMUs).
 
-The only tradeoff is that a single **App instance will only work between a single GitHub instance and a single GHEC instance**. If you have multiple GitHub instances and GHEC instances, you will need to deploy multiple instances of the app.
+The only tradeoff is that a single app instance will only work between a single GitHub instance and a single GHEC instance. If you have multiple GitHub instances and GHEC instances, you will need to deploy multiple instances of the app.
 
 To enable the app to work with GHEC, you will need to set the following environment variables in addition to installing the App on your GHEC organization instance.
 
