@@ -44,7 +44,7 @@
   },
   "devDependencies": {
     "@types/jest": "29.5.11",
-    "@types/node": "20.11.19",
+    "@types/node": "20.11.20",
     "@types/node-fetch": "2.6.9",
     "@types/react": "18.0.28",
     "@types/ws": "8.5.10",
