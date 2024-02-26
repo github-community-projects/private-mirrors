@@ -35,7 +35,7 @@
     "probot": "12.3.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "simple-git": "3.21.0",
+    "simple-git": "3.22.0",
     "styled-components": "5",
     "swr": "2.2.4",
     "tempy": "1.0.1",
