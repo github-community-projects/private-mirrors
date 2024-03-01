@@ -70,6 +70,8 @@ export const nextAuthOptions: AuthOptions = {
         return false
       }
 
+      authLogger.debug('Trying to sign in with handle:', profile.login)
+
       if (allowedHandles.includes(profile.login)) {
         return true
       }
