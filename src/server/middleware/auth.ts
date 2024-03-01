@@ -4,7 +4,7 @@ import { Middleware } from 'server/trpc'
 export const verifyAuth: Middleware = async (opts) => {
   const { ctx } = opts
 
-  // Check validity of token
+  // Verify valid github session
   checkGitHubAuth(ctx.session?.user?.accessToken)
 
   return opts.next({

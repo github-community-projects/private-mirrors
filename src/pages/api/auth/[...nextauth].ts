@@ -53,14 +53,15 @@ export const nextAuthOptions: AuthOptions = {
   },
   callbacks: {
     signIn: async (params) => {
-      const profile = params.profile as Profile & { login?: string }
       authLogger.debug('Sign in callback')
+
+      const profile = params.profile as Profile & { login?: string }
       const allowedHandles = (
         process.env.ALLOWED_HANDLES?.split(',') ?? []
       ).filter((handle) => handle !== '')
 
       if (allowedHandles.length === 0) {
-        authLogger.debug(
+        authLogger.info(
           'No allowed handles specified via ALLOWED_HANDLES, allowing all users.',
         )
         return true
