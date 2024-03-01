@@ -6,7 +6,7 @@ import { initTRPC } from '@trpc/server'
 import { CreateNextContextOptions } from '@trpc/server/adapters/next'
 import { getServerSession } from 'next-auth'
 import { nextAuthOptions } from 'pages/api/auth/[...nextauth]'
-import { verifyAuth } from './lib/auth'
+import { verifyAuth } from './middleware/auth'
 
 export const createContext = async (opts: CreateNextContextOptions) => {
   const session = await getServerSession(opts.req, opts.res, nextAuthOptions)

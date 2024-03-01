@@ -293,6 +293,9 @@ let mockFunctions = {
       saveState: jest.fn(),
       getState: jest.fn(),
     },
+    users: {
+      getAuthenticated: jest.fn(),
+    },
   },
 }
 

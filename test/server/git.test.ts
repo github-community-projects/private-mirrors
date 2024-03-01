@@ -14,8 +14,10 @@ jest.mock('simple-git', () => {
 })
 
 import * as config from '../../src/bot/config'
+import * as auth from '../../src/server/lib/auth'
 import { gitRouter } from '../../src/server/routers/git'
 import { Octomock } from '../octomock'
+import { createTestContext } from '../utils/auth'
 const om = new Octomock()
 
 jest.mock('../../src/bot/config')
@@ -24,6 +26,7 @@ jest.mock('../../src/bot/octokit', () => ({
   appOctokit: () => om.getOctokitImplementation(),
   installationOctokit: () => om.getOctokitImplementation(),
 }))
+jest.mock('../../src/server/lib/auth')
 
 const fakeForkRepo = {
   status: 200,
@@ -70,6 +73,8 @@ const repoNotFound = {
   },
 }
 
+jest.spyOn(auth, 'checkGitHubAuth').mockResolvedValue()
+
 describe('Git router', () => {
   beforeEach(() => {
     om.resetMocks()
@@ -77,7 +82,7 @@ describe('Git router', () => {
   })
 
   it('should create a mirror when repo does not exist exist', async () => {
-    const caller = gitRouter.createCaller({})
+    const caller = gitRouter.createCaller(createTestContext())
 
     const configSpy = jest.spyOn(config, 'getConfig').mockResolvedValue({
       publicOrg: 'github',
@@ -116,7 +121,7 @@ describe('Git router', () => {
   })
 
   it('should throw an error when repo already exists', async () => {
-    const caller = gitRouter.createCaller({})
+    const caller = gitRouter.createCaller(createTestContext())
 
     const configSpy = jest.spyOn(config, 'getConfig').mockResolvedValue({
       publicOrg: 'github',
@@ -150,7 +155,7 @@ describe('Git router', () => {
   })
 
   it('should cleanup repos when there is an error', async () => {
-    const caller = gitRouter.createCaller({})
+    const caller = gitRouter.createCaller(createTestContext())
 
     const configSpy = jest.spyOn(config, 'getConfig').mockResolvedValue({
       publicOrg: 'github',
