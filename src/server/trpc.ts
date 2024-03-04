@@ -3,14 +3,28 @@ import { createTRPCNext } from '@trpc/next'
 import type { AppRouter } from './routers/_app'
 
 import { initTRPC } from '@trpc/server'
+import { CreateNextContextOptions } from '@trpc/server/adapters/next'
+import { getServerSession } from 'next-auth'
+import { nextAuthOptions } from 'pages/api/auth/[...nextauth]'
+import { verifyAuth } from './middleware/auth'
+
+export const createContext = async (opts: CreateNextContextOptions) => {
+  const session = await getServerSession(opts.req, opts.res, nextAuthOptions)
+
+  return {
+    session,
+  }
+}
+
 // Avoid exporting the entire t-object
 // since it's not very descriptive.
 // For instance, the use of a t variable
 // is common in i18n libraries.
-const t = initTRPC.create()
+const t = initTRPC.context<typeof createContext>().create()
 // Base router and procedure helpers
 export const router = t.router
-export const procedure = t.procedure
+export type Middleware = Parameters<(typeof t.procedure)['use']>[0]
+export const procedure = t.procedure.use(verifyAuth)
 
 function getBaseUrl() {
   if (typeof window !== 'undefined')
@@ -25,6 +39,7 @@ function getBaseUrl() {
   // assume localhost
   return `http://localhost:${process.env.PORT ?? 3000}`
 }
+
 export const trpc = createTRPCNext<AppRouter>({
   config(_) {
     return {

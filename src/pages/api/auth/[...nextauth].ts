@@ -1,5 +1,5 @@
 import { personalOctokit } from 'bot/octokit'
-import NextAuth, { AuthOptions } from 'next-auth'
+import NextAuth, { AuthOptions, Profile } from 'next-auth'
 import GitHub from 'next-auth/providers/github'
 import { logger } from '../../../utils/logger'
 
@@ -52,6 +52,37 @@ export const nextAuthOptions: AuthOptions = {
     },
   },
   callbacks: {
+    signIn: async (params) => {
+      authLogger.debug('Sign in callback')
+
+      const profile = params.profile as Profile & { login?: string }
+      const allowedHandles = (
+        process.env.ALLOWED_HANDLES?.split(',') ?? []
+      ).filter((handle) => handle !== '')
+
+      if (allowedHandles.length === 0) {
+        authLogger.info(
+          'No allowed handles specified via ALLOWED_HANDLES, allowing all users.',
+        )
+        return true
+      }
+
+      if (!profile?.login) {
+        return false
+      }
+
+      authLogger.debug('Trying to sign in with handle:', profile.login)
+
+      if (allowedHandles.includes(profile.login)) {
+        return true
+      }
+
+      authLogger.warn(
+        `User "${profile.login}" is not in the allowed handles list`,
+      )
+
+      return false
+    },
     session: async ({ session, token }) => {
       authLogger.debug('Session callback')
 
