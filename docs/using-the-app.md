@@ -6,7 +6,7 @@
 
 3. Fork an upstream project into the organization's namespace. This will create your **public fork**. A decision point for administrators is whether to permit any user to fork new projects into the organizations, or restrict the ability to fork. These permissions are managed by [the organization's forking policy](https://docs.github.com/en/enterprise-cloud@latest/organizations/managing-organization-settings/managing-the-forking-policy-for-your-organization). A more permissive posture can lower the barrier to contribution, but shouldn't circumvent company policy on approving upstream work.
 
-4. Go the app's URL and authenticate to it. You'll see a list of your organizations that the app is managing. Click on your org's name and you'll see a list of all the public forks in the organization. _What about access control to app/forks inside?_
+4. Go the app's URL and authenticate to it. If your account is in the list of allowed usernames, you'll see a list of your organizations that the app is managing. Click on your org's name and you'll see a list of all the public forks in the organization.
 
 ![List of public forks inside the organization](images/public-forks-inside-org.png)
 

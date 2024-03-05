@@ -72,7 +72,11 @@ You'll need to self-host the app. See the section on [Developing](#developing) f
 
 This app was created with the idea of self-hosting in mind and can be deployed to any hosting provider that supports Next.js/Docker.
 
-You will still need to create a GitHub App and configure it to point to your deployment. See the [Developing — GitHub App](#github-app) section for more information.
+Configuration is contained in a `.env` file which you'll need to customize for your environment. Use the `.env.example` in the root of this repository as a starting point. In particular, you'll need to set the following:
+
+- `PUBLIC_ORG` and `PRIVATE_ORG` environment variables if you want to keep your private mirrors in a different GitHub organization from the public forks
+- `ALLOWED_HANDLES` variable to a comma-separated list of GitHub user handles which ought to be allowed to access the app to create mirrors. If unset, all users who are members of the organization will be allowed to use the app.
+- use https://smee.io or your own infrastructure to make the docker service available to receive webhooks
 
 ```sh
 docker build -t internal-contribution-forks .
@@ -83,6 +87,8 @@ docker compose up
 ```
 
 We recommend using Node 20.x or higher, though any Node LTS version >18 should work.
+
+Once it's running, you'll need to create a GitHub App and configure it to point to your deployment. See the [Developing — GitHub App](#github-app) section for more information.
 
 ## Integrating the App into GHEC
 
