@@ -122,7 +122,7 @@ cp .env.example .env
 ### GitHub App
 
 1. Create a new GitHub App [here](https://github.com/settings/apps/new)
-2. There's an App manifest in the repo that lays out all the permissions and webhook events needed and can be found [here](./app-manifest.yml).
+2. There's an App manifest in the repo that lays out all the permissions and webhook events needed and can be found [here](./app.yml).
 3. Copy all the secrets, credentials, and IDs into the `.env` file
 
 ### Webapp
