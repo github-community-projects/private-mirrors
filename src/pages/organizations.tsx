@@ -3,11 +3,13 @@ import { ActionList, Avatar, Box, Octicon } from '@primer/react'
 import { personalOctokit } from 'bot/octokit'
 import { getAuthServerSideProps } from 'components/auth-guard'
 import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/router'
 import { FC, useEffect, useState } from 'react'
 
 interface OrganizationsProps {}
 
 const Organizations: FC<OrganizationsProps> = () => {
+  const router = useRouter()
   const { data: session } = useSession()
   const [organizations, setOrganizations] = useState<
     Awaited<ReturnType<typeof getAllOrganizations>>
@@ -28,9 +30,14 @@ const Organizations: FC<OrganizationsProps> = () => {
     }
 
     getAllOrganizations(accessToken).then((orgs) => {
+      // When only one organization, redirect to that organization
+      if (orgs.length === 1) {
+        router.push(`/orgs/${orgs[0].login}`)
+      }
+
       setOrganizations(orgs)
     })
-  }, [session])
+  }, [session, router])
 
   return (
     <Box
