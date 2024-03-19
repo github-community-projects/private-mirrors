@@ -170,7 +170,23 @@ const SingleOrganization = (
           </Flash>
         )}
       </Box>
-      <h3>{orgData.login}</h3>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+        }}
+      >
+        <Avatar src={orgData.avatar_url} size={24} />
+        <Box
+          as="h3"
+          sx={{
+            ml: 2,
+          }}
+        >
+          {orgData.login}
+        </Box>
+      </Box>
       <Box>
         {forks && (
           <ActionList showDividers>
