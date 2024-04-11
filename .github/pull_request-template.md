@@ -11,7 +11,7 @@
 ### Author/Contributor
 
 - [ ] If documentation is needed for this change, has that been included in this pull request
-- [ ] run `npm run lint` and fix any linting issues that you have introduced
+- [ ] run `npm run lint` and fix any linting issues that have been introduced
 - [ ] run `npm run test` and run tests
 
 ### Reviewer
