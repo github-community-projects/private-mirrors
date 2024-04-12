@@ -1,43 +1,58 @@
-export const mirrorMainBranchProtectionGQL = `
-mutation AddBranchProtection(
-  $repositoryId: ID!
-  $actorId: ID!
-  $pattern: String!
+export const getBranchProtectionRulesetGQL = `
+query(
+  $owner: String!
+  $name: String!
 ) {
-  createBranchProtectionRule(
-    input: {
-      repositoryId: $repositoryId
-      requiresApprovingReviews:true
-      requiredApprovingReviewCount: 1
-      pattern: $pattern
-      dismissesStaleReviews:true
-      pushActorIds: [$actorId]
-    }
-  ) {
-    branchProtectionRule {
-      id
+  repository(owner: $owner, name: $name) {
+    rulesets(first: 50) {
+      nodes {
+        name
+      }
     }
   }
 }
 `
 
-export const branchProtectionGQL = `
-mutation AddBranchProtection(
+export const branchProtectionRulesetGQL = `
+mutation CreateRepositoryRuleset(
   $repositoryId: ID!
+  $ruleName: String!
   $actorId: ID!
-  $pattern: String!
+  $includeRefs: [String!]!
 ) {
-  createBranchProtectionRule(
+  createRepositoryRuleset(
     input: {
-      repositoryId: $repositoryId
-      isAdminEnforced: true
-      pushActorIds: [$actorId]
-      pattern: $pattern
-      restrictsPushes: true
-      blocksCreations: true
+      sourceId: $repositoryId
+      name: $ruleName
+      target: BRANCH
+      conditions: {
+        refName: {
+          include: $includeRefs
+          exclude: []
+        }
+      }
+      rules: [
+        {
+          type: PULL_REQUEST
+          parameters: {
+            pullRequest: {
+              dismissStaleReviewsOnPush: true
+              requireCodeOwnerReview: false
+              requireLastPushApproval: false
+              requiredApprovingReviewCount: 1
+              requiredReviewThreadResolution: true
+            }
+          }
+        }
+      ]
+      enforcement: ACTIVE
+      bypassActors: {
+        actorId:  $actorId
+        bypassMode: ALWAYS
+      }
     }
   ) {
-    branchProtectionRule {
+    ruleset {
       id
     }
   }

@@ -46,6 +46,9 @@ const SingleFork = (
     isLoading,
   } = trpc.git.createMirror.useMutation()
 
+  const { mutate: deleteMirror, error: deleteError } =
+    trpc.repos.deleteMirror.useMutation()
+
   const {
     data: mirrors,
     error: mirrorsError,
@@ -54,7 +57,7 @@ const SingleFork = (
   } = trpc.repos.listMirrors.useQuery(
     {
       orgId: organizationId as string,
-      forkName: fork?.name as string,
+      forkName: fork?.name ? fork?.name : '',
     },
     {
       enabled: Boolean(organizationId) && Boolean(fork?.name),
@@ -114,6 +117,7 @@ const SingleFork = (
     <Box>
       <Box>
         {mirrorError && <Flash variant="danger">{mirrorError.message}</Flash>}
+        {deleteError && <Flash variant="danger">{deleteError.message}</Flash>}
       </Box>
       <Box>
         {data && (
@@ -198,6 +202,20 @@ const SingleFork = (
                   <Link href={mirror.html_url} target="_blank">
                     {mirror.name}
                   </Link>
+                  <Box>
+                    <Button
+                      variant="danger"
+                      onClick={() => {
+                        deleteMirror({
+                          orgId: orgData.id.toString(),
+                          orgName: orgData.login,
+                          mirrorName: mirror.name,
+                        })
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  </Box>
                 </Box>
               </Box>
             ))}

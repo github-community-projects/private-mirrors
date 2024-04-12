@@ -30,32 +30,45 @@ default_events:
 # the value (for example, write).
 # Valid values are `read`, `write`, and `none`
 default_permissions:
-  # https://developer.github.com/v3/apps/permissions/#actions
+  # Repository actions
+  # https://docs.github.com/en/rest/authentication/permissions-required-for-github-apps?apiVersion=2022-11-28#repository-permissions-for-actions
   actions: write
 
   # Repository creation, deletion, settings, teams, and collaborators.
-  # https://developer.github.com/v3/apps/permissions/#permission-on-administration
+  # https://docs.github.com/en/rest/authentication/permissions-required-for-github-apps?apiVersion=2022-11-28#repository-permissions-for-administration
   administration: write
 
   # Repository contents, commits, branches, downloads, releases, and merges.
-  # https://developer.github.com/v3/apps/permissions/#permission-on-contents
+  # https://docs.github.com/en/rest/authentication/permissions-required-for-github-apps?apiVersion=2022-11-28#repository-permissions-for-contents
   contents: write
 
   # Search repositories, list collaborators, and access repository metadata.
-  # https://developer.github.com/v3/apps/permissions/#metadata-permissions
+  # https://docs.github.com/en/rest/authentication/permissions-required-for-github-apps?apiVersion=2022-11-28#repository-permissions-for-metadata
   metadata: read
 
   # Manage access to an organization.
-  # https://developer.github.com/v3/apps/permissions/#permission-on-statuses/#organization-administration
+  # https://docs.github.com/en/rest/authentication/permissions-required-for-github-apps?apiVersion=2022-11-28#organization-permissions-for-administration
   organization_administration: read
 
   # Organization members and teams.
-  # https://developer.github.com/v3/apps/permissions/#permission-on-members
+  # https://docs.github.com/en/rest/authentication/permissions-required-for-github-apps?apiVersion=2022-11-28#organization-permissions-for-members
   members: read
 
   # Manage a user's email addresses.
-  # https://developer.github.com/v3/apps/permissions/#email-addresses
+  # https://docs.github.com/en/rest/authentication/permissions-required-for-github-apps?apiVersion=2022-11-28#user-permissions-for-email-addresses
   email_addresses: read
+
+  # Copy workflow files to the repository.
+  # https://docs.github.com/en/rest/authentication/permissions-required-for-github-apps?apiVersion=2022-11-28#repository-permissions-for-workflows
+  workflows: write
+
+  # Set custom properties for the repository.
+  # https://docs.github.com/en/rest/authentication/permissions-required-for-github-apps?apiVersion=2022-11-28#repository-permissions-for-custom-properties
+  custom_properties: write
+
+  # Set custom properties for the organization.
+  # https://docs.github.com/en/rest/authentication/permissions-required-for-github-apps?apiVersion=2022-11-28#organization-permissions-for-custom-properties
+  organization_custom_properties: admin
 
 # The name of the GitHub App. Defaults to the name specified in package.json
 name: internal-contribution-forks

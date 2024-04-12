@@ -278,9 +278,23 @@ export const gitRouter = router({
 
         await git.clone(remote, tempDir)
 
-        const description = {
-          mirror: `${opts.input.forkRepoOwner}/${opts.input.forkRepoName}`,
-          branch: opts.input.newBranchName,
+        // Get the organization custom properties
+        const orgCustomProps =
+          await privateOctokit.rest.orgs.getAllCustomProperties({
+            org: privateOrg,
+          })
+
+        // Creates custom property fork in the org if it doesn't exist
+        if (
+          !orgCustomProps.data.some(
+            (prop: { property_name: string }) => prop.property_name === 'fork',
+          )
+        ) {
+          await privateOctokit.rest.orgs.createOrUpdateCustomProperty({
+            org: privateOrg,
+            custom_property_name: 'fork',
+            value_type: 'string',
+          })
         }
 
         // This repo needs to be created in the private org
@@ -288,7 +302,10 @@ export const gitRouter = router({
           name: opts.input.newRepoName,
           org: privateOrg,
           private: true,
-          description: JSON.stringify(description),
+          description: `Mirror of ${opts.input.forkRepoOwner}/${opts.input.forkRepoName}`,
+          custom_properties: {
+            fork: `${opts.input.forkRepoOwner}/${opts.input.forkRepoName}`,
+          },
         })
 
         const defaultBranch = forkData.data.default_branch
