@@ -49,14 +49,17 @@ const SingleFork = (
     ReturnType<typeof getForkById>
   > | null>(null)
   const {
-    mutate: createMirror,
+    mutateAsync: createMirror,
     error: mirrorError,
     data,
     isLoading,
   } = trpc.git.createMirror.useMutation()
 
-  const { mutate: deleteMirror, error: deleteError } =
-    trpc.repos.deleteMirror.useMutation()
+  const {
+    mutateAsync: deleteMirror,
+    error: deleteError,
+    isLoading: deleteMirrorLoading,
+  } = trpc.repos.deleteMirror.useMutation()
 
   const {
     data: mirrors,
@@ -103,8 +106,16 @@ const SingleFork = (
   }, [isOpen, refetchMirrors])
 
   const handleOnCreateMirror = useCallback(
-    ({ repoName, branchName }: { repoName: string; branchName: string }) => {
-      createMirror({
+    async ({
+      repoName,
+      branchName,
+    }: {
+      repoName: string
+      branchName: string
+    }) => {
+      closeDialog()
+
+      await createMirror({
         newRepoName: repoName,
         newBranchName: branchName,
         orgId: String(orgData?.id),
@@ -113,7 +124,7 @@ const SingleFork = (
         forkId: String(fork?.id),
       })
 
-      closeDialog()
+      refetchMirrors()
     },
     [closeDialog, createMirror, orgData, fork],
   )
@@ -253,8 +264,9 @@ const SingleFork = (
             </Button>
             <Button
               variant="danger"
-              onClick={() => {
-                deleteMirror({
+              disabled={deleteMirrorLoading}
+              onClick={async () => {
+                await deleteMirror({
                   orgId: orgData.id.toString(),
                   orgName: orgData.login,
                   mirrorName: deleteMirrorName!,
