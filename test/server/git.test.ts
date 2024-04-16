@@ -73,6 +73,18 @@ const repoNotFound = {
   },
 }
 
+const fakeOrgCustomProperties = {
+  status: 200,
+  data: [
+    {
+      property_name: 'fork',
+      value_type: 'string',
+      required: false,
+      values_editable_by: 'org_actors',
+    },
+  ],
+}
+
 jest.spyOn(auth, 'checkGitHubAuth').mockResolvedValue()
 
 describe('Git router', () => {
@@ -95,6 +107,12 @@ describe('Git router', () => {
     om.mockFunctions.rest.orgs.get.mockResolvedValue(fakeOrg)
     om.mockFunctions.rest.repos.get.mockResolvedValueOnce(repoNotFound)
     om.mockFunctions.rest.repos.get.mockResolvedValueOnce(fakeForkRepo)
+    om.mockFunctions.rest.orgs.getAllCustomProperties.mockResolvedValue(
+      fakeOrgCustomProperties,
+    )
+    om.mockFunctions.rest.orgs.createOrUpdateCustomProperty.mockResolvedValue(
+      fakeOrgCustomProperties,
+    )
     om.mockFunctions.rest.repos.createInOrg.mockResolvedValue(fakeMirrorRepo)
 
     const res = await caller.createMirror({

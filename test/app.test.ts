@@ -3,13 +3,19 @@ import nock from 'nock'
 // Requiring our app implementation
 import { Probot, ProbotOctokit } from 'probot'
 import * as app from '../src/bot'
+import { Octomock } from './octomock'
 
 // Requiring our fixtures
 import fs from 'fs'
 import path from 'path'
-import { branchProtectionGQL } from '../src/bot/graphql'
-import repoCreatedPayload from './fixtures/repository.created.json'
-const issueCreatedBody = { body: 'Thanks for opening this issue!' }
+import {
+  branchProtectionRulesetGQL,
+  getBranchProtectionRulesetGQL,
+} from '../src/bot/graphql'
+import forkCreatedPayload from './fixtures/fork.created.json'
+import mirrorCreatedPayload from './fixtures/mirror.created.json'
+
+const om = new Octomock()
 
 const privateKey = fs.readFileSync(
   path.join(__dirname, 'fixtures/mock-cert.pem'),
@@ -21,8 +27,9 @@ describe('Webhooks events', () => {
 
   beforeEach(() => {
     nock.disableNetConnect()
+    om.resetMocks()
     probot = new Probot({
-      appId: 123,
+      appId: 12345,
       privateKey,
       // disable request throttling and retries for testing
       Octokit: ProbotOctokit.defaults({
@@ -41,7 +48,7 @@ describe('Webhooks events', () => {
       .reply(200, {
         // Return data about the app
         data: {
-          id: 123,
+          id: 12345,
           node_id: 'fake-node-id',
         },
       })
@@ -55,13 +62,34 @@ describe('Webhooks events', () => {
         },
       })
 
-      // Test we hit the correct endpoint for creating branch protections with gql
+      // Test to see that we check for the branch protection ruleset with gql
       .post('/graphql', (body) => {
         expect(body).toMatchObject({
-          query: branchProtectionGQL,
+          query: getBranchProtectionRulesetGQL,
           variables: {
-            pattern: '*',
-            repositoryId: repoCreatedPayload.repository.node_id,
+            owner: forkCreatedPayload.repository.owner.login,
+            name: forkCreatedPayload.repository.name,
+          },
+        })
+        return body
+      })
+      .reply(200, {
+        data: {
+          repository: {
+            rulesets: {
+              nodes: [],
+            },
+          },
+        },
+      })
+
+      // Test to see that we create the branch protection ruleset with gql
+      .post('/graphql', (body) => {
+        expect(body).toMatchObject({
+          query: branchProtectionRulesetGQL,
+          variables: {
+            repositoryId: forkCreatedPayload.repository.node_id,
+            ruleName: 'default-branch-protection-icf',
           },
         })
         return body
@@ -70,22 +98,22 @@ describe('Webhooks events', () => {
 
     // Receive a webhook event
     await probot.receive({
-      id: repoCreatedPayload.action,
+      id: forkCreatedPayload.action,
       name: 'repository',
-      payload: repoCreatedPayload as any,
+      payload: forkCreatedPayload as any,
     })
 
     expect(mock.pendingMocks()).toStrictEqual([])
   })
 
-  test('creates branch protections for a fork', async () => {
+  test('creates branch protections for a mirror', async () => {
     const mock = nock('https://api.github.com')
       // Test that we can hit the app endpoints
       .get('/app')
       .reply(200, {
         // Return data about the app
         data: {
-          id: 123,
+          id: 12345,
           node_id: 'fake-node-id',
         },
       })
@@ -99,13 +127,34 @@ describe('Webhooks events', () => {
         },
       })
 
-      // Test we hit the correct endpoint for creating branch protections with gql
+      // Test to see that we check for the branch protection ruleset with gql
       .post('/graphql', (body) => {
         expect(body).toMatchObject({
-          query: branchProtectionGQL,
+          query: getBranchProtectionRulesetGQL,
           variables: {
-            pattern: '*',
-            repositoryId: repoCreatedPayload.repository.node_id,
+            owner: mirrorCreatedPayload.repository.owner.login,
+            name: mirrorCreatedPayload.repository.name,
+          },
+        })
+        return body
+      })
+      .reply(200, {
+        data: {
+          repository: {
+            rulesets: {
+              nodes: [],
+            },
+          },
+        },
+      })
+
+      // Test to see that we create the branch protection ruleset with gql
+      .post('/graphql', (body) => {
+        expect(body).toMatchObject({
+          query: branchProtectionRulesetGQL,
+          variables: {
+            repositoryId: mirrorCreatedPayload.repository.node_id,
+            ruleName: 'default-branch-protection-icf',
           },
         })
         return body
@@ -114,30 +163,11 @@ describe('Webhooks events', () => {
 
     // Receive a webhook event
     await probot.receive({
-      id: repoCreatedPayload.action,
+      id: mirrorCreatedPayload.action,
       name: 'repository',
-      payload: repoCreatedPayload as any,
+      payload: mirrorCreatedPayload as any,
     })
 
     expect(mock.pendingMocks()).toStrictEqual([])
-  })
-
-  test('gets metadata correctly', () => {
-    const nonJson = 'This is a normal json string'
-    const mirrorString =
-      '{"mirror":"github-ospo-test/test","branch":"test-mirror"}'
-    let noDescription: any
-
-    expect(app.getMetadata(nonJson)).toEqual({})
-    expect(app.getMetadata(mirrorString)).toEqual({
-      mirror: 'github-ospo-test/test',
-      branch: 'test-mirror',
-    })
-    expect(app.getMetadata(noDescription)).toEqual({})
-  })
-
-  afterEach(() => {
-    nock.cleanAll()
-    nock.enableNetConnect()
   })
 })

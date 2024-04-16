@@ -44,6 +44,8 @@ let mockFunctions = {
       updateMembership: jest.fn(),
       listForAuthenticatedUser: jest.fn(),
       listForUser: jest.fn(),
+      getAllCustomProperties: jest.fn(),
+      createOrUpdateCustomProperty: jest.fn(),
     },
     repos: {
       listForOrg: jest.fn(),
@@ -195,6 +197,7 @@ let mockFunctions = {
       declineInvitation: jest.fn(),
       listForUser: jest.fn(),
       getCommitRefSha: jest.fn(),
+      getCustomPropertiesValues: jest.fn(),
     },
     issues: {
       list: jest.fn(),

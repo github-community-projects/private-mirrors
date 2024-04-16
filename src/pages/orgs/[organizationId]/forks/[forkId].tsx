@@ -1,5 +1,5 @@
 import { PlusIcon } from '@primer/octicons-react'
-import { Box, Button, Flash, Link, Spinner } from '@primer/react'
+import { Box, Button, Dialog, Flash, Link, Spinner, Text } from '@primer/react'
 import { personalOctokit } from 'bot/octokit'
 import { getAuthServerSideProps } from 'components/auth-guard'
 import { CreateMirrorDialog } from 'components/create-mirror'
@@ -31,8 +31,17 @@ const SingleFork = (
   const router = useRouter()
   const { organizationId, forkId } = router.query
   const [isOpen, setIsOpen] = useState(false)
+  const [deleteMirrorName, setDeleteMirrorName] = useState<string | null>(null)
   const closeDialog = useCallback(() => setIsOpen(false), [setIsOpen])
   const openDialog = useCallback(() => setIsOpen(true), [setIsOpen])
+  const closeRepoDeleteDialog = useCallback(
+    () => setDeleteMirrorName(null),
+    [setDeleteMirrorName],
+  )
+  const openRepoDeleteDialog = useCallback(
+    (mirrorName: string) => setDeleteMirrorName(mirrorName),
+    [setDeleteMirrorName],
+  )
   const [orgData, setOrgData] = useState<Awaited<
     ReturnType<typeof getOrgInformation>
   > | null>(null)
@@ -40,11 +49,17 @@ const SingleFork = (
     ReturnType<typeof getForkById>
   > | null>(null)
   const {
-    mutate: createMirror,
+    mutateAsync: createMirror,
     error: mirrorError,
     data,
     isLoading,
   } = trpc.git.createMirror.useMutation()
+
+  const {
+    mutateAsync: deleteMirror,
+    error: deleteError,
+    isLoading: deleteMirrorLoading,
+  } = trpc.repos.deleteMirror.useMutation()
 
   const {
     data: mirrors,
@@ -54,7 +69,7 @@ const SingleFork = (
   } = trpc.repos.listMirrors.useQuery(
     {
       orgId: organizationId as string,
-      forkName: fork?.name as string,
+      forkName: fork?.name ?? '',
     },
     {
       enabled: Boolean(organizationId) && Boolean(fork?.name),
@@ -91,8 +106,16 @@ const SingleFork = (
   }, [isOpen, refetchMirrors])
 
   const handleOnCreateMirror = useCallback(
-    ({ repoName, branchName }: { repoName: string; branchName: string }) => {
-      createMirror({
+    async ({
+      repoName,
+      branchName,
+    }: {
+      repoName: string
+      branchName: string
+    }) => {
+      closeDialog()
+
+      await createMirror({
         newRepoName: repoName,
         newBranchName: branchName,
         orgId: String(orgData?.id),
@@ -101,7 +124,7 @@ const SingleFork = (
         forkId: String(fork?.id),
       })
 
-      closeDialog()
+      refetchMirrors()
     },
     [closeDialog, createMirror, orgData, fork],
   )
@@ -114,6 +137,7 @@ const SingleFork = (
     <Box>
       <Box>
         {mirrorError && <Flash variant="danger">{mirrorError.message}</Flash>}
+        {deleteError && <Flash variant="danger">{deleteError.message}</Flash>}
       </Box>
       <Box>
         {data && (
@@ -198,6 +222,16 @@ const SingleFork = (
                   <Link href={mirror.html_url} target="_blank">
                     {mirror.name}
                   </Link>
+                  <Box>
+                    <Button
+                      variant="danger"
+                      onClick={() => {
+                        openRepoDeleteDialog(mirror.name)
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  </Box>
                 </Box>
               </Box>
             ))}
@@ -208,6 +242,44 @@ const SingleFork = (
         closeDialog={closeDialog}
         onCreateMirror={handleOnCreateMirror}
       />
+      <Dialog
+        isOpen={Boolean(deleteMirrorName)}
+        onDismiss={closeRepoDeleteDialog}
+      >
+        <Dialog.Header>
+          <Text>Delete Mirror</Text>
+        </Dialog.Header>
+        <Box p={3}>
+          <Text id="label" fontFamily="sans-serif">
+            Are you sure you&apos;d like to delete this mirror?
+          </Text>
+          <Box display="flex" mt={3} justifyContent="flex-end">
+            <Button
+              sx={{ mr: 1 }}
+              onClick={() => {
+                closeRepoDeleteDialog()
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              disabled={deleteMirrorLoading}
+              onClick={async () => {
+                await deleteMirror({
+                  orgId: orgData.id.toString(),
+                  orgName: orgData.login,
+                  mirrorName: deleteMirrorName!,
+                })
+                closeRepoDeleteDialog()
+                refetchMirrors()
+              }}
+            >
+              Delete
+            </Button>
+          </Box>
+        </Box>
+      </Dialog>
     </Box>
   )
 }
