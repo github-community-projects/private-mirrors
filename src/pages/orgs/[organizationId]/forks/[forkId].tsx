@@ -57,7 +57,7 @@ const SingleFork = (
   } = trpc.repos.listMirrors.useQuery(
     {
       orgId: organizationId as string,
-      forkName: fork?.name ? fork?.name : '',
+      forkName: fork?.name ?? '',
     },
     {
       enabled: Boolean(organizationId) && Boolean(fork?.name),
