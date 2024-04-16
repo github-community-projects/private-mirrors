@@ -1,5 +1,5 @@
 import { PlusIcon } from '@primer/octicons-react'
-import { Box, Button, Flash, Link, Spinner } from '@primer/react'
+import { Box, Button, Dialog, Flash, Link, Spinner, Text } from '@primer/react'
 import { personalOctokit } from 'bot/octokit'
 import { getAuthServerSideProps } from 'components/auth-guard'
 import { CreateMirrorDialog } from 'components/create-mirror'
@@ -31,8 +31,17 @@ const SingleFork = (
   const router = useRouter()
   const { organizationId, forkId } = router.query
   const [isOpen, setIsOpen] = useState(false)
+  const [deleteMirrorName, setDeleteMirrorName] = useState<string | null>(null)
   const closeDialog = useCallback(() => setIsOpen(false), [setIsOpen])
   const openDialog = useCallback(() => setIsOpen(true), [setIsOpen])
+  const closeRepoDeleteDialog = useCallback(
+    () => setDeleteMirrorName(null),
+    [setDeleteMirrorName],
+  )
+  const openRepoDeleteDialog = useCallback(
+    (mirrorName: string) => setDeleteMirrorName(mirrorName),
+    [setDeleteMirrorName],
+  )
   const [orgData, setOrgData] = useState<Awaited<
     ReturnType<typeof getOrgInformation>
   > | null>(null)
@@ -206,11 +215,7 @@ const SingleFork = (
                     <Button
                       variant="danger"
                       onClick={() => {
-                        deleteMirror({
-                          orgId: orgData.id.toString(),
-                          orgName: orgData.login,
-                          mirrorName: mirror.name,
-                        })
+                        openRepoDeleteDialog(mirror.name)
                       }}
                     >
                       Delete
@@ -226,6 +231,43 @@ const SingleFork = (
         closeDialog={closeDialog}
         onCreateMirror={handleOnCreateMirror}
       />
+      <Dialog
+        isOpen={Boolean(deleteMirrorName)}
+        onDismiss={closeRepoDeleteDialog}
+      >
+        <Dialog.Header>
+          <Text>Delete Mirror</Text>
+        </Dialog.Header>
+        <Box p={3}>
+          <Text id="label" fontFamily="sans-serif">
+            Are you sure you&apos;d like to delete this mirror?
+          </Text>
+          <Box display="flex" mt={3} justifyContent="flex-end">
+            <Button
+              sx={{ mr: 1 }}
+              onClick={() => {
+                closeRepoDeleteDialog()
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              onClick={() => {
+                deleteMirror({
+                  orgId: orgData.id.toString(),
+                  orgName: orgData.login,
+                  mirrorName: deleteMirrorName!,
+                })
+                closeRepoDeleteDialog()
+                refetchMirrors()
+              }}
+            >
+              Delete
+            </Button>
+          </Box>
+        </Box>
+      </Dialog>
     </Box>
   )
 }
