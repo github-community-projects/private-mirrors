@@ -200,8 +200,7 @@ function bot(app: Probot) {
       return
     }
 
-    const forkRepoNwo = forkNameWithOwner
-    const [forkOwner, forkName] = forkRepoNwo.split('/')
+    const [forkOwner, forkName] = forkNameWithOwner.split('/')
     const mirrorOwner = context.payload.repository.owner.login
     const mirrorName = context.payload.repository.name
     const orgId = String(context.payload.organization!.id)
