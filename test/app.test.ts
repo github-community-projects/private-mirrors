@@ -73,7 +73,15 @@ describe('Webhooks events', () => {
         })
         return body
       })
-      .reply(200)
+      .reply(200, {
+        data: {
+          repository: {
+            rulesets: {
+              nodes: [],
+            },
+          },
+        },
+      })
 
       // Test to see that we create the branch protection ruleset with gql
       .post('/graphql', (body) => {
@@ -130,7 +138,15 @@ describe('Webhooks events', () => {
         })
         return body
       })
-      .reply(200)
+      .reply(200, {
+        data: {
+          repository: {
+            rulesets: {
+              nodes: [],
+            },
+          },
+        },
+      })
 
       // Test to see that we create the branch protection ruleset with gql
       .post('/graphql', (body) => {

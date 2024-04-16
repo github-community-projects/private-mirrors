@@ -139,7 +139,11 @@ function bot(app: Probot) {
     // If the repository is a private repository, add branch protections to the default branch
     // Check repo properties to see if this is a mirror
     const forkNameWithOwner = await getForkName(
-      (context.payload.repository as any).custom_properties as CustomProperties,
+      (
+        context.payload.repository as typeof context.payload.repository & {
+          custom_properties: CustomProperties
+        }
+      ).custom_properties,
     )
 
     const authenticatedApp = await context.octokit.apps.getAuthenticated()
@@ -171,7 +175,11 @@ function bot(app: Probot) {
 
     // Check repo properties to see if this is a mirror
     const forkNameWithOwner = await getForkName(
-      (context.payload.repository as any).custom_properties as CustomProperties,
+      (
+        context.payload.repository as typeof context.payload.repository & {
+          custom_properties: CustomProperties
+        }
+      ).custom_properties,
     )
 
     const authenticatedApp = await context.octokit.apps.getAuthenticated()
