@@ -1,61 +1,62 @@
-import { Probot } from 'probot'
+import { Context, Probot } from 'probot'
 import { trpcServer } from '../server/trpc'
 import { logger } from '../utils/logger'
 import {
   branchProtectionRulesetGQL,
   getBranchProtectionRulesetGQL,
 } from './graphql'
+import { Repository } from '@octokit/graphql-schema'
+
+type CustomProperties = Record<string, string>
 
 const botLogger = logger.getSubLogger({ name: 'bot' })
 
 // Helper function to get the fork name from the repository custom properties
-export const getForkName = async (context: any) => {
-  return context.payload.repository.custom_properties.fork
-    ? context.payload.repository.custom_properties.fork
-    : null
+export const getForkName = async (props: CustomProperties) => {
+  return props.fork ?? null
 }
 
 // Helper function to create branch protection rulesets
 export const createBranchProtectionRuleset = async (
-  context: any,
-  authenticatedApp: any,
+  context: Context<'repository.created' | 'repository.edited' | 'push'>,
+  bypassActorId: string,
   ruleName: string,
   includeRefs: string[],
 ) => {
   // Get the current branch protection rulesets
-  const getBranchProtectionRuleset = await context.octokit.graphql(
-    getBranchProtectionRulesetGQL,
-    {
-      owner: context.payload.repository.owner.login,
-      name: context.payload.repository.name,
-    },
-  )
+  const getBranchProtectionRuleset = await context.octokit.graphql<{
+    repository: Repository
+  }>(getBranchProtectionRulesetGQL, {
+    owner: context.payload.repository.owner.login,
+    name: context.payload.repository.name,
+  })
 
   if (
-    getBranchProtectionRuleset &&
-    getBranchProtectionRuleset.repository.rulesets.nodes.find(
-      (ruleset: any) => ruleset.name === 'default-branch-protection-icf',
+    getBranchProtectionRuleset.repository.rulesets?.nodes?.find(
+      (ruleset) => ruleset?.name === 'default-branch-protection-icf',
     )
   ) {
     botLogger.info('Branch protection rule already exists', {
       getBranchProtectionRuleset,
     })
-  } else {
-    // Create the branch protection ruleset
-    const branchProtectionRuleset = await context.octokit.graphql(
-      branchProtectionRulesetGQL,
-      {
-        repositoryId: context.payload.repository.node_id,
-        ruleName,
-        actorId: authenticatedApp.data?.node_id,
-        includeRefs,
-      },
-    )
 
-    botLogger.info('Created branch protection rule', {
-      branchProtectionRuleset,
-    })
+    return
   }
+
+  // Create the branch protection ruleset
+  const branchProtectionRuleset = await context.octokit.graphql(
+    branchProtectionRulesetGQL,
+    {
+      repositoryId: context.payload.repository.node_id,
+      ruleName,
+      bypassActorId,
+      includeRefs,
+    },
+  )
+
+  botLogger.info('Created branch protection rule', {
+    branchProtectionRuleset,
+  })
 }
 
 function bot(app: Probot) {
@@ -89,14 +90,20 @@ function bot(app: Probot) {
       // Add branch protection via rulesets to the all branches
       await createBranchProtectionRuleset(
         context,
-        authenticatedApp,
+        authenticatedApp.data.node_id,
         'default-branch-protection-icf',
         ['~ALL'],
       )
     }
 
     // Check repo properties to see if this is a mirror
-    const forkNameWithOwner = await getForkName(context)
+    const forkNameWithOwner = await getForkName(
+      (
+        context.payload.repository as typeof context.payload.repository & {
+          custom_properties: CustomProperties
+        }
+      ).custom_properties,
+    )
 
     // Skip if not a mirror
     if (!forkNameWithOwner) {
@@ -119,7 +126,7 @@ function bot(app: Probot) {
     // Add branch protections via ruleset to the default branch
     await createBranchProtectionRuleset(
       context,
-      authenticatedApp,
+      authenticatedApp.data.node_id,
       'default-branch-protection-icf',
       ['~DEFAULT_BRANCH'],
     )
@@ -131,7 +138,9 @@ function bot(app: Probot) {
   app.on('repository.edited', async (context) => {
     // If the repository is a private repository, add branch protections to the default branch
     // Check repo properties to see if this is a mirror
-    const forkNameWithOwner = await getForkName(context)
+    const forkNameWithOwner = await getForkName(
+      (context.payload.repository as any).custom_properties as CustomProperties,
+    )
 
     const authenticatedApp = await context.octokit.apps.getAuthenticated()
 
@@ -151,7 +160,7 @@ function bot(app: Probot) {
     // Add branch protections via ruleset to the default branch
     await createBranchProtectionRuleset(
       context,
-      authenticatedApp,
+      authenticatedApp.data.node_id,
       'default-branch-protection-icf',
       ['~DEFAULT_BRANCH'],
     )
@@ -161,7 +170,9 @@ function bot(app: Probot) {
     botLogger.info('Push event')
 
     // Check repo properties to see if this is a mirror
-    const forkNameWithOwner = await getForkName(context)
+    const forkNameWithOwner = await getForkName(
+      (context.payload.repository as any).custom_properties as CustomProperties,
+    )
 
     const authenticatedApp = await context.octokit.apps.getAuthenticated()
 
@@ -222,7 +233,7 @@ function bot(app: Probot) {
       // Add branch protections via ruleset to the default branch
       await createBranchProtectionRuleset(
         context,
-        authenticatedApp,
+        authenticatedApp.data.node_id,
         'default-branch-protection-icf',
         ['~DEFAULT_BRANCH'],
       )

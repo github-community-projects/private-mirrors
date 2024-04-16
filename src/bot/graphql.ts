@@ -17,7 +17,7 @@ export const branchProtectionRulesetGQL = `
 mutation CreateRepositoryRuleset(
   $repositoryId: ID!
   $ruleName: String!
-  $actorId: ID!
+  $bypassActorId: ID!
   $includeRefs: [String!]!
 ) {
   createRepositoryRuleset(
@@ -47,7 +47,7 @@ mutation CreateRepositoryRuleset(
       ]
       enforcement: ACTIVE
       bypassActors: {
-        actorId:  $actorId
+        actorId:  $bypassActorId
         bypassMode: ALWAYS
       }
     }
