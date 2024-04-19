@@ -58,3 +58,26 @@ mutation CreateRepositoryRuleset(
   }
 }
 `
+
+export const branchProtectionGQL = `
+mutation AddBranchProtection(
+  $repositoryId: ID!
+  $actorId: ID!
+  $pattern: String!
+) {
+  createBranchProtectionRule(
+    input: {
+      repositoryId: $repositoryId
+      isAdminEnforced: true
+      pushActorIds: [$actorId]
+      pattern: $pattern
+      restrictsPushes: true
+      blocksCreations: true
+    }
+  ) {
+    branchProtectionRule {
+      id
+    }
+  }
+}
+`

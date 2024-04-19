@@ -31,7 +31,7 @@ export const reposRouter = router({
       const publicOrgData = await octokit.rest.orgs.get({ org: orgId })
 
       const repos = await octokit.rest.search.repos({
-        q: `org:${privateOrgData.data.login} props.fork:"${publicOrgData.data.login}/${forkName}"`,
+        q: `org:${privateOrgData.data.login} props.fork:"${publicOrgData.data.login}/${forkName}" OR org:${privateOrgData.data.login} in:description "mirror:${publicOrgData.data.login}/${forkName}"`,
       })
 
       return repos.data

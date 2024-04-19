@@ -2,6 +2,7 @@ import { Context, Probot } from 'probot'
 import { trpcServer } from '../server/trpc'
 import { logger } from '../utils/logger'
 import {
+  branchProtectionGQL,
   branchProtectionRulesetGQL,
   getBranchProtectionRulesetGQL,
 } from './graphql'
@@ -59,6 +60,70 @@ export const createBranchProtectionRuleset = async (
   })
 }
 
+export const createBranchProtection = async (
+  context: Context<'repository.created'>,
+  repositoryId: string,
+  pattern: string,
+  actorId: string,
+) => {
+  const branchProtection = await context.octokit.graphql(branchProtectionGQL, {
+    repositoryId,
+    pattern,
+    actorId,
+  })
+
+  botLogger.info('Created branch protection', {
+    branchProtection,
+  })
+}
+
+export const updateBranchProtection = async (
+  branch: string,
+  context: Context<'repository.created' | 'repository.edited' | 'push'>,
+) => {
+  const res = await context.octokit.repos.updateBranchProtection({
+    branch,
+    enforce_admins: true,
+    owner: context.payload.repository.owner.login,
+    repo: context.payload.repository.name,
+    required_pull_request_reviews: {
+      dismiss_stale_reviews: true,
+      require_code_owner_reviews: false,
+      required_approving_review_count: 1,
+      dismissal_restrictions: {
+        users: [],
+        teams: [],
+      },
+    },
+    required_status_checks: null,
+    restrictions: null,
+  })
+
+  botLogger.info('Created branch protection rule to default branch', {
+    res,
+    repositoryOwner: context.payload.repository.owner.login,
+    repositoryName: context.payload.repository.name,
+  })
+}
+
+// Helper function to get the metadata from the repository description
+export const getMetadata = (description: string | null) => {
+  botLogger.debug('Getting metadata from repository description', {
+    description,
+  })
+
+  if (!description) {
+    return {}
+  }
+
+  try {
+    return JSON.parse(description)
+  } catch (error) {
+    botLogger.error('Failed to parse repository description', { description })
+    return {}
+  }
+}
+
 function bot(app: Probot) {
   // Catch-all to log all webhook events
   app.onAny(async (context) => {
@@ -87,13 +152,26 @@ function bot(app: Probot) {
         repositoryName: context.payload.repository.name,
       })
 
-      // Add branch protection via rulesets to the all branches
-      await createBranchProtectionRuleset(
-        context,
-        authenticatedApp.data.node_id,
-        'default-branch-protection-icf',
-        ['~ALL'],
-      )
+      try {
+        // Add branch protection via rulesets to the all branches
+        await createBranchProtectionRuleset(
+          context,
+          authenticatedApp.data.node_id,
+          'default-branch-protection-icf',
+          ['~ALL'],
+        )
+      } catch (error) {
+        botLogger.error('Failed to create branch protection for fork', {
+          error,
+        })
+
+        await createBranchProtection(
+          context,
+          context.payload.repository.node_id,
+          '*',
+          authenticatedApp.data.node_id,
+        )
+      }
     }
 
     // Check repo properties to see if this is a mirror
@@ -105,8 +183,11 @@ function bot(app: Probot) {
       ).custom_properties,
     )
 
+    // Check repo description to see if this is a mirror
+    const metadata = getMetadata(context.payload.repository.description)
+
     // Skip if not a mirror
-    if (!forkNameWithOwner) {
+    if (!forkNameWithOwner && !metadata.mirror) {
       botLogger.info('Not a mirror repo, skipping', {
         repositoryOwner: context.payload.repository.owner.login,
         repositoryName: context.payload.repository.name,
@@ -114,22 +195,37 @@ function bot(app: Probot) {
       return
     }
 
-    // Get the default branch
-    const defaultBranch = context.payload.repository.default_branch
+    try {
+      // Get the default branch
+      const defaultBranch = context.payload.repository.default_branch
 
-    botLogger.debug('Adding branch protections to default branch', {
-      defaultBranch,
-      repositoryOwner: context.payload.repository.owner.login,
-      repositoryName: context.payload.repository.name,
-    })
+      botLogger.debug('Adding branch protections to default branch', {
+        defaultBranch,
+        repositoryOwner: context.payload.repository.owner.login,
+        repositoryName: context.payload.repository.name,
+      })
 
-    // Add branch protections via ruleset to the default branch
-    await createBranchProtectionRuleset(
-      context,
-      authenticatedApp.data.node_id,
-      'default-branch-protection-icf',
-      ['~DEFAULT_BRANCH'],
-    )
+      try {
+        // Add branch protections via ruleset to the default branch
+        await createBranchProtectionRuleset(
+          context,
+          authenticatedApp.data.node_id,
+          'default-branch-protection-icf',
+          ['~DEFAULT_BRANCH'],
+        )
+      } catch (error) {
+        botLogger.error('Failed to add branch protections to default branch', {
+          error,
+        })
+
+        // Add branch protections to the default branch
+        await updateBranchProtection(defaultBranch, context)
+      }
+    } catch (error) {
+      botLogger.error('Failed to add branch protections', {
+        error,
+      })
+    }
   })
 
   /**
@@ -137,6 +233,8 @@ function bot(app: Probot) {
    */
   app.on('repository.edited', async (context) => {
     // If the repository is a private repository, add branch protections to the default branch
+    const authenticatedApp = await context.octokit.apps.getAuthenticated()
+
     // Check repo properties to see if this is a mirror
     const forkNameWithOwner = await getForkName(
       (
@@ -146,28 +244,44 @@ function bot(app: Probot) {
       ).custom_properties,
     )
 
-    const authenticatedApp = await context.octokit.apps.getAuthenticated()
+    // Check repo description to see if this is a mirror
+    const metadata = getMetadata(context.payload.repository.description)
 
     // Skip if not a mirror
-    if (!forkNameWithOwner) {
+    if (!forkNameWithOwner && !metadata.mirror) {
       botLogger.info('Not a mirror repo, skipping')
       return
     }
 
-    // Get the default branch
-    const defaultBranch = context.payload.repository.default_branch
+    try {
+      // Get the default branch
+      const defaultBranch = context.payload.repository.default_branch
 
-    botLogger.debug('Adding branch protections to default branch', {
-      defaultBranch,
-    })
+      botLogger.debug('Adding branch protections to default branch', {
+        defaultBranch,
+      })
 
-    // Add branch protections via ruleset to the default branch
-    await createBranchProtectionRuleset(
-      context,
-      authenticatedApp.data.node_id,
-      'default-branch-protection-icf',
-      ['~DEFAULT_BRANCH'],
-    )
+      try {
+        // Add branch protections via ruleset to the default branch
+        await createBranchProtectionRuleset(
+          context,
+          authenticatedApp.data.node_id,
+          'default-branch-protection-icf',
+          ['~DEFAULT_BRANCH'],
+        )
+      } catch (error) {
+        botLogger.error('Failed to add branch protections to default branch', {
+          error,
+        })
+
+        // Add branch protections to the default branch
+        await updateBranchProtection(defaultBranch, context)
+      }
+    } catch (error) {
+      botLogger.error('Failed to add branch protections', {
+        error,
+      })
+    }
   })
 
   app.on('push', async (context) => {
@@ -184,8 +298,11 @@ function bot(app: Probot) {
 
     const authenticatedApp = await context.octokit.apps.getAuthenticated()
 
+    // Check repo description to see if this is a mirror
+    const metadata = getMetadata(context.payload.repository.description)
+
     // Skip if not a mirror
-    if (!forkNameWithOwner) {
+    if (!forkNameWithOwner && !metadata.mirror) {
       botLogger.info('Not a mirror repo, skipping')
       return
     }
@@ -237,13 +354,22 @@ function bot(app: Probot) {
         },
       )
 
-      // Add branch protections via ruleset to the default branch
-      await createBranchProtectionRuleset(
-        context,
-        authenticatedApp.data.node_id,
-        'default-branch-protection-icf',
-        ['~DEFAULT_BRANCH'],
-      )
+      try {
+        // Add branch protections via ruleset to the default branch
+        await createBranchProtectionRuleset(
+          context,
+          authenticatedApp.data.node_id,
+          'default-branch-protection-icf',
+          ['~DEFAULT_BRANCH'],
+        )
+      } catch (error) {
+        botLogger.error('Failed to add branch protections to default branch', {
+          error,
+        })
+
+        // Add branch protections to the default branch
+        await updateBranchProtection(defaultBranch, context)
+      }
     } catch (error) {
       botLogger.error('Failed to add branch protections', { error })
     }
