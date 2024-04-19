@@ -4,6 +4,7 @@ import { appOctokit, installationOctokit, personalOctokit } from 'bot/octokit'
 import { z } from 'zod'
 import { procedure, router } from '../trpc'
 import { TRPCError } from '@trpc/server'
+import { groupBy, map, last } from 'underscore'
 
 export const reposRouter = router({
   // Queries
@@ -30,11 +31,24 @@ export const reposRouter = router({
       })
       const publicOrgData = await octokit.rest.orgs.get({ org: orgId })
 
-      const repos = await octokit.rest.search.repos({
-        q: `org:${privateOrgData.data.login} props.fork:"${publicOrgData.data.login}/${forkName}" OR org:${privateOrgData.data.login} in:description "mirror:${publicOrgData.data.login}/${forkName}"`,
+      // TODO: replace with a single search query
+      const reposWithProps = await octokit.rest.search.repos({
+        q: `org:${privateOrgData.data.login} props.fork:"${publicOrgData.data.login}/${forkName}"`,
       })
 
-      return repos.data
+      const reposWithDescription = await octokit.rest.search.repos({
+        q: `org:${privateOrgData.data.login} in:description "mirror:${publicOrgData.data.login}/${forkName}"`,
+      })
+
+      const repos = map(
+        groupBy(
+          reposWithProps.data.items.concat(reposWithDescription.data.items),
+          'id',
+        ),
+        last,
+      )
+
+      return repos
     }),
 
   deleteMirror: procedure
