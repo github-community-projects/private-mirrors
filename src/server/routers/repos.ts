@@ -31,7 +31,7 @@ export const reposRouter = router({
       })
       const publicOrgData = await octokit.rest.orgs.get({ org: orgId })
 
-      // TODO: replace with a single search query
+      // TODO: replace with a single search query+
       const reposWithProps = await octokit.rest.search.repos({
         q: `org:${privateOrgData.data.login} props.fork:"${publicOrgData.data.login}/${forkName}"`,
       })
@@ -48,7 +48,7 @@ export const reposRouter = router({
         last,
       )
 
-      return repos
+      return repos as any[]
     }),
 
   deleteMirror: procedure
