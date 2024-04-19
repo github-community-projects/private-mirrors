@@ -126,7 +126,7 @@ const SingleFork = (
 
       refetchMirrors()
     },
-    [closeDialog, createMirror, orgData, fork],
+    [closeDialog, createMirror, refetchMirrors, orgData, fork],
   )
 
   if (!orgData) {
