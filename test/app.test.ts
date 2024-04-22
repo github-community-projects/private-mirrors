@@ -9,8 +9,9 @@ import { Octomock } from './octomock'
 import fs from 'fs'
 import path from 'path'
 import {
-  branchProtectionRulesetGQL,
+  forkBranchProtectionRulesetGQL,
   getBranchProtectionRulesetGQL,
+  mirrorBranchProtectionRulesetGQL,
 } from '../src/bot/graphql'
 import forkCreatedPayload from './fixtures/fork.created.json'
 import mirrorCreatedPayload from './fixtures/mirror.created.json'
@@ -86,10 +87,10 @@ describe('Webhooks events', () => {
       // Test to see that we create the branch protection ruleset with gql
       .post('/graphql', (body) => {
         expect(body).toMatchObject({
-          query: branchProtectionRulesetGQL,
+          query: forkBranchProtectionRulesetGQL,
           variables: {
             repositoryId: forkCreatedPayload.repository.node_id,
-            ruleName: 'default-branch-protection-icf',
+            ruleName: 'all-branch-protections-icf',
           },
         })
         return body
@@ -151,7 +152,7 @@ describe('Webhooks events', () => {
       // Test to see that we create the branch protection ruleset with gql
       .post('/graphql', (body) => {
         expect(body).toMatchObject({
-          query: branchProtectionRulesetGQL,
+          query: mirrorBranchProtectionRulesetGQL,
           variables: {
             repositoryId: mirrorCreatedPayload.repository.node_id,
             ruleName: 'default-branch-protection-icf',
