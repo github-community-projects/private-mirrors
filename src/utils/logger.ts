@@ -6,8 +6,8 @@ const getLoggerType = () => {
     return 'pretty'
   }
 
-  if (process.env.NODE_ENV === 'test' && !process.env.TEST_LOGGING) {
-    return 'hidden'
+  if (process.env.NODE_ENV === 'test' || process.env.TEST_LOGGING === '1') {
+    return 'pretty'
   }
 
   return 'json'

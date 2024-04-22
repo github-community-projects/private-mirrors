@@ -126,7 +126,7 @@ const SingleFork = (
 
       refetchMirrors()
     },
-    [closeDialog, createMirror, orgData, fork],
+    [closeDialog, createMirror, refetchMirrors, orgData, fork],
   )
 
   if (!orgData) {
@@ -200,7 +200,7 @@ const SingleFork = (
       </Box>
       <Box>
         {mirrorsLoading && <Box>Loading mirrors...</Box>}
-        {mirrors && mirrors.items.length === 0 && (
+        {mirrors && mirrors.length === 0 && (
           <Box>No mirrors found for this fork</Box>
         )}
         {mirrorsError && (
@@ -208,7 +208,7 @@ const SingleFork = (
         )}
         <Box>
           {mirrors &&
-            mirrors.items.map((mirror) => (
+            mirrors.map((mirror) => (
               <Box key={mirror.id}>
                 <Box
                   sx={{

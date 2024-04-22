@@ -13,7 +13,55 @@ query(
 }
 `
 
-export const branchProtectionRulesetGQL = `
+export const forkBranchProtectionRulesetGQL = `
+mutation CreateRepositoryRuleset(
+  $repositoryId: ID!
+  $ruleName: String!
+  $bypassActorId: ID!
+  $includeRefs: [String!]!
+) {
+  createRepositoryRuleset(
+    input: {
+      sourceId: $repositoryId
+      name: $ruleName
+      target: BRANCH
+      conditions: {
+        refName: {
+          include: $includeRefs
+          exclude: []
+        }
+      }
+      rules: [
+        {
+          type: CREATION
+        },
+        {
+          type: UPDATE
+          parameters:{
+            update:{
+              updateAllowsFetchAndMerge: true
+            }
+          }
+        },
+        {
+          type: DELETION
+        }
+      ]
+      enforcement: ACTIVE
+      bypassActors: {
+        actorId:  $bypassActorId
+        bypassMode: ALWAYS
+      }
+    }
+  ) {
+    ruleset {
+      id
+    }
+  }
+}
+`
+
+export const mirrorBranchProtectionRulesetGQL = `
 mutation CreateRepositoryRuleset(
   $repositoryId: ID!
   $ruleName: String!
@@ -53,6 +101,52 @@ mutation CreateRepositoryRuleset(
     }
   ) {
     ruleset {
+      id
+    }
+  }
+}
+`
+
+export const forkBranchProtectionGQL = `
+mutation AddBranchProtection(
+  $repositoryId: ID!
+  $actorId: ID!
+  $pattern: String!
+) {
+  createBranchProtectionRule(
+    input: {
+      repositoryId: $repositoryId
+      isAdminEnforced: true
+      pushActorIds: [$actorId]
+      pattern: $pattern
+      restrictsPushes: true
+      blocksCreations: true
+    }
+  ) {
+    branchProtectionRule {
+      id
+    }
+  }
+}
+`
+
+export const mirrorBranchProtectionGQL = `
+mutation AddBranchProtection(
+  $repositoryId: ID!
+  $actorId: ID!
+  $pattern: String!
+) {
+  createBranchProtectionRule(
+    input: {
+      repositoryId: $repositoryId
+      requiresApprovingReviews:true
+      requiredApprovingReviewCount: 1
+      pattern: $pattern
+      dismissesStaleReviews:true
+      pushActorIds: [$actorId]
+    }
+  ) {
+    branchProtectionRule {
       id
     }
   }
