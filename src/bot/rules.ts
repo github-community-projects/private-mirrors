@@ -101,6 +101,7 @@ export const createDefaultBranchProtection = async (
         repositoryNodeId,
         defaultBranch,
         actorNodeId,
+        true,
       )
 
       rulesLogger.info('Branch protection created', {
