@@ -4,19 +4,67 @@ import { logger } from 'utils/logger'
 
 const middlewareLogger = logger.getSubLogger({ name: 'middleware' })
 
-export const checkGitHubAuth = async (accessToken: string | undefined) => {
+/**
+ * Checks if the access token has access to the mirror org and repo
+ *
+ * Used for checking if the git.syncRepos mutation has the correct permissions
+ * @param accessToken Access token for the private org's installation
+ * @param mirrorOrgOwner Mirror org owner
+ * @param mirrorRepo Mirror repo name
+ */
+export const checkGitHubAppInstallationAuth = async (
+  accessToken: string | undefined,
+  mirrorOrgOwner: string | undefined,
+  mirrorRepo: string | undefined,
+) => {
+  if (!accessToken || !mirrorOrgOwner || !mirrorRepo) {
+    middlewareLogger.error('No access token or mirror org/repo provided')
+    throw new TRPCError({ code: 'UNAUTHORIZED' })
+  }
+
+  const octokit = personalOctokit(accessToken)
+
+  const data = await octokit.rest.repos.get({
+    owner: mirrorOrgOwner,
+    repo: mirrorRepo,
+  })
+
+  if (!data.data) {
+    middlewareLogger.error('App does not have access to mirror repo')
+    throw new TRPCError({ code: 'UNAUTHORIZED' })
+  }
+}
+
+/**
+ * Checks to see if the user has access to the organization
+ * @param accessToken Access token for a user
+ */
+export const checkGitHubAuth = async (
+  accessToken: string | undefined,
+  orgId: string | undefined,
+) => {
   if (!accessToken) {
     middlewareLogger.error('No access token provided')
     throw new TRPCError({ code: 'UNAUTHORIZED' })
   }
 
-  // Check validity of token
   const octokit = personalOctokit(accessToken)
+
   try {
+    // Check validity of token
     const user = await octokit.rest.users.getAuthenticated()
     if (!user) {
       middlewareLogger.error('No user found')
       throw new TRPCError({ code: 'UNAUTHORIZED' })
+    }
+
+    // Check if user has access to the org
+    if (orgId) {
+      const org = await octokit.rest.orgs.getMembershipForAuthenticatedUser()
+      if (!org) {
+        middlewareLogger.error('User does not have access to org')
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
     }
   } catch (error) {
     middlewareLogger.error('Error checking github auth', error)

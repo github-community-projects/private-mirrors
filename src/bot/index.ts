@@ -1,6 +1,7 @@
 import { Probot } from 'probot'
 import { trpcServer } from '../server/trpc'
 import { logger } from '../utils/logger'
+import { appOctokit, generateAppAccessToken } from './octokit'
 import { createAllPushProtection, createDefaultBranchProtection } from './rules'
 
 type CustomProperties = Record<string, string>
@@ -201,7 +202,18 @@ function bot(app: Probot) {
     const mirrorName = context.payload.repository.name
     const orgId = String(context.payload.organization!.id)
 
+    // Need to validate that the bot itself is the one making this request
+    const privateInstallationId =
+      await appOctokit().rest.apps.getOrgInstallation({
+        org: orgId,
+      })
+
+    const privateAccessToken = await generateAppAccessToken(
+      String(privateInstallationId.data.id),
+    )
+
     const res = await trpcServer.git.syncRepos.mutate({
+      accessToken: privateAccessToken,
       forkBranchName: mirrorName,
       mirrorBranchName: branch,
       destinationTo: 'fork',
