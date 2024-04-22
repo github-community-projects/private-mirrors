@@ -91,7 +91,7 @@ function bot(app: Probot) {
         repositoryName: context.payload.repository.name,
       })
 
-      createDefaultBranchProtection(
+      await createDefaultBranchProtection(
         context,
         context.payload.repository.node_id,
         authenticatedApp.data.node_id,
@@ -142,7 +142,7 @@ function bot(app: Probot) {
         defaultBranch,
       })
 
-      createDefaultBranchProtection(
+      await createDefaultBranchProtection(
         context,
         context.payload.repository.node_id,
         authenticatedApp.data.node_id,
@@ -225,7 +225,7 @@ function bot(app: Probot) {
         },
       )
 
-      createDefaultBranchProtection(
+      await createDefaultBranchProtection(
         context,
         context.payload.repository.node_id,
         authenticatedApp.data.node_id,
