@@ -73,7 +73,7 @@ export const createDefaultBranchProtection = async (
   actorNodeId: string,
   defaultBranch: string,
 ) => {
-  rulesLogger.debug('Creating branch protection ruleset for fork', {
+  rulesLogger.debug('Creating branch protection ruleset for mirror', {
     repositoryOwner: context.payload.repository.owner.login,
     repositoryName: context.payload.repository.name,
   })
@@ -85,6 +85,7 @@ export const createDefaultBranchProtection = async (
       actorNodeId,
       'default-branch-protection-icf',
       ['~DEFAULT_BRANCH'],
+      true,
     )
   } catch (error) {
     rulesLogger.error(
