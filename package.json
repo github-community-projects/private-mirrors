@@ -41,7 +41,6 @@
     "swr": "2.2.4",
     "tempy": "1.0.1",
     "tslog": "4.9.2",
-    "underscore": "1.13.6",
     "zod": "3.22.4"
   },
   "devDependencies": {
@@ -49,7 +48,6 @@
     "@types/node": "20.12.5",
     "@types/node-fetch": "2.6.11",
     "@types/react": "18.0.28",
-    "@types/underscore": "1.11.15",
     "@types/ws": "8.5.10",
     "abort-controller": "3.0.0",
     "concurrently": "8.2.1",
