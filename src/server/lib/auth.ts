@@ -1,4 +1,5 @@
 import { TRPCError } from '@trpc/server'
+import { getConfig } from 'bot/config'
 import { personalOctokit } from 'bot/octokit'
 import { logger } from 'utils/logger'
 
@@ -60,8 +61,13 @@ export const checkGitHubAuth = async (
 
     // Check if user has access to the org
     if (orgId) {
-      const org = await octokit.rest.orgs.getMembershipForAuthenticatedUser()
-      if (!org) {
+      const config = await getConfig(orgId)
+
+      const org = await octokit.rest.orgs.getMembershipForAuthenticatedUser({
+        org: config.publicOrg,
+      })
+
+      if (!org.data) {
         middlewareLogger.error('User does not have access to org')
         throw new TRPCError({ code: 'UNAUTHORIZED' })
       }
