@@ -23,25 +23,13 @@ export const getGitHubConfig = async (orgId: string) => {
 
   const orgData = await octokit.rest.orgs.get({ org: orgId })
 
-  const config = await octokit.config.get<InternalContributionForksConfig>({
-    owner: orgData.data.login,
-    repo: '.github',
-    path: 'internal-contribution-forks/config.yml',
-  })
-
-  const found = Boolean(config.files[0].config)
-
-  if (!found) {
-    configLogger.warn(
-      `No config found for org, using default org: '${orgId}' for BOTH public and private!`,
-    )
-    return {
-      publicOrg: orgId,
-      privateOrg: orgId,
-    }
+  configLogger.warn(
+    `No config found for org, using default org: '${orgData.data.login}' for BOTH public and private!`,
+  )
+  return {
+    publicOrg: orgData.data.login,
+    privateOrg: orgData.data.login,
   }
-
-  return config.config
 }
 
 export const getEnvConfig = () => {
