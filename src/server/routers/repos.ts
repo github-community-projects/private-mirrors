@@ -1,9 +1,12 @@
 // This holds the elevated permissions to fetch data from the private org
+import { TRPCError } from '@trpc/server'
 import { getConfig } from 'bot/config'
-import { appOctokit, installationOctokit, personalOctokit } from 'bot/octokit'
+import { appOctokit, installationOctokit } from 'bot/octokit'
+import { logger } from 'utils/logger'
 import { z } from 'zod'
 import { procedure, router } from '../trpc'
-import { TRPCError } from '@trpc/server'
+
+const reposApiLogger = logger.getSubLogger({ name: 'repos-api' })
 
 export const reposRouter = router({
   // Queries
@@ -47,26 +50,7 @@ export const reposRouter = router({
     )
     .mutation(async (opts) => {
       const { orgId, orgName, mirrorName } = opts.input
-
-      const accessToken = opts.ctx.session?.user.accessToken
-
-      if (!accessToken) {
-        throw new Error('Unauthorized')
-      }
-
-      const userOctokit = await personalOctokit(accessToken)
-
-      const fork = await userOctokit.rest.repos.get({
-        owner: orgName,
-        repo: mirrorName,
-      })
-
-      if (!fork.data) {
-        throw new TRPCError({
-          code: 'UNAUTHORIZED',
-          message: 'You are not authorized to delete this mirror',
-        })
-      }
+      reposApiLogger.info('Deleting mirror', { orgId, orgName, mirrorName })
 
       const config = await getConfig(orgId)
 
@@ -81,11 +65,12 @@ export const reposRouter = router({
           owner: config.privateOrg,
           repo: mirrorName,
         })
-      } catch (e) {
+      } catch (error) {
+        reposApiLogger.error('Failed to delete mirror', { error })
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
           message: 'Failed to delete mirror',
-          cause: e,
+          cause: error,
         })
       }
 
