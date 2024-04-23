@@ -23,7 +23,7 @@ export const getGitHubConfig = async (orgId: string) => {
 
   const orgData = await octokit.rest.orgs.get({ org: orgId })
 
-  configLogger.warn(
+  configLogger.info(
     `No config found for org, using default org: '${orgData.data.login}' for BOTH public and private!`,
   )
   return {
@@ -36,6 +36,10 @@ export const getEnvConfig = () => {
   if (!process.env.PUBLIC_ORG) {
     return null
   }
+
+  configLogger.info(
+    `PUBLIC_ORG is set. Using config from environment variables!`,
+  )
 
   const config = {
     publicOrg: process.env.PUBLIC_ORG as string,
@@ -79,11 +83,16 @@ export const getConfig = async (orgId?: string) => {
   // Lastly check github for a config
   if (!orgId) {
     logger.error(
-      'No orgId present, Organization ID is required to fetch a config when not using environment variables',
+      'No orgId present, Organization ID is required to set a config when not using environment variables',
     )
-    throw new Error('Organization ID is required to fetch a config!')
+    throw new Error('Organization ID is required to set a config!')
   }
 
   config = await getGitHubConfig(orgId)
+
+  logger.info(`Using following config values`, {
+    config,
+  })
+
   return validateConfig(config)
 }
