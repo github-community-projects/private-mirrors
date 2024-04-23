@@ -25,6 +25,18 @@ jest.mock('../../src/bot/octokit', () => ({
   generateAppAccessToken: async () => 'fake-token',
   appOctokit: () => om.getOctokitImplementation(),
   installationOctokit: () => om.getOctokitImplementation(),
+  getAuthenticatedOctokit: () => ({
+    contribution: {
+      accessToken: 'fake-token',
+      octokit: om.getOctokitImplementation(),
+      installationId: 'fake-installation-id',
+    },
+    private: {
+      accessToken: 'fake-token',
+      octokit: om.getOctokitImplementation(),
+      installationId: 'fake-installation-id',
+    },
+  }),
 }))
 jest.mock('../../src/server/lib/auth')
 

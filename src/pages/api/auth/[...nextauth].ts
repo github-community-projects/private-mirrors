@@ -84,8 +84,6 @@ export const nextAuthOptions: AuthOptions = {
       return false
     },
     session: async ({ session, token }) => {
-      authLogger.debug('Session callback')
-
       // TODO: Need to figure out how to do this more efficiently
       // Check if the user has a valid accessToken
       // const validSession = await verifySession(token?.accessToken as string);
@@ -106,8 +104,6 @@ export const nextAuthOptions: AuthOptions = {
     },
     // This type error is fine, we return undefined if the session is invalid
     jwt: async ({ token, account }) => {
-      authLogger.debug('JWT callback')
-
       return {
         ...token,
         accessToken: token?.accessToken ?? account?.access_token,

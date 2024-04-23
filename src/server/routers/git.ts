@@ -3,63 +3,9 @@ import { getConfig } from 'bot/config'
 import simpleGit, { SimpleGitOptions } from 'simple-git'
 import * as tempy from 'tempy'
 import { z } from 'zod'
-import {
-  appOctokit,
-  generateAppAccessToken,
-  installationOctokit,
-} from '../../bot/octokit'
+import { getAuthenticatedOctokit } from '../../bot/octokit'
 import { logger } from '../../utils/logger'
 import { procedure, router } from '../trpc'
-
-/**
- * Fetches octokit installations for both the contribution org and the private org
- * @param contributionOrgId Id of the contribution org
- * @param privateOrgId Id of the private org
- * @returns octokit instances for both the contribution and private orgs
- */
-const getAuthenticatedOctokit = async (
-  contributionOrgId: string,
-  privateOrgId: string,
-) => {
-  gitLogger.info('Fetching app installations')
-  const contributionInstallationId =
-    await appOctokit().rest.apps.getOrgInstallation({
-      org: contributionOrgId,
-    })
-
-  const contributionAccessToken = await generateAppAccessToken(
-    String(contributionInstallationId.data.id),
-  )
-  const contributionOctokit = installationOctokit(
-    String(contributionInstallationId.data.id),
-  )
-
-  const privateInstallationId = await appOctokit().rest.apps.getOrgInstallation(
-    {
-      org: privateOrgId,
-    },
-  )
-
-  const privateAccessToken = await generateAppAccessToken(
-    String(privateInstallationId.data.id),
-  )
-  const privateOctokit = installationOctokit(
-    String(privateInstallationId.data.id),
-  )
-
-  return {
-    contribution: {
-      accessToken: contributionAccessToken,
-      octokit: contributionOctokit,
-      installationId: String(contributionInstallationId.data.id),
-    },
-    private: {
-      accessToken: privateAccessToken,
-      octokit: privateOctokit,
-      installationId: String(privateInstallationId.data.id),
-    },
-  }
-}
 
 /**
  * Generates a git url with the access token in it
@@ -87,6 +33,7 @@ export const gitRouter = router({
   syncRepos: procedure
     .input(
       z.object({
+        accessToken: z.string(),
         orgId: z.string(),
         destinationTo: z.enum(['mirror', 'fork']),
         forkOwner: z.string(),

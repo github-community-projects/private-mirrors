@@ -90,3 +90,52 @@ export const personalOctokit = (token: string) => {
     log: personalOctokitLogger,
   })
 }
+
+/**
+ * Fetches octokit installations for both the contribution org and the private org
+ * @param contributionOrgId Id of the contribution org
+ * @param privateOrgId Id of the private org
+ * @returns octokit instances for both the contribution and private orgs
+ */
+export const getAuthenticatedOctokit = async (
+  contributionOrgId: string,
+  privateOrgId: string,
+) => {
+  const contributionInstallationId =
+    await appOctokit().rest.apps.getOrgInstallation({
+      org: contributionOrgId,
+    })
+
+  const contributionAccessToken = await generateAppAccessToken(
+    String(contributionInstallationId.data.id),
+  )
+  const contributionOctokit = installationOctokit(
+    String(contributionInstallationId.data.id),
+  )
+
+  const privateInstallationId = await appOctokit().rest.apps.getOrgInstallation(
+    {
+      org: privateOrgId,
+    },
+  )
+
+  const privateAccessToken = await generateAppAccessToken(
+    String(privateInstallationId.data.id),
+  )
+  const privateOctokit = installationOctokit(
+    String(privateInstallationId.data.id),
+  )
+
+  return {
+    contribution: {
+      accessToken: contributionAccessToken,
+      octokit: contributionOctokit,
+      installationId: String(contributionInstallationId.data.id),
+    },
+    private: {
+      accessToken: privateAccessToken,
+      octokit: privateOctokit,
+      installationId: String(privateInstallationId.data.id),
+    },
+  }
+}
