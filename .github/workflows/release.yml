@@ -12,9 +12,6 @@ permissions:
 
 jobs:
   create_release:
-    outputs:
-      full-tag: ${{ steps.release-drafter.outputs.tag_name }}
-      body: ${{ steps.release-drafter.outputs.body }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -27,18 +24,3 @@ jobs:
         with:
           config-name: release-drafter.yml
           publish: true
-  create_discussion:
-    needs: create_release
-    runs-on: ubuntu-latest
-    permissions:
-      discussions: write
-    steps:
-      - name: Create an announcement discussion for release
-        uses: abirismyname/create-discussion@v1.2.0
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          title: ${{ needs.create_release.outputs.full-tag }}
-          body: ${{ needs.create_release.outputs.body }}
-          repository-id: ${{ vars.RELEASE_DISCUSSION_REPOSITORY_ID }}
-          category-id: ${{ vars.RELEASE_DISCUSSION_CATEGORY_ID }}
