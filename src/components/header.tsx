@@ -1,146 +1,51 @@
-import { Avatar, Box } from '@primer/react'
-import { signIn, signOut, useSession } from 'next-auth/react'
-import Link from 'next/link'
+import { MarkGithubIcon } from '@primer/octicons-react'
+import { Avatar, Box, Button, Header, Octicon, Text } from '@primer/react'
+import { signOut, useSession } from 'next-auth/react'
 
 // The approach used in this component shows how to build a sign in and sign out
 // component that works on pages which support both client and server side
 // rendering, and avoids any flash incorrect content on initial page load.
-export default function Header() {
+export default function MainHeader() {
   const { data: session } = useSession()
 
-  if (!session) {
-    return (
-      <Box
-        as="header"
-        sx={{
-          py: 2,
-          width: '100%',
-          display: 'flex',
-          flexDirection: 'row',
-        }}
-      >
-        <Box
-          sx={{
-            width: '100%',
-            display: 'flex',
-            justifyContent: 'center',
-          }}
-        >
-          <Box
-            sx={{
-              mr: 2,
-            }}
-          >
-            You are not signed in
-          </Box>
-          <Link
-            href={`/api/auth/signin`}
-            onClick={(e) => {
-              e.preventDefault()
-              signIn()
-            }}
-          >
-            Sign in
-          </Link>
-        </Box>
-      </Box>
-    )
-  }
-
   return (
-    <Box
-      as="header"
+    <Header
       sx={{
-        py: 2,
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'row',
+        backgroundColor: 'pageHeaderBg',
+        borderBottom: '1px solid',
+        borderColor: 'border.default',
       }}
     >
-      <Box
-        as="nav"
-        sx={{
-          width: '100%',
-        }}
-      >
-        <Box
-          as="ul"
-          sx={{
-            display: 'flex',
-            flexDirection: 'row',
-          }}
-        >
-          {session?.user && (
-            <Box
-              as="li"
-              sx={{
-                listStyle: 'none',
-              }}
-            >
-              <Link href="/organizations">My Organizations</Link>
-            </Box>
-          )}
-        </Box>
-      </Box>
-      <Box
-        sx={{
-          width: '100%',
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'flex-end',
-          alignItems: 'center',
-        }}
-      >
+      <Header.Item>
+        <Octicon icon={MarkGithubIcon} color="fg.default" size={32}></Octicon>
+      </Header.Item>
+      <Header.Item full>
+        <Text sx={{ color: 'fg.default', fontSize: '2', fontWeight: 'bold' }}>
+          Internal Contribution Forks
+        </Text>
+      </Header.Item>
+      {session && (
         <Box>
-          {session?.user && (
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                width: '100%',
-              }}
-            >
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                }}
-              >
-                <Box
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}
-                >
-                  {session.user.image && (
-                    <Avatar size={36} src={session.user.image} />
-                  )}
-                  <Box
-                    sx={{
-                      mx: 2,
-                    }}
-                    as="strong"
-                  >
-                    {session.user.email ?? session.user.name}
-                  </Box>
-                </Box>
-              </Box>
-              <Box>
-                <Link
-                  href="/api/auth/signout"
-                  onClick={(e) => {
-                    e.preventDefault()
+          {session.user && (
+            <Header.Item sx={{ mr: 0 }}>
+              <Box sx={{ paddingRight: '20px' }}>
+                <Button
+                  onClick={() => {
                     signOut()
                   }}
                 >
                   Sign out
-                </Link>
+                </Button>
               </Box>
-            </Box>
+              <Box>
+                {session.user.image && (
+                  <Avatar src={session.user.image} size={32}></Avatar>
+                )}
+              </Box>
+            </Header.Item>
           )}
         </Box>
-      </Box>
-    </Box>
+      )}
+    </Header>
   )
 }

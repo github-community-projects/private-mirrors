@@ -1,4 +1,4 @@
-import { Box } from '@primer/react'
+import LoginBox from 'components/login'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
@@ -14,11 +14,7 @@ function HomePage() {
     }
   }, [session, router, session?.user])
 
-  return (
-    <Box>
-      <Box>Welcome to Internal Contribution Forks, sign in to get started</Box>
-    </Box>
-  )
+  return <LoginBox />
 }
 
 export default HomePage
