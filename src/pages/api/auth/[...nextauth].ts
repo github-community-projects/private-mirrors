@@ -23,6 +23,9 @@ export const verifySession = async (token: string | undefined) => {
 }
 
 export const nextAuthOptions: AuthOptions = {
+  pages: {
+    error: '/auth/error',
+  },
   debug: process.env.NODE_ENV === 'development',
   providers: [
     GitHub({

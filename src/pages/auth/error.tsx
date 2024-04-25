@@ -1,8 +1,7 @@
 import { MarkGithubIcon } from '@primer/octicons-react'
-import { Box, Button, Octicon, Text } from '@primer/react'
-import { signIn } from 'next-auth/react'
+import { Box, Octicon, Text } from '@primer/react'
 
-function LoginBox() {
+function ErrorPage() {
   return (
     <Box
       sx={{
@@ -31,29 +30,19 @@ function LoginBox() {
           alignItems: 'center',
         }}
       >
-        <Box sx={{ marginBottom: '15px' }}>
+        <Box>
           <Box sx={{ textAlign: 'center' }}>
-            <Text sx={{ fontSize: '3' }}>Sign in to get started</Text>
+            <Text sx={{ fontSize: '3' }}>Access denied</Text>
           </Box>
           <Box sx={{ textAlign: 'center' }}>
             <Text sx={{ fontSize: '1', color: 'fg.muted' }}>
-              Internal Contribution Forks
+              Reach out to your organization admin to get access
             </Text>
           </Box>
-        </Box>
-        <Box>
-          <Button
-            variant="primary"
-            onClick={() => {
-              signIn('github')
-            }}
-          >
-            Sign in with GitHub
-          </Button>
         </Box>
       </Box>
     </Box>
   )
 }
 
-export default LoginBox
+export default ErrorPage

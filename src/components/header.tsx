@@ -2,10 +2,7 @@ import { MarkGithubIcon } from '@primer/octicons-react'
 import { Avatar, Box, Button, Header, Octicon, Text } from '@primer/react'
 import { signOut, useSession } from 'next-auth/react'
 
-// The approach used in this component shows how to build a sign in and sign out
-// component that works on pages which support both client and server side
-// rendering, and avoids any flash incorrect content on initial page load.
-export default function MainHeader() {
+function MainHeader() {
   const { data: session } = useSession()
 
   return (
@@ -49,3 +46,5 @@ export default function MainHeader() {
     </Header>
   )
 }
+
+export default MainHeader

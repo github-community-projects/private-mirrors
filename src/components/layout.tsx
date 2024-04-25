@@ -2,7 +2,7 @@ import { Box, PageLayout } from '@primer/react'
 import type { ReactNode } from 'react'
 import MainHeader from './header'
 
-export default function Layout({ children }: { children: ReactNode }) {
+function Layout({ children }: { children: ReactNode }) {
   return (
     <Box
       sx={{
@@ -28,3 +28,5 @@ export default function Layout({ children }: { children: ReactNode }) {
     </Box>
   )
 }
+
+export default Layout
