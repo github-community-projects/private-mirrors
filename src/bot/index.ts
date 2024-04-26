@@ -1,5 +1,5 @@
 import { Probot } from 'probot'
-import { trpcServer } from '../server/trpc'
+import { trpc } from '../utils/trpc'
 import { logger } from '../utils/logger'
 import { appOctokit, generateAppAccessToken } from './octokit'
 import { createAllPushProtection, createDefaultBranchProtection } from './rules'
@@ -212,7 +212,16 @@ function bot(app: Probot) {
       String(privateInstallationId.data.id),
     )
 
-    const res = await trpcServer.git.syncRepos.mutate({
+    const { mutate } = trpc.syncRepos.useMutation({
+      onSuccess: (res) => {
+        botLogger.info('Synced repos on default branch push', res)
+      },
+      onError: (error) => {
+        botLogger.error('Failed to sync repos on default branch push', error)
+      },
+    })
+
+    mutate({
       accessToken: privateAccessToken,
       forkBranchName: mirrorName,
       mirrorBranchName: branch,
@@ -223,8 +232,6 @@ function bot(app: Probot) {
       mirrorOwner,
       orgId,
     })
-
-    botLogger.info('Synced repos on default branch push', { res })
 
     try {
       // Get the default branch

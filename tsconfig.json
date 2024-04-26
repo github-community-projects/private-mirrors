@@ -67,9 +67,14 @@
     "resolveJsonModule": true,
     "pretty": false,
     "skipLibCheck": true,
-    "incremental": true
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
-  "include": ["src"],
+  "include": ["src", ".next/types/**/*.ts"],
   "exclude": ["node_modules", "test"],
   "compileOnSave": false
 }
