@@ -189,6 +189,46 @@ describe('Git router', () => {
 
     const configSpy = jest.spyOn(config, 'getConfig').mockResolvedValue({
       publicOrg: 'github',
+      privateOrg: 'github',
+    })
+
+    om.mockFunctions.rest.apps.getOrgInstallation.mockResolvedValue(
+      fakeOrgInstallation,
+    )
+    om.mockFunctions.rest.orgs.get.mockResolvedValue(fakeOrg)
+    om.mockFunctions.rest.repos.get.mockResolvedValueOnce(repoNotFound)
+    om.mockFunctions.rest.repos.get.mockResolvedValueOnce(fakeMirrorRepo)
+    om.mockFunctions.rest.repos.delete.mockResolvedValue({})
+
+    stubbedGit.clone.mockRejectedValue(new Error('clone error'))
+
+    await caller
+      .createMirror({
+        forkId: 'test',
+        orgId: 'test',
+        forkRepoName: 'fork-test',
+        forkRepoOwner: 'github',
+        newBranchName: 'test',
+        newRepoName: 'test',
+      })
+      .catch((error) => {
+        expect(error.message).toEqual('clone error')
+      })
+
+    expect(configSpy).toHaveBeenCalledTimes(1)
+    expect(om.mockFunctions.rest.repos.get).toHaveBeenCalledTimes(2)
+    expect(om.mockFunctions.rest.repos.delete).toHaveBeenCalledWith({
+      owner: 'github',
+      repo: 'test',
+    })
+    expect(stubbedGit.clone).toHaveBeenCalledTimes(1)
+  })
+
+  it('dual-org: should cleanup repos when there is an error', async () => {
+    const caller = gitRouter.createCaller(createTestContext())
+
+    const configSpy = jest.spyOn(config, 'getConfig').mockResolvedValue({
+      publicOrg: 'github',
       privateOrg: 'github-test',
     })
 
@@ -217,7 +257,10 @@ describe('Git router', () => {
 
     expect(configSpy).toHaveBeenCalledTimes(1)
     expect(om.mockFunctions.rest.repos.get).toHaveBeenCalledTimes(2)
-    expect(om.mockFunctions.rest.repos.delete).toHaveBeenCalledTimes(1)
+    expect(om.mockFunctions.rest.repos.delete).toHaveBeenCalledWith({
+      owner: 'github-test',
+      repo: 'test',
+    })
     expect(stubbedGit.clone).toHaveBeenCalledTimes(1)
   })
 })
