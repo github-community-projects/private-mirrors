@@ -275,9 +275,9 @@ export const gitRouter = router({
           data: newRepo.data,
         }
       } catch (e) {
-        // Clean up the repo made
+        // Clean up the private mirror repo made
         await privateOctokit.rest.repos.delete({
-          owner: orgData.data.login,
+          owner: privateOrg,
           repo: opts.input.newRepoName,
         })
 
