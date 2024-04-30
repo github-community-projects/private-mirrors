@@ -2,6 +2,7 @@ import { BaseStyles, Box, ThemeProvider } from '@primer/react'
 import { TrpcProvider } from '../utils/trpc-provider'
 import AuthProvider from './context/AuthProvider'
 import MainHeader from './components/MainHeader'
+import StyledComponentsRegistry from '../lib/registry'
 
 export default function RootLayout({
   children,
@@ -11,32 +12,34 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ThemeProvider>
-          <BaseStyles>
-            <AuthProvider>
-              <TrpcProvider>
-                <Box
-                  sx={{
-                    mx: 'auto',
-                    width: '100%',
-                  }}
-                >
+        <StyledComponentsRegistry>
+          <ThemeProvider>
+            <BaseStyles>
+              <AuthProvider>
+                <TrpcProvider>
                   <Box
                     sx={{
-                      position: 'sticky',
-                      top: 0,
-                      height: 64,
-                      display: 'grid',
+                      mx: 'auto',
+                      width: '100%',
                     }}
                   >
-                    <MainHeader />
+                    <Box
+                      sx={{
+                        position: 'sticky',
+                        top: 0,
+                        height: 64,
+                        display: 'grid',
+                      }}
+                    >
+                      <MainHeader />
+                    </Box>
+                    <Box sx={{ padding: '40px' }}>{children}</Box>
                   </Box>
-                  <Box sx={{ padding: '40px' }}>{children}</Box>
-                </Box>
-              </TrpcProvider>
-            </AuthProvider>
-          </BaseStyles>
-        </ThemeProvider>
+                </TrpcProvider>
+              </AuthProvider>
+            </BaseStyles>
+          </ThemeProvider>
+        </StyledComponentsRegistry>
       </body>
     </html>
   )
