@@ -10,10 +10,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { trpc } from '../../../../utils/trpc'
 
 import { useSession } from 'next-auth/react'
-
-const getOrgInformation = async (accessToken: string, orgId: string) => {
-  return (await personalOctokit(accessToken).rest.orgs.get({ org: orgId })).data
-}
+import { useOrgData } from 'utils/organization'
 
 const getForkById = async (
   accessToken: string,
@@ -42,9 +39,7 @@ const SingleFork = () => {
     (mirrorName: string) => setDeleteMirrorName(mirrorName),
     [setDeleteMirrorName],
   )
-  const [orgData, setOrgData] = useState<Awaited<
-    ReturnType<typeof getOrgInformation>
-  > | null>(null)
+  const orgData = useOrgData()
   const [fork, setFork] = useState<Awaited<
     ReturnType<typeof getForkById>
   > | null>(null)
@@ -77,12 +72,6 @@ const SingleFork = () => {
   )
 
   const loadAllData = useCallback(async () => {
-    const orgInfo = await getOrgInformation(
-      accessToken,
-      organizationId as string,
-    )
-    setOrgData(orgInfo)
-
     let forkInfo
     try {
       forkInfo = await getForkById(accessToken, forkId as string)

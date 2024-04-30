@@ -23,27 +23,23 @@ export default function MainHeader() {
           Internal Contribution Forks
         </Text>
       </Header.Item>
-      {session && (
-        <Box>
-          {session.data?.user && (
-            <Header.Item sx={{ mr: 0 }}>
-              <Box sx={{ paddingRight: '20px' }}>
-                <Button
-                  onClick={() => {
-                    signOut()
-                  }}
-                >
-                  Sign out
-                </Button>
-              </Box>
-              <Box>
-                {session.data?.user.image && (
-                  <Avatar src={session.data?.user.image} size={32}></Avatar>
-                )}
-              </Box>
-            </Header.Item>
-          )}
-        </Box>
+      {session && session.data?.user && (
+        <Header.Item sx={{ mr: 0 }}>
+          <Box sx={{ paddingRight: '20px' }}>
+            <Button
+              onClick={() => {
+                signOut()
+              }}
+            >
+              Sign out
+            </Button>
+          </Box>
+          <Box>
+            {session.data?.user.image && (
+              <Avatar src={session.data?.user.image} size={32}></Avatar>
+            )}
+          </Box>
+        </Header.Item>
       )}
     </Header>
   )
