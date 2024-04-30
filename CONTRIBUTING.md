@@ -27,6 +27,12 @@ Here are a few things you can do that will increase the likelihood of your pull 
 - Keep your change as focused as possible. If there are multiple changes you would like to make that are not dependent upon each other, consider submitting them as separate pull requests.
 - Write a [good commit message](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html).
 
+## Releases
+
+Releases are automated if a pull request is labelled with our [semver related labels](.github/release-drafter.yml) or with the `vuln` or `release` labels.
+
+You can also manually initiate a release you can do so through the GitHub Actions UI. If you have permissions to do so, you can navigate to the [Actions tab](https://github.com/github-community-projects/internal-contribution-forks/actions/workflows/release.yml) and select the `Run workflow` button. This will allow you to select the branch to release from and the version to release.
+
 ## Resources
 
 - [How to Contribute to Open Source](https://opensource.guide/how-to-contribute/)
