@@ -1,10 +1,10 @@
+import simpleGit, { SimpleGitOptions } from 'simple-git'
 import { getConfig } from '../../bot/config'
 import { getAuthenticatedOctokit } from '../../bot/octokit'
-import { logger } from '../../utils/logger'
-import { CreateMirrorSchema, SyncReposSchema } from './schema'
 import { generateAuthUrl } from '../../utils/auth'
 import { temporaryDirectory } from '../../utils/dir'
-import simpleGit, { SimpleGitOptions } from 'simple-git'
+import { logger } from '../../utils/logger'
+import { CreateMirrorSchema, SyncReposSchema } from './schema'
 
 const gitApiLogger = logger.getSubLogger({ name: 'git-api' })
 
@@ -113,6 +113,9 @@ export const syncReposHandler = async ({
     }
   } catch (error) {
     gitApiLogger.error('Error syncing repos', { error })
+    return {
+      success: false,
+    }
   }
 }
 
@@ -242,9 +245,9 @@ export const createMirrorHandler = async ({
         data: newRepo.data,
       }
     } catch (e) {
-      // Clean up the repo made
+      // Clean up the private mirror repo made
       await privateOctokit.rest.repos.delete({
-        owner: orgData.data.login,
+        owner: privateOrg,
         repo: input.newRepoName,
       })
 
@@ -252,5 +255,10 @@ export const createMirrorHandler = async ({
 
       throw e
     }
-  } catch (error) {}
+  } catch (error) {
+    gitApiLogger.error('Error creating mirror', { error })
+    return {
+      success: false,
+    }
+  }
 }

@@ -2,9 +2,9 @@ import {
   FetchCreateContextFnOptions,
   fetchRequestHandler,
 } from '@trpc/server/adapters/fetch'
-import { appRouter } from '../trpc-router'
 import { getServerSession } from 'next-auth'
 import { nextAuthOptions } from '../../auth/lib/nextauth-options'
+import { appRouter } from '../trpc-router'
 
 async function createContext({ req, resHeaders }: FetchCreateContextFnOptions) {
   const session = await getServerSession(nextAuthOptions)

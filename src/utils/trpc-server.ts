@@ -1,8 +1,8 @@
 import { initTRPC } from '@trpc/server'
 import { CreateNextContextOptions } from '@trpc/server/adapters/next'
 import { getServerSession } from 'next-auth'
-import { nextAuthOptions } from '../app/api/auth/lib/nextauth-options'
 import SuperJSON from 'superjson'
+import { nextAuthOptions } from '../app/api/auth/lib/nextauth-options'
 import { verifyAuth } from '../utils/trpc-middleware'
 
 export const createContext = async (opts: CreateNextContextOptions) => {

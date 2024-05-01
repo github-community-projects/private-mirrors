@@ -152,3 +152,50 @@ mutation AddBranchProtection(
   }
 }
 `
+
+export const getRepoLanguagesGQL = `
+query(
+  $owner: String!
+  $name: String!
+) {
+  repository(owner: $owner, name: $name) {
+    languages(first: 2) {
+      nodes {
+        color
+        name
+      }
+    }
+  }
+}
+`
+
+export const getReposInOrgGQL = `
+query(
+  $login: String!
+) {
+  organization(login: $login) {
+    repositories(first: 50) {
+      totalCount
+      nodes {
+        name
+        parent {
+          name
+          owner {
+            login
+            avatarUrl
+          }
+        }
+        languages(first: 2) {
+          nodes {
+            color
+            name
+          }
+        }
+        refs(refPrefix: "refs/") {
+          totalCount
+        }
+      }
+    }
+  }
+}
+`

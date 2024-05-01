@@ -8,7 +8,7 @@ export default function OrgHeader() {
 
   return (
     <Pagehead>
-      {orgData && (
+      {orgData ? (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Box sx={{ width: '48px', marginRight: '12px' }}>
             <Avatar src={orgData.avatar_url} size={48} square={true} />
@@ -21,8 +21,7 @@ export default function OrgHeader() {
             </Text>
           </Box>
         </Box>
-      )}
-      {!orgData && (
+      ) : (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Box sx={{ width: '48px' }}>
             <Spinner />

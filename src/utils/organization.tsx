@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 
 // TODO: Handle org not found
 
-const getOrganizationInformation = async (
+export const getOrganizationData = async (
   accessToken: string,
   orgId: string,
 ) => {
@@ -13,11 +13,13 @@ const getOrganizationInformation = async (
 }
 
 export function useOrgData() {
+  const { organizationId } = useParams()
+
   const session = useSession()
   const { accessToken } = (session.data?.user as any) ?? {}
-  const { organizationId } = useParams()
+
   const [orgData, setOrgData] = useState<Awaited<
-    ReturnType<typeof getOrganizationInformation>
+    ReturnType<typeof getOrganizationData>
   > | null>(null)
 
   useEffect(() => {
@@ -25,11 +27,12 @@ export function useOrgData() {
       return
     }
 
-    getOrganizationInformation(accessToken, organizationId as string).then(
+    getOrganizationData(accessToken, organizationId as string).then(
       (orgData) => {
         setOrgData(orgData)
       },
     )
   }, [organizationId, accessToken])
+
   return orgData
 }

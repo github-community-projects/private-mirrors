@@ -1,8 +1,8 @@
-import { ListMirrorsSchema } from './schema'
+import { TRPCError } from '@trpc/server'
 import { getConfig } from '../../bot/config'
 import { appOctokit, installationOctokit } from '../../bot/octokit'
 import { logger } from '../../utils/logger'
-import { TRPCError } from '@trpc/server'
+import { ListMirrorsSchema } from './schema'
 
 const reposApiLogger = logger.getSubLogger({ name: 'repos-api' })
 

@@ -2,12 +2,12 @@
 
 import { PlusIcon } from '@primer/octicons-react'
 import { Box, Button, Dialog, Flash, Link, Spinner, Text } from '@primer/react'
-import { personalOctokit } from '../../../../bot/octokit'
-import { CreateMirrorDialog } from '../../../components/CreateMirrorDialog'
 import { useParams } from 'next/navigation'
 import { Octokit } from 'octokit'
 import { useCallback, useEffect, useState } from 'react'
+import { personalOctokit } from '../../../../bot/octokit'
 import { trpc } from '../../../../utils/trpc'
+import { CreateMirrorDialog } from '../../../components/CreateMirrorDialog'
 
 import { useSession } from 'next-auth/react'
 import { useOrgData } from 'utils/organization'
@@ -80,7 +80,7 @@ const SingleFork = () => {
       console.error(e)
       return
     }
-  }, [accessToken, organizationId, forkId])
+  }, [accessToken, forkId])
 
   useEffect(() => {
     if (!accessToken || !organizationId) {
@@ -132,8 +132,8 @@ const SingleFork = () => {
         {data && (
           <Flash variant="success">
             Success! New repo created at{' '}
-            <Link href={data.data.html_url}>
-              {data.data.owner.login}/{data.data.name}
+            <Link href={data.data?.html_url}>
+              {data.data?.owner.login}/{data.data?.name}
             </Link>
           </Flash>
         )}

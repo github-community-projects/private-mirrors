@@ -1,7 +1,7 @@
+import { personalOctokit } from 'bot/octokit'
 import { AuthOptions, Profile } from 'next-auth'
 import GitHub from 'next-auth/providers/github'
 import { logger } from '../../../../utils/logger'
-import { personalOctokit } from 'bot/octokit'
 
 const authLogger = logger.getSubLogger({ name: 'auth' })
 

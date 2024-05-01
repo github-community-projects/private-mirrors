@@ -1,6 +1,6 @@
 import { Probot } from 'probot'
-import { trpc } from '../utils/trpc'
 import { logger } from '../utils/logger'
+import { trpc } from '../utils/trpc'
 import { appOctokit, generateAppAccessToken } from './octokit'
 import { createAllPushProtection, createDefaultBranchProtection } from './rules'
 

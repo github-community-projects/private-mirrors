@@ -1,10 +1,10 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { useSession } from 'next-auth/react'
-import { personalOctokit } from '../bot/octokit'
 import { Box } from '@primer/react'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { personalOctokit } from '../bot/octokit'
 import Login from './components/Login'
 
 export default function Home() {
