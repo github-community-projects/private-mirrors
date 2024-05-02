@@ -3,6 +3,7 @@ import { CreateNextContextOptions } from '@trpc/server/adapters/next'
 import { getServerSession } from 'next-auth'
 import { nextAuthOptions } from '../app/api/auth/lib/nextauth-options'
 import { verifyAuth } from '../utils/trpc-middleware'
+import SuperJSON from 'superjson'
 
 export const createContext = async (opts: CreateNextContextOptions) => {
   const session = await getServerSession(opts.req, opts.res, nextAuthOptions)
@@ -16,7 +17,9 @@ export const createContext = async (opts: CreateNextContextOptions) => {
 // since it's not very descriptive.
 // For instance, the use of a t variable
 // is common in i18n libraries.
-export const t = initTRPC.context<typeof createContext>().create({})
+export const t = initTRPC.context<typeof createContext>().create({
+  transformer: SuperJSON,
+})
 
 // Base router and procedure helpers
 export const router = t.router
