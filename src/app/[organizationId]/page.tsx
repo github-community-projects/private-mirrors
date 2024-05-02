@@ -3,8 +3,16 @@
 import { useParams } from 'next/navigation'
 import { trpc } from '../../utils/trpc'
 
-import { DotFillIcon, RepoIcon } from '@primer/octicons-react'
-import { Avatar, Box, Label, Link, Octicon, Text } from '@primer/react'
+import { DotFillIcon, GitBranchIcon, RepoIcon } from '@primer/octicons-react'
+import {
+  Avatar,
+  Box,
+  Label,
+  Link,
+  Octicon,
+  RelativeTime,
+  Text,
+} from '@primer/react'
 import Blankslate from '@primer/react/lib-esm/Blankslate/Blankslate'
 import { DataTable, Table } from '@primer/react/lib-esm/DataTable'
 import { Stack } from '@primer/react/lib-esm/Stack'
@@ -37,6 +45,7 @@ const Organization = () => {
               },
               {
                 header: 'Language',
+                minWidth: 500,
               },
               {
                 header: 'Updated',
@@ -84,7 +93,7 @@ const Organization = () => {
                 renderCell: (row) => {
                   return (
                     <Stack direction="horizontal" align="center">
-                      <Stack.Item grow={false}>
+                      <Stack.Item>
                         <Avatar
                           src={
                             row.parent.owner.avatarUrl ?? row.owner.avatarUrl
@@ -92,22 +101,29 @@ const Organization = () => {
                           size={32}
                         />
                       </Stack.Item>
-                      <Stack direction="vertical" gap="none">
-                        <Stack direction="horizontal" gap="condensed">
-                          <Link href={`/${orgData?.id}/forks/${row.id}`}>
+                      <Stack.Item grow={false}>
+                        <Stack.Item grow={false}>
+                          <Link
+                            sx={{
+                              paddingRight: '5px',
+                              fontWeight: 'bold',
+                              fontSize: 2,
+                            }}
+                            href={`/${orgData?.id}/forks/${row.id}`}
+                          >
                             {row.name}
                           </Link>
                           <Label variant="secondary">
                             {row.isPrivate ? 'Private' : 'Public'}
                           </Label>
-                        </Stack>
-                        <Stack>
-                          <Text>
+                        </Stack.Item>
+                        <Stack.Item>
+                          <Text sx={{ color: 'fg.muted' }}>
                             Forked from {row.parent.owner.login}/
                             {row.parent.name}
                           </Text>
-                        </Stack>
-                      </Stack>
+                        </Stack.Item>
+                      </Stack.Item>
                     </Stack>
                   )
                 },
@@ -115,28 +131,45 @@ const Organization = () => {
               {
                 header: 'Branches',
                 field: 'refs.totalCount',
+                renderCell: (row) => {
+                  return (
+                    <Stack direction="horizontal">
+                      <Stack.Item>
+                        <Box>
+                          <Octicon
+                            icon={GitBranchIcon}
+                            color="fg.muted"
+                            size={16}
+                          ></Octicon>
+                          <Text sx={{ paddingLeft: '3px', color: 'fg.muted' }}>
+                            {row.refs.totalCount}
+                          </Text>
+                        </Box>
+                      </Stack.Item>
+                    </Stack>
+                  )
+                },
               },
               {
-                header: 'Language',
+                header: 'Languages',
                 field: 'languages',
+                minWidth: 500,
                 renderCell: (row) => {
                   const languages = row.languages.nodes
 
                   return (
                     <Stack direction="horizontal">
                       {languages.map((lang) => (
-                        <Stack
-                          key={lang.name}
-                          direction="horizontal"
-                          align="center"
-                          gap="none"
-                        >
-                          <Octicon
-                            icon={DotFillIcon}
-                            color={lang.color}
-                          ></Octicon>
-                          <Text>{lang.name}</Text>
-                        </Stack>
+                        <Stack.Item key={lang.name} grow={false}>
+                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <Octicon
+                              icon={DotFillIcon}
+                              color={lang.color}
+                              size={16}
+                            ></Octicon>
+                            <Text>{lang.name}</Text>
+                          </Box>
+                        </Stack.Item>
                       ))}
                     </Stack>
                   )
@@ -145,6 +178,11 @@ const Organization = () => {
               {
                 header: 'Updated',
                 field: 'updatedAt',
+                renderCell: (row) => {
+                  return (
+                    <RelativeTime date={new Date(row.updatedAt)} tense="past" />
+                  )
+                },
               },
             ]}
           />
