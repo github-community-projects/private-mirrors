@@ -172,9 +172,10 @@ query(
 export const getReposInOrgGQL = `
 query(
   $login: String!
+  $isFork: Boolean
 ) {
   organization(login: $login) {
-    repositories(first: 50) {
+    repositories(first: 50, isFork: $isFork) {
       totalCount
       nodes {
         databaseId
@@ -192,7 +193,7 @@ query(
             avatarUrl
           }
         }
-        languages(first: 2) {
+        languages(first: 4) {
           nodes {
             color
             name

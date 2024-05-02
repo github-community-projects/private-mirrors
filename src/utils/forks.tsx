@@ -10,6 +10,7 @@ const getForksInOrg = async (accessToken: string, login: string) => {
     getReposInOrgGQL,
     {
       login,
+      isFork: true,
     },
   )
 
