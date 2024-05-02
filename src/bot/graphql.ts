@@ -177,7 +177,14 @@ query(
     repositories(first: 50) {
       totalCount
       nodes {
+        databaseId
         name
+        isPrivate
+        updatedAt
+        owner {
+          login
+          avatarUrl
+        }
         parent {
           name
           owner {
