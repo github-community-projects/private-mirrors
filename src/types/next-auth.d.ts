@@ -7,3 +7,5 @@ declare module 'next-auth' {
     } & DefaultSession['user']
   }
 }
+
+export { Session }

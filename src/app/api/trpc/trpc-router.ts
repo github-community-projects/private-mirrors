@@ -5,10 +5,7 @@ import { t } from '../../../utils/trpc-server'
 
 export const healthCheckerRouter = t.router({
   healthchecker: t.procedure.query(({}) => {
-    return {
-      status: 'success',
-      message: 'Welcome to trpc with Next.js 14 and React Query',
-    }
+    return 'ok'
   }),
 })
 

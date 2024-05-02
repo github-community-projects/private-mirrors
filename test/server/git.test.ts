@@ -14,8 +14,8 @@ jest.mock('simple-git', () => {
 })
 
 import * as config from '../../src/bot/config'
-import * as auth from '../../src/server/lib/auth'
-import { gitRouter } from '../../src/server/routers/git'
+import * as auth from '../../src/utils/auth'
+import gitRouter from '../../src/server/git/router'
 import { Octomock } from '../octomock'
 import { createTestContext } from '../utils/auth'
 const om = new Octomock()
@@ -38,7 +38,7 @@ jest.mock('../../src/bot/octokit', () => ({
     },
   }),
 }))
-jest.mock('../../src/server/lib/auth')
+jest.mock('../../src/utils/auth')
 
 const fakeForkRepo = {
   status: 200,
