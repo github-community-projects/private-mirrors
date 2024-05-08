@@ -12,7 +12,13 @@ module.exports = {
   ],
   transformIgnorePatterns: ['node_modules/(?!(superjson)/)'],
   transform: {
-    '^.+\\.(ts|tsx)?$': 'ts-jest',
-    '^.+\\.(js|jsx)$': 'babel-jest',
+    '^.+\\.(ts|tsx)?$': [
+      'ts-jest',
+      { configFile: './babel.config.testing.js' },
+    ],
+    '^.+\\.(js|jsx)$': [
+      'babel-jest',
+      { configFile: './babel.config.testing.js' },
+    ],
   },
 }
