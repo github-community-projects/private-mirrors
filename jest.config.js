@@ -10,4 +10,9 @@ module.exports = {
     '<rootDir>/test/',
     '<rootDir>/src/utils/',
   ],
+  transformIgnorePatterns: ['node_modules/(?!(superjson)/)'],
+  transform: {
+    '^.+\\.(ts|tsx)?$': 'ts-jest',
+    '^.+\\.(js|jsx)$': 'babel-jest',
+  },
 }

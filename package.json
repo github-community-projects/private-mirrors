@@ -44,6 +44,7 @@
     "zod": "3.23.5"
   },
   "devDependencies": {
+    "@babel/preset-env": "7.24.5",
     "@tanstack/eslint-plugin-query": "5.28.11",
     "@types/jest": "29.5.12",
     "@types/node": "20.12.5",
@@ -51,6 +52,7 @@
     "@types/react": "18.0.28",
     "@types/ws": "8.5.10",
     "abort-controller": "3.0.0",
+    "babel-jest": "29.7.0",
     "concurrently": "8.2.1",
     "dotenv-load": "3.0.0",
     "eslint": "8.57.0",
