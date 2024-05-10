@@ -1,48 +1,32 @@
 'use client'
 
-import { MarkGithubIcon } from '@primer/octicons-react'
-import { Box, Octicon, Text } from '@primer/react'
+import { AlertIcon } from '@primer/octicons-react'
+import { Box, Octicon } from '@primer/react'
+import Blankslate from '@primer/react/lib-esm/Blankslate/Blankslate'
 
 export default function NotFoundPage() {
   return (
     <Box
       sx={{
-        width: '394px',
-        height: 'auto',
-        top: '160px',
-        margin: 'auto',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexDirection: 'column',
-        border: '1px solid',
-        borderColor: 'border.default',
-        borderRadius: '12px',
         padding: '40px',
-        marginTop: '60px',
       }}
     >
-      <Box sx={{ marginBottom: '15px' }}>
-        <Octicon icon={MarkGithubIcon} color="fg.default" size={48}></Octicon>
-      </Box>
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
-        <Box>
-          <Box sx={{ textAlign: 'center' }}>
-            <Text sx={{ fontSize: '3' }}>404</Text>
-          </Box>
-          <Box sx={{ textAlign: 'center' }}>
-            <Text sx={{ fontSize: '1', color: 'fg.muted' }}>
-              Page not found
-            </Text>
-          </Box>
+      <Blankslate>
+        <Box sx={{ padding: '10px' }}>
+          <Blankslate.Visual>
+            <Octicon icon={AlertIcon} size={24} color="fg.muted"></Octicon>
+          </Blankslate.Visual>
         </Box>
-      </Box>
+        <Blankslate.Heading>Page not found</Blankslate.Heading>
+        <Blankslate.Description>
+          This is not the page you&apos;re looking for.
+        </Blankslate.Description>
+        <Box sx={{ padding: '20px' }}>
+          <Blankslate.SecondaryAction href="/">
+            Back to repositories
+          </Blankslate.SecondaryAction>
+        </Box>
+      </Blankslate>
     </Box>
   )
 }

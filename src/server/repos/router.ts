@@ -1,8 +1,19 @@
 import { procedure, router } from '../../utils/trpc-server'
-import { deleteMirrorHandler, listMirrorsHandler } from './controller'
-import { DeleteMirrorSchema, ListMirrorsSchema } from './schema'
+import {
+  createMirrorHandler,
+  deleteMirrorHandler,
+  listMirrorsHandler,
+} from './controller'
+import {
+  CreateMirrorSchema,
+  DeleteMirrorSchema,
+  ListMirrorsSchema,
+} from './schema'
 
 const reposRouter = router({
+  createMirror: procedure
+    .input(CreateMirrorSchema)
+    .mutation(({ input }) => createMirrorHandler({ input })),
   listMirrors: procedure
     .input(ListMirrorsSchema)
     .query(({ input }) => listMirrorsHandler({ input })),

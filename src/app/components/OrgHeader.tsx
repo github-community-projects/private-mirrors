@@ -1,6 +1,7 @@
 'use client'
 
 import { Avatar, Box, Pagehead, Spinner, Text } from '@primer/react'
+import { Stack } from '@primer/react/lib-esm/Stack'
 import { useOrgData } from 'utils/organization'
 
 export default function OrgHeader() {
@@ -9,31 +10,31 @@ export default function OrgHeader() {
   return (
     <Pagehead>
       {orgData ? (
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Box sx={{ width: '48px', marginRight: '12px' }}>
+        <Stack align="center" direction="horizontal">
+          <Stack.Item>
             <Avatar src={orgData.avatar_url} size={48} square={true} />
-          </Box>
-          <Box>
+          </Stack.Item>
+          <Stack.Item>
             <Text
               sx={{ color: 'fg.default', fontSize: '3', fontWeight: 'bold' }}
             >
               {orgData.login}
             </Text>
-          </Box>
-        </Box>
+          </Stack.Item>
+        </Stack>
       ) : (
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Box sx={{ width: '48px' }}>
+        <Stack align="center" direction="horizontal">
+          <Stack.Item>
             <Spinner />
-          </Box>
-          <Box>
+          </Stack.Item>
+          <Stack.Item>
             <Text
               sx={{ color: 'fg.default', fontSize: '3', fontWeight: 'bold' }}
             >
               Loading organization data...
             </Text>
-          </Box>
-        </Box>
+          </Stack.Item>
+        </Stack>
       )}
     </Pagehead>
   )

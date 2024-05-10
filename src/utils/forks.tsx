@@ -6,7 +6,7 @@ import { ForksObject } from 'types/forks'
 import { useOrgData } from './organization'
 
 const getForksInOrg = async (accessToken: string, login: string) => {
-  const res = await personalOctokit(accessToken).graphql<ForksObject>(
+  const res = await personalOctokit(accessToken).graphql.paginate<ForksObject>(
     getReposInOrgGQL,
     {
       login,

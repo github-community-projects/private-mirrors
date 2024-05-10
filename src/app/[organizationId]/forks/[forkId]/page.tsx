@@ -1,60 +1,44 @@
 'use client'
 
-import { PlusIcon } from '@primer/octicons-react'
-import { Box, Button, Dialog, Flash, Link, Spinner, Text } from '@primer/react'
 import { useParams } from 'next/navigation'
-import { Octokit } from 'octokit'
-import { useCallback, useEffect, useState } from 'react'
-import { personalOctokit } from '../../../../bot/octokit'
 import { trpc } from '../../../../utils/trpc'
-import { CreateMirrorDialog } from '../../../components/CreateMirrorDialog'
 
-import { useSession } from 'next-auth/react'
+import {
+  KebabHorizontalIcon,
+  PencilIcon,
+  RepoIcon,
+  TrashIcon,
+} from '@primer/octicons-react'
+import {
+  ActionList,
+  ActionMenu,
+  Box,
+  IconButton,
+  Link,
+  Octicon,
+  RelativeTime,
+} from '@primer/react'
+import Blankslate from '@primer/react/lib-esm/Blankslate/Blankslate'
+import { DataTable, Table } from '@primer/react/lib-esm/DataTable'
+import { Stack } from '@primer/react/lib-esm/Stack'
+import AppNotInstalled from 'app/components/AppNotInstalled'
+import MirrorSearch from 'app/components/MirrorSearch'
+import { useForkData } from 'utils/fork'
 import { useOrgData } from 'utils/organization'
+import { useState } from 'react'
 
-const getForkById = async (
-  accessToken: string,
-  repoId: string,
-): Promise<Awaited<ReturnType<Octokit['rest']['repos']['get']>>['data']> => {
-  return (
-    await personalOctokit(accessToken).request('GET /repositories/:id', {
-      id: repoId,
-    })
-  ).data
-}
-
-const SingleFork = () => {
-  const session = useSession()
-  const { accessToken } = (session.data?.user as any) ?? {}
+const Forks = () => {
   const { organizationId, forkId } = useParams()
-  const [isOpen, setIsOpen] = useState(false)
-  const [deleteMirrorName, setDeleteMirrorName] = useState<string | null>(null)
-  const closeDialog = useCallback(() => setIsOpen(false), [setIsOpen])
-  const openDialog = useCallback(() => setIsOpen(true), [setIsOpen])
-  const closeRepoDeleteDialog = useCallback(
-    () => setDeleteMirrorName(null),
-    [setDeleteMirrorName],
-  )
-  const openRepoDeleteDialog = useCallback(
-    (mirrorName: string) => setDeleteMirrorName(mirrorName),
-    [setDeleteMirrorName],
-  )
+  const { data, isLoading } = trpc.checkInstallation.useQuery({
+    orgId: organizationId as string,
+  })
   const orgData = useOrgData()
-  const [fork, setFork] = useState<Awaited<
-    ReturnType<typeof getForkById>
-  > | null>(null)
-  const {
-    mutateAsync: createMirror,
-    error: mirrorError,
-    data,
-    isLoading,
-  } = trpc.createMirror.useMutation()
+  const forkData = useForkData()
 
-  const {
-    mutateAsync: deleteMirror,
-    error: deleteError,
-    isLoading: deleteMirrorLoading,
-  } = trpc.deleteMirror.useMutation()
+  const pageSize = 5
+  const [pageIndex, setPageIndex] = useState(0)
+  const start = pageIndex * pageSize
+  const end = start + pageSize
 
   const {
     data: mirrors,
@@ -64,213 +48,181 @@ const SingleFork = () => {
   } = trpc.listMirrors.useQuery(
     {
       orgId: organizationId as string,
-      forkName: fork?.name ?? '',
+      forkName: forkData?.name ?? '',
     },
     {
-      enabled: Boolean(organizationId) && Boolean(fork?.name),
+      enabled: Boolean(organizationId) && Boolean(forkData?.name),
     },
   )
 
-  const loadAllData = useCallback(async () => {
-    let forkInfo
-    try {
-      forkInfo = await getForkById(accessToken, forkId as string)
-      setFork(forkInfo)
-    } catch (e) {
-      console.error(e)
-      return
-    }
-  }, [accessToken, forkId])
+  const {
+    mutateAsync: deleteMirror,
+    error: deleteError,
+    isLoading: deleteMirrorLoading,
+  } = trpc.deleteMirror.useMutation()
 
-  useEffect(() => {
-    if (!accessToken || !organizationId) {
-      return
-    }
-
-    loadAllData()
-  }, [organizationId, accessToken, loadAllData])
-
-  useEffect(() => {
-    refetchMirrors()
-  }, [isOpen, refetchMirrors])
-
-  const handleOnCreateMirror = useCallback(
-    async ({
-      repoName,
-      branchName,
-    }: {
-      repoName: string
-      branchName: string
-    }) => {
-      closeDialog()
-
-      await createMirror({
-        newRepoName: repoName,
-        newBranchName: branchName,
-        orgId: String(orgData?.id),
-        forkRepoName: fork?.name ?? '',
-        forkRepoOwner: fork?.owner.login ?? '',
-        forkId: String(fork?.id),
-      })
-
-      refetchMirrors()
-    },
-    [closeDialog, createMirror, refetchMirrors, orgData, fork],
-  )
-
-  if (!orgData) {
-    return <div>Loading fork data...</div>
+  if (!mirrors) {
+    return (
+      <Box>
+        <MirrorSearch />
+        <Table.Container>
+          <Table.Skeleton
+            columns={[
+              {
+                header: 'Mirror name',
+                rowHeader: true,
+                width: 'auto',
+              },
+              {
+                header: 'Last updated',
+                width: 'auto',
+              },
+              {
+                id: 'actions',
+                header: '',
+                width: '50px',
+                align: 'end',
+              },
+            ]}
+            rows={10}
+          />
+          <Table.Pagination aria-label="" totalCount={0}></Table.Pagination>
+        </Table.Container>
+      </Box>
+    )
   }
+
+  const mirrorsRow = mirrors.slice(start, end)
 
   return (
     <Box>
-      <Box>
-        {mirrorError && <Flash variant="danger">{mirrorError.message}</Flash>}
-        {deleteError && <Flash variant="danger">{deleteError.message}</Flash>}
+      <Box sx={{ marginBottom: '25px' }}>
+        {!isLoading && !data?.installed && <AppNotInstalled />}
       </Box>
-      <Box>
-        {data && (
-          <Flash variant="success">
-            Success! New repo created at{' '}
-            <Link href={data.data?.html_url}>
-              {data.data?.owner.login}/{data.data?.name}
-            </Link>
-          </Flash>
-        )}
-      </Box>
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <Link
-          href={`https://github.com/${orgData.login}/${fork?.name}`}
-          target="_blank"
-        >
-          <h3>
-            {orgData.login} / {fork?.name}
-          </h3>
-        </Link>
+      <MirrorSearch />
+      {mirrors?.length === 0 ? (
         <Box
           sx={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
+            border: '1px solid',
+            borderColor: 'border.default',
+            padding: '40px',
+            borderRadius: '12px',
           }}
         >
-          {isLoading && (
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-              }}
-            >
-              Creating new repo{' '}
-              <Spinner
-                sx={{
-                  ml: 2,
-                  mr: 4,
-                }}
-              />
+          <Blankslate>
+            <Box sx={{ padding: '10px' }}>
+              <Blankslate.Visual>
+                <Octicon icon={RepoIcon} size={24} color="fg.muted"></Octicon>
+              </Blankslate.Visual>
             </Box>
-          )}
-          <Button
-            variant="primary"
-            leadingVisual={PlusIcon}
-            onClick={openDialog}
-          >
-            Create Mirror
-          </Button>
+            <Blankslate.Heading>No mirrors found</Blankslate.Heading>
+            <Blankslate.Description>
+              Please create a mirror for this fork.
+            </Blankslate.Description>
+          </Blankslate>
         </Box>
-      </Box>
-      <Box>
-        {mirrorsLoading && <Box>Loading mirrors...</Box>}
-        {mirrors && mirrors.length === 0 && (
-          <Box>No mirrors found for this fork</Box>
-        )}
-        {mirrorsError && (
-          <Box>Failed to fetch mirrors. {mirrorsError?.message}</Box>
-        )}
-        <Box>
-          {mirrors &&
-            mirrors.map((mirror) => (
-              <Box key={mirror.id}>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    my: 2,
-                  }}
-                >
-                  <Link href={mirror.html_url} target="_blank">
-                    {mirror.name}
-                  </Link>
-                  <Box>
-                    <Button
-                      variant="danger"
-                      onClick={() => {
-                        openRepoDeleteDialog(mirror.name)
+      ) : (
+        <Table.Container>
+          <DataTable
+            data={mirrorsRow}
+            columns={[
+              {
+                header: 'Mirror name',
+                rowHeader: true,
+                field: 'name',
+                width: 'auto',
+                renderCell: (row) => {
+                  return (
+                    <Link
+                      sx={{
+                        paddingRight: '5px',
+                        fontWeight: 'bold',
+                        fontSize: 2,
                       }}
+                      href={row.html_url}
+                      target="_blank"
                     >
-                      Delete
-                    </Button>
-                  </Box>
-                </Box>
-              </Box>
-            ))}
-        </Box>
-      </Box>
-      <CreateMirrorDialog
-        isOpen={isOpen}
-        closeDialog={closeDialog}
-        onCreateMirror={handleOnCreateMirror}
-      />
-      <Dialog
-        isOpen={Boolean(deleteMirrorName)}
-        onDismiss={closeRepoDeleteDialog}
-      >
-        <Dialog.Header>
-          <Text>Delete Mirror</Text>
-        </Dialog.Header>
-        <Box p={3}>
-          <Text id="label" fontFamily="sans-serif">
-            Are you sure you&apos;d like to delete this mirror?
-          </Text>
-          <Box display="flex" mt={3} justifyContent="flex-end">
-            <Button
-              sx={{ mr: 1 }}
-              onClick={() => {
-                closeRepoDeleteDialog()
-              }}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="danger"
-              disabled={deleteMirrorLoading}
-              onClick={async () => {
-                await deleteMirror({
-                  orgId: orgData.id.toString(),
-                  orgName: orgData.login,
-                  mirrorName: deleteMirrorName!,
-                })
-                closeRepoDeleteDialog()
-                refetchMirrors()
-              }}
-            >
-              Delete
-            </Button>
-          </Box>
-        </Box>
-      </Dialog>
+                      {row.name}
+                    </Link>
+                  )
+                },
+              },
+              {
+                header: 'Last updated',
+                field: 'updated_at',
+                width: 'auto',
+                renderCell: (row) => {
+                  return (
+                    <RelativeTime
+                      date={new Date(row.updated_at)}
+                      tense="past"
+                    />
+                  )
+                },
+              },
+              {
+                id: 'actions',
+                header: '',
+                width: '50px',
+                align: 'end',
+                renderCell: (row) => {
+                  return (
+                    <ActionMenu>
+                      <ActionMenu.Anchor>
+                        <IconButton
+                          aria-label={`Actions: ${row.name}`}
+                          title={`Actions: ${row.name}`}
+                          icon={KebabHorizontalIcon}
+                          variant="invisible"
+                        />
+                      </ActionMenu.Anchor>
+                      <ActionMenu.Overlay>
+                        <ActionList>
+                          <ActionList.Item onSelect={() => {}}>
+                            <Stack align="center" direction="horizontal">
+                              <Stack.Item>
+                                <Octicon icon={PencilIcon}></Octicon>
+                              </Stack.Item>
+                              <Stack.Item>Edit mirror</Stack.Item>
+                            </Stack>
+                          </ActionList.Item>
+                          <ActionList.Item
+                            variant="danger"
+                            onSelect={async () => {
+                              await deleteMirror({
+                                mirrorName: row.name,
+                                orgId: organizationId as string,
+                                orgName: orgData?.name ?? '',
+                              })
+                            }}
+                          >
+                            <Stack align="center" direction="horizontal">
+                              <Stack.Item>
+                                <Octicon icon={TrashIcon}></Octicon>
+                              </Stack.Item>
+                              <Stack.Item>Delete mirror</Stack.Item>
+                            </Stack>
+                          </ActionList.Item>
+                        </ActionList>
+                      </ActionMenu.Overlay>
+                    </ActionMenu>
+                  )
+                },
+              },
+            ]}
+          />
+          <Table.Pagination
+            aria-label=""
+            totalCount={0}
+            pageSize={pageSize}
+            onChange={({ pageIndex }) => {
+              setPageIndex(pageIndex)
+            }}
+          ></Table.Pagination>
+        </Table.Container>
+      )}
     </Box>
   )
 }
 
-export default SingleFork
+export default Forks

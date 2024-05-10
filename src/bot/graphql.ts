@@ -173,9 +173,10 @@ export const getReposInOrgGQL = `
 query(
   $login: String!
   $isFork: Boolean
+  $cursor: String
 ) {
   organization(login: $login) {
-    repositories(first: 50, isFork: $isFork) {
+    repositories(isFork: $isFork, after: $cursor, first: 10) {
       totalCount
       nodes {
         databaseId
@@ -202,6 +203,10 @@ query(
         refs(refPrefix: "refs/") {
           totalCount
         }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
       }
     }
   }

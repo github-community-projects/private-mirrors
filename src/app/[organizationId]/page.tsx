@@ -16,9 +16,11 @@ import {
 import Blankslate from '@primer/react/lib-esm/Blankslate/Blankslate'
 import { DataTable, Table } from '@primer/react/lib-esm/DataTable'
 import { Stack } from '@primer/react/lib-esm/Stack'
-import AppNotInstalled from 'app/components/Flashes'
+import AppNotInstalled from 'app/components/AppNotInstalled'
 import { useForksData } from 'utils/forks'
 import { useOrgData } from 'utils/organization'
+import ForkSearch from 'app/components/ForkSearch'
+import { useState } from 'react'
 
 const Organization = () => {
   const { organizationId } = useParams()
@@ -26,43 +28,54 @@ const Organization = () => {
     orgId: organizationId as string,
   })
   const orgData = useOrgData()
-  const forks = useForksData()
+  const forksData = useForksData()?.organization.repositories
 
-  if (!forks) {
+  const pageSize = 5
+  const [pageIndex, setPageIndex] = useState(0)
+  const start = pageIndex * pageSize
+  const end = start + pageSize
+
+  if (!forksData) {
     return (
       <Box>
+        <ForkSearch />
         <Table.Container>
           <Table.Skeleton
-            aria-labelledby="repositories"
-            aria-describedby="repositories-subtitle"
             columns={[
               {
                 header: 'Repository',
-                minWidth: 500,
+                rowHeader: true,
+                width: 'auto',
               },
               {
                 header: 'Branches',
+                width: 'auto',
               },
               {
                 header: 'Language',
-                minWidth: 500,
+                width: 'auto',
               },
               {
                 header: 'Updated',
+                width: 'auto',
               },
             ]}
             rows={10}
-            cellPadding="spacious"
           />
         </Table.Container>
       </Box>
     )
   }
 
+  const forks = forksData.nodes.slice(start, end)
+
   return (
     <Box>
-      <Box>{!isLoading && !data?.installed && <AppNotInstalled />}</Box>
-      {forks.organization.repositories.totalCount === 0 ? (
+      <Box sx={{ marginBottom: '25px' }}>
+        {!isLoading && !data?.installed && <AppNotInstalled />}
+      </Box>
+      <ForkSearch />
+      {forksData.totalCount === 0 ? (
         <Box
           sx={{
             border: '1px solid',
@@ -72,24 +85,27 @@ const Organization = () => {
           }}
         >
           <Blankslate>
-            <Blankslate.Visual>
-              <Octicon icon={RepoIcon} size={24} color="fg.muted"></Octicon>
-            </Blankslate.Visual>
+            <Box sx={{ padding: '10px' }}>
+              <Blankslate.Visual>
+                <Octicon icon={RepoIcon} size={24} color="fg.muted"></Octicon>
+              </Blankslate.Visual>
+            </Box>
             <Blankslate.Heading>No forks found</Blankslate.Heading>
             <Blankslate.Description>
-              Please fork a repo into your organization to get started
+              Please fork a repo into your organization to get started.
             </Blankslate.Description>
           </Blankslate>
         </Box>
       ) : (
         <Table.Container>
           <DataTable
-            data={forks.organization.repositories.nodes}
+            data={forks}
             columns={[
               {
                 header: 'Repository',
+                rowHeader: true,
                 field: 'name',
-                minWidth: 500,
+                width: 'auto',
                 renderCell: (row) => {
                   return (
                     <Stack direction="horizontal" align="center">
@@ -131,6 +147,7 @@ const Organization = () => {
               {
                 header: 'Branches',
                 field: 'refs.totalCount',
+                width: 'auto',
                 renderCell: (row) => {
                   return (
                     <Stack direction="horizontal">
@@ -153,7 +170,7 @@ const Organization = () => {
               {
                 header: 'Languages',
                 field: 'languages',
-                minWidth: 500,
+                width: 'auto',
                 renderCell: (row) => {
                   const languages = row.languages.nodes
 
@@ -178,6 +195,7 @@ const Organization = () => {
               {
                 header: 'Updated',
                 field: 'updatedAt',
+                width: 'auto',
                 renderCell: (row) => {
                   return (
                     <RelativeTime date={new Date(row.updatedAt)} tense="past" />
@@ -186,6 +204,14 @@ const Organization = () => {
               },
             ]}
           />
+          <Table.Pagination
+            aria-label=""
+            totalCount={forksData.totalCount}
+            pageSize={pageSize}
+            onChange={({ pageIndex }) => {
+              setPageIndex(pageIndex)
+            }}
+          ></Table.Pagination>
         </Table.Container>
       )}
     </Box>

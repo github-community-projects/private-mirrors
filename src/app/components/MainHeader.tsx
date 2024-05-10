@@ -2,6 +2,7 @@
 
 import { MarkGithubIcon } from '@primer/octicons-react'
 import { Avatar, Box, Button, Header, Octicon, Text } from '@primer/react'
+import { Stack } from '@primer/react/lib-esm/Stack'
 import { signOut, useSession } from 'next-auth/react'
 
 export default function MainHeader() {
@@ -25,20 +26,22 @@ export default function MainHeader() {
       </Header.Item>
       {session && session.data?.user && (
         <Header.Item sx={{ mr: 0 }}>
-          <Box sx={{ paddingRight: '20px' }}>
-            <Button
-              onClick={() => {
-                signOut()
-              }}
-            >
-              Sign out
-            </Button>
-          </Box>
-          <Box>
-            {session.data?.user.image && (
-              <Avatar src={session.data?.user.image} size={32}></Avatar>
-            )}
-          </Box>
+          <Stack align="center" direction="horizontal">
+            <Stack.Item>
+              <Button
+                onClick={() => {
+                  signOut()
+                }}
+              >
+                Sign out
+              </Button>
+            </Stack.Item>
+            <Stack.Item>
+              {session.data?.user.image && (
+                <Avatar src={session.data?.user.image} size={32}></Avatar>
+              )}
+            </Stack.Item>
+          </Stack>
         </Header.Item>
       )}
     </Header>
