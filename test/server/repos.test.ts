@@ -15,7 +15,7 @@ jest.mock('simple-git', () => {
 
 import * as config from '../../src/bot/config'
 import * as auth from '../../src/utils/auth'
-import gitRouter from '../../src/server/git/router'
+import reposRouter from '../../src/server/repos/router'
 import { Octomock } from '../octomock'
 import { createTestContext } from '../utils/auth'
 const om = new Octomock()
@@ -99,14 +99,14 @@ const fakeOrgCustomProperties = {
 
 jest.spyOn(auth, 'checkGitHubAuth').mockResolvedValue()
 
-describe('Git router', () => {
+describe('Repos router', () => {
   beforeEach(() => {
     om.resetMocks()
     jest.resetAllMocks()
   })
 
   it('should create a mirror when repo does not exist exist', async () => {
-    const caller = gitRouter.createCaller(createTestContext())
+    const caller = reposRouter.createCaller(createTestContext())
 
     const configSpy = jest.spyOn(config, 'getConfig').mockResolvedValue({
       publicOrg: 'github',
@@ -151,7 +151,7 @@ describe('Git router', () => {
   })
 
   it('should throw an error when repo already exists', async () => {
-    const caller = gitRouter.createCaller(createTestContext())
+    const caller = reposRouter.createCaller(createTestContext())
 
     const configSpy = jest.spyOn(config, 'getConfig').mockResolvedValue({
       publicOrg: 'github',
@@ -185,7 +185,7 @@ describe('Git router', () => {
   })
 
   it('should cleanup repos when there is an error', async () => {
-    const caller = gitRouter.createCaller(createTestContext())
+    const caller = reposRouter.createCaller(createTestContext())
 
     const configSpy = jest.spyOn(config, 'getConfig').mockResolvedValue({
       publicOrg: 'github',
@@ -225,7 +225,7 @@ describe('Git router', () => {
   })
 
   it('dual-org: should cleanup repos when there is an error', async () => {
-    const caller = gitRouter.createCaller(createTestContext())
+    const caller = reposRouter.createCaller(createTestContext())
 
     const configSpy = jest.spyOn(config, 'getConfig').mockResolvedValue({
       publicOrg: 'github',
