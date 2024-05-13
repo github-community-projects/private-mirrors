@@ -45,7 +45,7 @@ const Organization = () => {
               {
                 header: 'Repository',
                 rowHeader: true,
-                width: 'auto',
+                width: '400px',
               },
               {
                 header: 'Branches',
@@ -60,8 +60,13 @@ const Organization = () => {
                 width: 'auto',
               },
             ]}
-            rows={10}
+            rows={5}
+            cellPadding="spacious"
           />
+          <Table.Pagination
+            aria-label="pagination"
+            totalCount={0}
+          ></Table.Pagination>
         </Table.Container>
       </Box>
     )
@@ -99,13 +104,16 @@ const Organization = () => {
       ) : (
         <Table.Container>
           <DataTable
+            aria-describedby="forks table"
+            aria-labelledby="forks table"
             data={forks}
             columns={[
               {
                 header: 'Repository',
                 rowHeader: true,
                 field: 'name',
-                width: 'auto',
+                sortBy: 'alphanumeric',
+                width: '400px',
                 renderCell: (row) => {
                   return (
                     <Stack direction="horizontal" align="center">
@@ -135,8 +143,14 @@ const Organization = () => {
                         </Stack.Item>
                         <Stack.Item>
                           <Text sx={{ color: 'fg.muted' }}>
-                            Forked from {row.parent.owner.login}/
-                            {row.parent.name}
+                            Forked from{' '}
+                            <Link
+                              href={`https://github.com/${row.parent.owner.login}/${row.parent.name}`}
+                              target="_blank"
+                              sx={{ color: 'fg.muted' }}
+                            >
+                              {row.parent.owner.login}/{row.parent.name}
+                            </Link>
                           </Text>
                         </Stack.Item>
                       </Stack.Item>
@@ -195,6 +209,7 @@ const Organization = () => {
               {
                 header: 'Updated',
                 field: 'updatedAt',
+                sortBy: 'datetime',
                 width: 'auto',
                 renderCell: (row) => {
                   return (
@@ -203,9 +218,10 @@ const Organization = () => {
                 },
               },
             ]}
+            cellPadding="spacious"
           />
           <Table.Pagination
-            aria-label=""
+            aria-label="pagination"
             totalCount={forksData.totalCount}
             pageSize={pageSize}
             onChange={({ pageIndex }) => {

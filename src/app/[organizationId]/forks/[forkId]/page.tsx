@@ -25,9 +25,12 @@ import AppNotInstalled from 'app/components/AppNotInstalled'
 import MirrorSearch from 'app/components/MirrorSearch'
 import { useForkData } from 'utils/fork'
 import { useOrgData } from 'utils/organization'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
+import ForkBreadcrumbs from 'app/components/ForkBreadcrumbs'
+import { DeleteMirrorDialog } from 'app/components/DeleteMirrorDialog'
+import { CreateMirrorDialog } from 'app/components/CreateMirrorDialog'
 
-const Forks = () => {
+const Fork = () => {
   const { organizationId, forkId } = useParams()
   const { data, isLoading } = trpc.checkInstallation.useQuery({
     orgId: organizationId as string,
@@ -35,14 +38,41 @@ const Forks = () => {
   const orgData = useOrgData()
   const forkData = useForkData()
 
+  const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const closeCreateDialog = useCallback(
+    () => setIsCreateOpen(false),
+    [setIsCreateOpen],
+  )
+  const openCreateDialog = useCallback(
+    () => setIsCreateOpen(true),
+    [setIsCreateOpen],
+  )
+
+  const [deleteMirrorName, setDeleteMirrorName] = useState<string | null>(null)
+  const closeDeleteDialog = useCallback(
+    () => setDeleteMirrorName(null),
+    [setDeleteMirrorName],
+  )
+  const openDeleteDialog = useCallback(
+    (mirrorName: string) => setDeleteMirrorName(mirrorName),
+    [setDeleteMirrorName],
+  )
+
   const pageSize = 5
   const [pageIndex, setPageIndex] = useState(0)
   const start = pageIndex * pageSize
   const end = start + pageSize
 
   const {
+    data: createMirrorData,
+    error: createMirrorError,
+    isLoading: createMirrorLoading,
+    mutateAsync: createMirror,
+  } = trpc.createMirror.useMutation()
+
+  const {
     data: mirrors,
-    error: mirrorsError,
+    error: listMirrorsError,
     isLoading: mirrorsLoading,
     refetch: refetchMirrors,
   } = trpc.listMirrors.useQuery(
@@ -56,15 +86,55 @@ const Forks = () => {
   )
 
   const {
-    mutateAsync: deleteMirror,
-    error: deleteError,
+    error: deleteMirrorError,
     isLoading: deleteMirrorLoading,
+    mutateAsync: deleteMirror,
   } = trpc.deleteMirror.useMutation()
+
+  const handleOnCreateMirror = useCallback(
+    async ({
+      repoName,
+      branchName,
+    }: {
+      repoName: string
+      branchName: string
+    }) => {
+      closeCreateDialog()
+
+      await createMirror({
+        newRepoName: repoName,
+        newBranchName: branchName,
+        orgId: String(orgData?.id),
+        forkRepoName: forkData?.name ?? '',
+        forkRepoOwner: forkData?.owner.login ?? '',
+        forkId: String(forkData?.id),
+      })
+
+      refetchMirrors()
+    },
+    [closeCreateDialog, createMirror, refetchMirrors, orgData, forkData],
+  )
+
+  const handleOnDeleteMirror = useCallback(
+    async ({ mirrorName }: { mirrorName: string }) => {
+      closeDeleteDialog()
+
+      await deleteMirror({
+        mirrorName,
+        orgId: organizationId as string,
+        orgName: orgData?.name ?? '',
+      })
+
+      refetchMirrors()
+    },
+    [closeDeleteDialog, deleteMirror, refetchMirrors, orgData, organizationId],
+  )
 
   if (!mirrors) {
     return (
       <Box>
-        <MirrorSearch />
+        <ForkBreadcrumbs />
+        <MirrorSearch openCreateDialog={openCreateDialog} />
         <Table.Container>
           <Table.Skeleton
             columns={[
@@ -84,9 +154,13 @@ const Forks = () => {
                 align: 'end',
               },
             ]}
-            rows={10}
+            rows={5}
+            cellPadding="spacious"
           />
-          <Table.Pagination aria-label="" totalCount={0}></Table.Pagination>
+          <Table.Pagination
+            aria-label="pagination"
+            totalCount={0}
+          ></Table.Pagination>
         </Table.Container>
       </Box>
     )
@@ -99,7 +173,8 @@ const Forks = () => {
       <Box sx={{ marginBottom: '25px' }}>
         {!isLoading && !data?.installed && <AppNotInstalled />}
       </Box>
-      <MirrorSearch />
+      <ForkBreadcrumbs />
+      <MirrorSearch openCreateDialog={openCreateDialog} />
       {mirrors?.length === 0 ? (
         <Box
           sx={{
@@ -130,7 +205,8 @@ const Forks = () => {
                 header: 'Mirror name',
                 rowHeader: true,
                 field: 'name',
-                width: 'auto',
+                sortBy: 'alphanumeric',
+                width: '400px',
                 renderCell: (row) => {
                   return (
                     <Link
@@ -150,6 +226,7 @@ const Forks = () => {
               {
                 header: 'Last updated',
                 field: 'updated_at',
+                sortBy: 'datetime',
                 width: 'auto',
                 renderCell: (row) => {
                   return (
@@ -189,11 +266,7 @@ const Forks = () => {
                           <ActionList.Item
                             variant="danger"
                             onSelect={async () => {
-                              await deleteMirror({
-                                mirrorName: row.name,
-                                orgId: organizationId as string,
-                                orgName: orgData?.name ?? '',
-                              })
+                              openDeleteDialog(row.name)
                             }}
                           >
                             <Stack align="center" direction="horizontal">
@@ -210,9 +283,10 @@ const Forks = () => {
                 },
               },
             ]}
+            cellPadding="spacious"
           />
           <Table.Pagination
-            aria-label=""
+            aria-label="pagination"
             totalCount={0}
             pageSize={pageSize}
             onChange={({ pageIndex }) => {
@@ -221,8 +295,21 @@ const Forks = () => {
           ></Table.Pagination>
         </Table.Container>
       )}
+      <CreateMirrorDialog
+        closeDialog={closeCreateDialog}
+        isOpen={isCreateOpen}
+        onCreateMirror={handleOnCreateMirror}
+      />
+      <DeleteMirrorDialog
+        orgId={organizationId as string}
+        orgName={orgData?.name as string}
+        mirrorName={deleteMirrorName as string}
+        closeDialog={closeDeleteDialog}
+        isOpen={Boolean(deleteMirrorName)}
+        onDeleteMirror={handleOnDeleteMirror}
+      />
     </Box>
   )
 }
 
-export default Forks
+export default Fork

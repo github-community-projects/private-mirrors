@@ -1,6 +1,6 @@
 'use client'
 
-import { Avatar, Box, Pagehead, Spinner, Text } from '@primer/react'
+import { Avatar, Link, Pagehead, Spinner, Text } from '@primer/react'
 import { Stack } from '@primer/react/lib-esm/Stack'
 import { useOrgData } from 'utils/organization'
 
@@ -15,11 +15,13 @@ export default function OrgHeader() {
             <Avatar src={orgData.avatar_url} size={48} square={true} />
           </Stack.Item>
           <Stack.Item>
-            <Text
+            <Link
+              href={orgData.html_url}
+              target="_blank"
               sx={{ color: 'fg.default', fontSize: '3', fontWeight: 'bold' }}
             >
               {orgData.login}
-            </Text>
+            </Link>
           </Stack.Item>
         </Stack>
       ) : (

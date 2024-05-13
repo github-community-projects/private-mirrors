@@ -22,12 +22,13 @@ export const CreateMirrorDialog: FC<CreateMirrorDialogProps> = ({
 
   return (
     <Dialog
-      title="Create a new Mirror"
-      subtitle={<Box>This will create a new private mirror of this fork</Box>}
+      title="Create a new mirror"
+      subtitle="Mirroring a repository provides a place to iterate on changes privately, before any commits are publicly visible."
       footerButtons={[
         { content: 'Cancel', onClick: closeDialog },
         {
           content: 'Confirm',
+          variant: 'primary',
           onClick: () => onCreateMirror({ repoName, branchName: repoName }),
         },
       ]}

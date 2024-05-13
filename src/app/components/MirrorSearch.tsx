@@ -4,7 +4,7 @@ import { SearchIcon } from '@primer/octicons-react'
 import { Box, Button, TextInput } from '@primer/react'
 import { Stack } from '@primer/react/lib-esm/Stack'
 
-export default function MirrorSearch() {
+export default function MirrorSearch(props: { openCreateDialog: () => void }) {
   return (
     <Box
       sx={{
@@ -24,7 +24,13 @@ export default function MirrorSearch() {
           ></TextInput>
         </Stack.Item>
         <Stack.Item>
-          <Button size="large">Trailing action</Button>
+          <Button
+            size="large"
+            variant="primary"
+            onClick={props.openCreateDialog}
+          >
+            Create mirror
+          </Button>
         </Stack.Item>
       </Stack>
     </Box>
