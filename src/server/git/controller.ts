@@ -2,9 +2,9 @@ import simpleGit, { SimpleGitOptions } from 'simple-git'
 import { getConfig } from '../../bot/config'
 import { getAuthenticatedOctokit } from '../../bot/octokit'
 import { generateAuthUrl } from '../../utils/auth'
-import { temporaryDirectory } from '../../utils/dir'
 import { logger } from '../../utils/logger'
 import { SyncReposSchema } from './schema'
+import { temporaryDirectory } from 'tempy'
 
 const gitApiLogger = logger.getSubLogger({ name: 'git-api' })
 

@@ -14,6 +14,12 @@ export const ListMirrorsSchema = z.object({
   forkName: z.string(),
 })
 
+export const EditMirrorSchema = z.object({
+  orgId: z.string(),
+  mirrorName: z.string(),
+  newMirrorName: z.string(),
+})
+
 export const DeleteMirrorSchema = z.object({
   orgId: z.string(),
   orgName: z.string(),
@@ -22,4 +28,5 @@ export const DeleteMirrorSchema = z.object({
 
 export type CreateMirrorSchema = z.TypeOf<typeof CreateMirrorSchema>
 export type ListMirrorsSchema = z.TypeOf<typeof ListMirrorsSchema>
+export type EditMirrorSchema = z.TypeOf<typeof EditMirrorSchema>
 export type DeleteMirrorSchema = z.TypeOf<typeof DeleteMirrorSchema>

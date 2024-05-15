@@ -35,7 +35,7 @@ export default function Login() {
       >
         <Box sx={{ marginBottom: '15px' }}>
           <Box sx={{ textAlign: 'center' }}>
-            <Text sx={{ fontSize: '3' }}>Sign in to get started</Text>
+            <Text sx={{ fontSize: '3' }}>Sign in to get started.</Text>
           </Box>
           <Box sx={{ textAlign: 'center' }}>
             <Text sx={{ fontSize: '1', color: 'fg.muted' }}>

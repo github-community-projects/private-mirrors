@@ -2,6 +2,7 @@ import { Box, Text } from '@primer/react'
 import { Dialog } from '@primer/react/lib-esm/drafts'
 
 import { FC } from 'react'
+import { useOrgData } from 'utils/organization'
 
 interface DeleteMirrorDialogProps {
   orgId: string
@@ -9,7 +10,7 @@ interface DeleteMirrorDialogProps {
   mirrorName: string
   isOpen: boolean
   closeDialog: () => void
-  onDeleteMirror: (data: {
+  deleteMirror: (data: {
     orgId: string
     orgName: string
     mirrorName: string
@@ -22,27 +23,33 @@ export const DeleteMirrorDialog: FC<DeleteMirrorDialogProps> = ({
   mirrorName,
   isOpen,
   closeDialog,
-  onDeleteMirror,
+  deleteMirror,
 }) => {
+  const orgData = useOrgData()
+
   if (!isOpen) {
     return null
   }
 
   return (
     <Dialog
-      title="Delete Mirror"
+      title="Delete mirror"
       footerButtons={[
         { content: 'Cancel', onClick: closeDialog },
         {
           content: 'Delete',
           variant: 'danger',
-          onClick: () => onDeleteMirror({ orgId, orgName, mirrorName }),
+          onClick: () => deleteMirror({ orgId, orgName, mirrorName }),
         },
       ]}
       onClose={closeDialog}
     >
       <Box>
-        <Text>Are you sure you&apos;d like to delete this mirror?</Text>
+        Are you sure you&apos;d like to delete
+        <Text sx={{ fontWeight: 'bold' }}>
+          {' '}
+          {orgData?.login}/{mirrorName}?
+        </Text>
       </Box>
     </Dialog>
   )

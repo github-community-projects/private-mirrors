@@ -8,9 +8,9 @@ import {
 import { logger } from '../../utils/logger'
 import { ListMirrorsSchema } from './schema'
 import { generateAuthUrl } from 'utils/auth'
-import { temporaryDirectory } from 'utils/dir'
 import simpleGit, { SimpleGitOptions } from 'simple-git'
 import { CreateMirrorSchema } from './schema'
+import { temporaryDirectory } from 'tempy'
 
 const reposApiLogger = logger.getSubLogger({ name: 'repos-api' })
 
@@ -194,6 +194,40 @@ export const listMirrorsHandler = async ({
     throw new TRPCError({
       code: 'INTERNAL_SERVER_ERROR',
       message: 'Failed to fetch mirrors',
+      cause: error,
+    })
+  }
+}
+
+export const editMirrorHandler = async ({
+  input,
+}: {
+  input: { orgId: string; mirrorName: string; newMirrorName: string }
+}) => {
+  try {
+    reposApiLogger.info('Editing mirror', { input })
+
+    const config = await getConfig(input.orgId)
+
+    const installationId = await appOctokit().rest.apps.getOrgInstallation({
+      org: config.privateOrg,
+    })
+
+    const octokit = installationOctokit(String(installationId.data.id))
+
+    const repo = await octokit.rest.repos.update({
+      owner: config.privateOrg,
+      repo: input.mirrorName,
+      name: input.newMirrorName,
+    })
+
+    return repo
+  } catch (error) {
+    reposApiLogger.error('Failed to edit mirror', { input, error })
+
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: 'Failed to edit mirror',
       cause: error,
     })
   }

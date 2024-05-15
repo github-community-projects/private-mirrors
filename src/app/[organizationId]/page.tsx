@@ -16,10 +16,10 @@ import {
 import Blankslate from '@primer/react/lib-esm/Blankslate/Blankslate'
 import { DataTable, Table } from '@primer/react/lib-esm/DataTable'
 import { Stack } from '@primer/react/lib-esm/Stack'
-import AppNotInstalled from 'app/components/AppNotInstalled'
+import AppNotInstalledFlash from 'app/components/flash/AppNotInstalledFlash'
 import { useForksData } from 'utils/forks'
 import { useOrgData } from 'utils/organization'
-import ForkSearch from 'app/components/ForkSearch'
+import ForkSearch from 'app/components/search/ForkSearch'
 import { useState } from 'react'
 
 const Organization = () => {
@@ -76,8 +76,8 @@ const Organization = () => {
 
   return (
     <Box>
-      <Box sx={{ marginBottom: '25px' }}>
-        {!isLoading && !data?.installed && <AppNotInstalled />}
+      <Box sx={{ marginBottom: '10px' }}>
+        {!isLoading && !data?.installed && <AppNotInstalledFlash />}
       </Box>
       <ForkSearch />
       {forksData.totalCount === 0 ? (
@@ -126,7 +126,7 @@ const Organization = () => {
                         />
                       </Stack.Item>
                       <Stack.Item grow={false}>
-                        <Stack.Item grow={false}>
+                        <Stack.Item>
                           <Link
                             sx={{
                               paddingRight: '5px',

@@ -27,7 +27,7 @@ export default function OrgHeader() {
       ) : (
         <Stack align="center" direction="horizontal">
           <Stack.Item>
-            <Spinner />
+            <Spinner sx={{ marginTop: '5px' }} />
           </Stack.Item>
           <Stack.Item>
             <Text

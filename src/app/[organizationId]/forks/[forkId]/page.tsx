@@ -21,14 +21,23 @@ import {
 import Blankslate from '@primer/react/lib-esm/Blankslate/Blankslate'
 import { DataTable, Table } from '@primer/react/lib-esm/DataTable'
 import { Stack } from '@primer/react/lib-esm/Stack'
-import AppNotInstalled from 'app/components/AppNotInstalled'
-import MirrorSearch from 'app/components/MirrorSearch'
+import AppNotInstalledFlash from 'app/components/flash/AppNotInstalledFlash'
+import MirrorSearch from 'app/components/search/MirrorSearch'
 import { useForkData } from 'utils/fork'
 import { useOrgData } from 'utils/organization'
 import { useCallback, useState } from 'react'
-import ForkBreadcrumbs from 'app/components/ForkBreadcrumbs'
-import { DeleteMirrorDialog } from 'app/components/DeleteMirrorDialog'
-import { CreateMirrorDialog } from 'app/components/CreateMirrorDialog'
+import ForkBreadcrumbs from 'app/components/breadcrumbs/ForkBreadcrumbs'
+import { DeleteMirrorDialog } from 'app/components/dialog/DeleteMirrorDialog'
+import { CreateMirrorDialog } from 'app/components/dialog/CreateMirrorDialog'
+import { CreateMirrorSuccessFlash } from 'app/components/flash/CreateMirrorSuccessFlash'
+import { DeleteMirrorErrorFlash } from 'app/components/flash/DeleteMirrorErrorFlash'
+import CreateMirrorLoading from 'app/components/loading/CreateMirrorLoading'
+import DeleteMirrorLoading from 'app/components/loading/DeleteMirrorLoading'
+import { ListMirrorsErrorFlash } from 'app/components/flash/ListMirrorsErrorFlash'
+import { CreateMirrorErrorFlash } from 'app/components/flash/CreateMirrorErrorFlash'
+import { EditMirrorDialog } from 'app/components/dialog/EditMirrorDialog'
+import EditMirrorLoading from 'app/components/loading/EditMirrorLoading'
+import { EditMirrorSuccessFlash } from 'app/components/flash/EditMirrorSuccessFlash'
 
 const Fork = () => {
   const { organizationId, forkId } = useParams()
@@ -38,14 +47,24 @@ const Fork = () => {
   const orgData = useOrgData()
   const forkData = useForkData()
 
-  const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const closeCreateDialog = useCallback(
-    () => setIsCreateOpen(false),
-    [setIsCreateOpen],
+    () => setIsCreateDialogOpen(false),
+    [setIsCreateDialogOpen],
   )
   const openCreateDialog = useCallback(
-    () => setIsCreateOpen(true),
-    [setIsCreateOpen],
+    () => setIsCreateDialogOpen(true),
+    [setIsCreateDialogOpen],
+  )
+
+  const [editMirrorName, setEditMirrorName] = useState<string | null>(null)
+  const closeEditDialog = useCallback(
+    () => setEditMirrorName(null),
+    [setEditMirrorName],
+  )
+  const openEditDialog = useCallback(
+    (mirrorName: string) => setEditMirrorName(mirrorName),
+    [setEditMirrorName],
   )
 
   const [deleteMirrorName, setDeleteMirrorName] = useState<string | null>(null)
@@ -58,6 +77,57 @@ const Fork = () => {
     [setDeleteMirrorName],
   )
 
+  const [isCreateErrorFlashOpen, setIsCreateErrorFlashOpen] = useState(false)
+  const closeCreateErrorFlash = useCallback(
+    () => setIsCreateErrorFlashOpen(false),
+    [setIsCreateErrorFlashOpen],
+  )
+  const openCreateErrorFlash = useCallback(
+    () => setIsCreateErrorFlashOpen(true),
+    [setIsCreateErrorFlashOpen],
+  )
+
+  const [isEditErrorFlashOpen, setIsEditErrorFlashOpen] = useState(false)
+  const closeEditErrorFlash = useCallback(
+    () => setIsEditErrorFlashOpen(false),
+    [setIsEditErrorFlashOpen],
+  )
+  const openEditErrorFlash = useCallback(
+    () => setIsEditErrorFlashOpen(true),
+    [setIsEditErrorFlashOpen],
+  )
+
+  const [isDeleteErrorFlashOpen, setIsDeleteErrorFlashOpen] = useState(false)
+  const closeDeleteErrorFlash = useCallback(
+    () => setIsDeleteErrorFlashOpen(false),
+    [setIsDeleteErrorFlashOpen],
+  )
+  const openDeleteErrorFlash = useCallback(
+    () => setIsDeleteErrorFlashOpen(true),
+    [setIsDeleteErrorFlashOpen],
+  )
+
+  const [isCreateSuccessFlashOpen, setIsCreateSuccessFlashOpen] =
+    useState(false)
+  const closeCreateSuccessFlash = useCallback(
+    () => setIsCreateSuccessFlashOpen(false),
+    [setIsCreateSuccessFlashOpen],
+  )
+  const openCreateSuccessFlash = useCallback(
+    () => setIsCreateSuccessFlashOpen(true),
+    [setIsCreateSuccessFlashOpen],
+  )
+
+  const [isEditSuccessFlashOpen, setIsEditSuccessFlashOpen] = useState(false)
+  const closeEditSuccessFlash = useCallback(
+    () => setIsEditSuccessFlashOpen(false),
+    [setIsEditSuccessFlashOpen],
+  )
+  const openEditSuccessFlash = useCallback(
+    () => setIsEditSuccessFlashOpen(true),
+    [setIsEditSuccessFlashOpen],
+  )
+
   const pageSize = 5
   const [pageIndex, setPageIndex] = useState(0)
   const start = pageIndex * pageSize
@@ -65,7 +135,6 @@ const Fork = () => {
 
   const {
     data: createMirrorData,
-    error: createMirrorError,
     isLoading: createMirrorLoading,
     mutateAsync: createMirror,
   } = trpc.createMirror.useMutation()
@@ -86,10 +155,13 @@ const Fork = () => {
   )
 
   const {
-    error: deleteMirrorError,
-    isLoading: deleteMirrorLoading,
-    mutateAsync: deleteMirror,
-  } = trpc.deleteMirror.useMutation()
+    data: editMirrorData,
+    isLoading: editMirrorLoading,
+    mutateAsync: editMirror,
+  } = trpc.editMirror.useMutation()
+
+  const { isLoading: deleteMirrorLoading, mutateAsync: deleteMirror } =
+    trpc.deleteMirror.useMutation()
 
   const handleOnCreateMirror = useCallback(
     async ({
@@ -99,6 +171,11 @@ const Fork = () => {
       repoName: string
       branchName: string
     }) => {
+      closeCreateErrorFlash()
+      closeCreateSuccessFlash()
+      closeEditErrorFlash()
+      closeEditSuccessFlash()
+      closeDeleteErrorFlash()
       closeCreateDialog()
 
       await createMirror({
@@ -108,29 +185,113 @@ const Fork = () => {
         forkRepoName: forkData?.name ?? '',
         forkRepoOwner: forkData?.owner.login ?? '',
         forkId: String(forkData?.id),
+      }).then((res) => {
+        console.log(res)
+        if (res.success) {
+          openCreateSuccessFlash()
+        } else {
+          openCreateErrorFlash()
+        }
       })
 
       refetchMirrors()
     },
-    [closeCreateDialog, createMirror, refetchMirrors, orgData, forkData],
+    [
+      closeCreateErrorFlash,
+      closeCreateDialog,
+      closeCreateSuccessFlash,
+      closeDeleteErrorFlash,
+      createMirror,
+      refetchMirrors,
+      openCreateSuccessFlash,
+      openCreateErrorFlash,
+      closeEditErrorFlash,
+      closeEditSuccessFlash,
+      orgData,
+      forkData,
+    ],
+  )
+
+  const handleOnEditMirror = useCallback(
+    async ({
+      mirrorName,
+      newMirrorName,
+    }: {
+      mirrorName: string
+      newMirrorName: string
+    }) => {
+      closeCreateErrorFlash()
+      closeCreateSuccessFlash()
+      closeEditErrorFlash()
+      closeEditSuccessFlash()
+      closeDeleteErrorFlash()
+      closeEditDialog()
+
+      await editMirror({
+        orgId: String(orgData?.id),
+        mirrorName,
+        newMirrorName,
+      }).then((res) => {
+        if (res) {
+          openEditSuccessFlash()
+        } else {
+          openEditErrorFlash()
+        }
+      })
+
+      refetchMirrors()
+    },
+    [
+      closeCreateErrorFlash,
+      closeEditDialog,
+      closeCreateSuccessFlash,
+      closeDeleteErrorFlash,
+      closeEditErrorFlash,
+      closeEditSuccessFlash,
+      editMirror,
+      refetchMirrors,
+      openEditErrorFlash,
+      openEditSuccessFlash,
+      orgData,
+    ],
   )
 
   const handleOnDeleteMirror = useCallback(
     async ({ mirrorName }: { mirrorName: string }) => {
+      closeCreateErrorFlash()
+      closeCreateSuccessFlash()
+      closeEditErrorFlash()
+      closeEditSuccessFlash()
+      closeDeleteErrorFlash()
       closeDeleteDialog()
 
       await deleteMirror({
         mirrorName,
-        orgId: organizationId as string,
+        orgId: String(orgData?.id),
         orgName: orgData?.name ?? '',
+      }).then((res) => {
+        if (!res) {
+          openDeleteErrorFlash()
+        }
       })
 
       refetchMirrors()
     },
-    [closeDeleteDialog, deleteMirror, refetchMirrors, orgData, organizationId],
+    [
+      closeDeleteDialog,
+      closeCreateErrorFlash,
+      closeDeleteErrorFlash,
+      closeCreateSuccessFlash,
+      deleteMirror,
+      closeEditErrorFlash,
+      closeEditSuccessFlash,
+      openDeleteErrorFlash,
+      refetchMirrors,
+      orgData,
+    ],
   )
 
-  if (!mirrors) {
+  if (!mirrors || mirrorsLoading) {
     return (
       <Box>
         <ForkBreadcrumbs />
@@ -170,8 +331,57 @@ const Fork = () => {
 
   return (
     <Box>
-      <Box sx={{ marginBottom: '25px' }}>
-        {!isLoading && !data?.installed && <AppNotInstalled />}
+      <Box sx={{ marginBottom: '10px' }}>
+        {!isLoading && !data?.installed && <AppNotInstalledFlash />}
+      </Box>
+      <Box sx={{ marginBottom: '10px' }}>
+        {createMirrorLoading && <CreateMirrorLoading />}
+      </Box>
+      <Box sx={{ marginBottom: '10px' }}>
+        {editMirrorLoading && <EditMirrorLoading />}
+      </Box>
+      <Box sx={{ marginBottom: '10px' }}>
+        {deleteMirrorLoading && <DeleteMirrorLoading />}
+      </Box>
+      <Box sx={{ marginBottom: '10px' }}>
+        {listMirrorsError && (
+          <ListMirrorsErrorFlash message={listMirrorsError.message} />
+        )}
+      </Box>
+      <Box sx={{ marginBottom: '10px' }}>
+        {isCreateErrorFlashOpen && (
+          <CreateMirrorErrorFlash closeFlash={closeCreateErrorFlash} />
+        )}
+      </Box>
+      <Box sx={{ marginBottom: '10px' }}>
+        {isEditErrorFlashOpen && (
+          <CreateMirrorErrorFlash closeFlash={closeEditErrorFlash} />
+        )}
+      </Box>
+      <Box sx={{ marginBottom: '10px' }}>
+        {isDeleteErrorFlashOpen && (
+          <DeleteMirrorErrorFlash closeFlash={closeDeleteErrorFlash} />
+        )}
+      </Box>
+      <Box sx={{ marginBottom: '10px' }}>
+        {createMirrorData && isCreateSuccessFlashOpen && (
+          <CreateMirrorSuccessFlash
+            closeFlash={closeCreateSuccessFlash}
+            mirrorName={createMirrorData.data?.name as string}
+            mirrorUrl={createMirrorData.data?.html_url as string}
+            orgName={createMirrorData.data?.owner?.login as string}
+          />
+        )}
+      </Box>
+      <Box sx={{ marginBottom: '10px' }}>
+        {editMirrorData && isEditSuccessFlashOpen && (
+          <EditMirrorSuccessFlash
+            closeFlash={closeEditSuccessFlash}
+            mirrorName={editMirrorData.data.name as string}
+            orgName={editMirrorData.data.owner?.login as string}
+            mirrorUrl={editMirrorData.data.html_url as string}
+          />
+        )}
       </Box>
       <ForkBreadcrumbs />
       <MirrorSearch openCreateDialog={openCreateDialog} />
@@ -199,6 +409,8 @@ const Fork = () => {
       ) : (
         <Table.Container>
           <DataTable
+            aria-describedby="mirrors table"
+            aria-labelledby="mirrors table"
             data={mirrorsRow}
             columns={[
               {
@@ -248,14 +460,17 @@ const Fork = () => {
                       <ActionMenu.Anchor>
                         <IconButton
                           aria-label={`Actions: ${row.name}`}
-                          title={`Actions: ${row.name}`}
                           icon={KebabHorizontalIcon}
                           variant="invisible"
                         />
                       </ActionMenu.Anchor>
                       <ActionMenu.Overlay>
                         <ActionList>
-                          <ActionList.Item onSelect={() => {}}>
+                          <ActionList.Item
+                            onSelect={() => {
+                              openEditDialog(row.name)
+                            }}
+                          >
                             <Stack align="center" direction="horizontal">
                               <Stack.Item>
                                 <Octicon icon={PencilIcon}></Octicon>
@@ -265,7 +480,7 @@ const Fork = () => {
                           </ActionList.Item>
                           <ActionList.Item
                             variant="danger"
-                            onSelect={async () => {
+                            onSelect={() => {
                               openDeleteDialog(row.name)
                             }}
                           >
@@ -287,7 +502,7 @@ const Fork = () => {
           />
           <Table.Pagination
             aria-label="pagination"
-            totalCount={0}
+            totalCount={mirrors.length}
             pageSize={pageSize}
             onChange={({ pageIndex }) => {
               setPageIndex(pageIndex)
@@ -297,8 +512,15 @@ const Fork = () => {
       )}
       <CreateMirrorDialog
         closeDialog={closeCreateDialog}
-        isOpen={isCreateOpen}
-        onCreateMirror={handleOnCreateMirror}
+        isOpen={isCreateDialogOpen}
+        createMirror={handleOnCreateMirror}
+      />
+      <EditMirrorDialog
+        orgId={organizationId as string}
+        mirrorName={editMirrorName as string}
+        closeDialog={closeEditDialog}
+        isOpen={Boolean(editMirrorName)}
+        editMirror={handleOnEditMirror}
       />
       <DeleteMirrorDialog
         orgId={organizationId as string}
@@ -306,7 +528,7 @@ const Fork = () => {
         mirrorName={deleteMirrorName as string}
         closeDialog={closeDeleteDialog}
         isOpen={Boolean(deleteMirrorName)}
-        onDeleteMirror={handleOnDeleteMirror}
+        deleteMirror={handleOnDeleteMirror}
       />
     </Box>
   )

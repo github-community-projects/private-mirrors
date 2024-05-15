@@ -1,7 +1,7 @@
 import { BaseStyles, Box, ThemeProvider } from '@primer/react'
 import { TrpcProvider } from '../utils/trpc-provider'
 import AuthProvider from './context/AuthProvider'
-import MainHeader from './components/MainHeader'
+import MainHeader from './components/header/MainHeader'
 import StyledComponentsRegistry from '../lib/registry'
 
 export default function RootLayout({

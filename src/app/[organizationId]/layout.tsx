@@ -1,5 +1,5 @@
 import { Box } from '@primer/react'
-import OrgHeader from 'app/components/OrgHeader'
+import OrgHeader from 'app/components/header/OrgHeader'
 
 export default function DashLayout({
   children,
