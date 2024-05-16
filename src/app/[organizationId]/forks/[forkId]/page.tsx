@@ -22,7 +22,7 @@ import Blankslate from '@primer/react/lib-esm/Blankslate/Blankslate'
 import { DataTable, Table } from '@primer/react/lib-esm/DataTable'
 import { Stack } from '@primer/react/lib-esm/Stack'
 import AppNotInstalledFlash from 'app/components/flash/AppNotInstalledFlash'
-import MirrorSearch from 'app/components/search/MirrorSearch'
+import { MirrorSearch } from 'app/components/search/MirrorSearch'
 import { useForkData } from 'utils/fork'
 import { useOrgData } from 'utils/organization'
 import { useCallback, useState } from 'react'
@@ -38,6 +38,7 @@ import { CreateMirrorErrorFlash } from 'app/components/flash/CreateMirrorErrorFl
 import { EditMirrorDialog } from 'app/components/dialog/EditMirrorDialog'
 import EditMirrorLoading from 'app/components/loading/EditMirrorLoading'
 import { EditMirrorSuccessFlash } from 'app/components/flash/EditMirrorSuccessFlash'
+import Fuse from 'fuse.js'
 
 const Fork = () => {
   const { organizationId, forkId } = useParams()
@@ -128,6 +129,8 @@ const Fork = () => {
     [setIsEditSuccessFlashOpen],
   )
 
+  const [searchValue, setSearchValue] = useState('')
+
   const pageSize = 5
   const [pageIndex, setPageIndex] = useState(0)
   const start = pageIndex * pageSize
@@ -186,8 +189,7 @@ const Fork = () => {
         forkRepoOwner: forkData?.owner.login ?? '',
         forkId: String(forkData?.id),
       }).then((res) => {
-        console.log(res)
-        if (res.success) {
+        if (res) {
           openCreateSuccessFlash()
         } else {
           openCreateErrorFlash()
@@ -295,7 +297,11 @@ const Fork = () => {
     return (
       <Box>
         <ForkBreadcrumbs />
-        <MirrorSearch openCreateDialog={openCreateDialog} />
+        <MirrorSearch
+          searchValue={searchValue}
+          setSearchValue={setSearchValue}
+          openCreateDialog={openCreateDialog}
+        />
         <Table.Container>
           <Table.Skeleton
             columns={[
@@ -327,7 +333,20 @@ const Fork = () => {
     )
   }
 
-  const mirrorsRow = mirrors.slice(start, end)
+  const fuse = new Fuse(mirrors, {
+    keys: ['name', 'owner.name', 'owner.login'],
+    threshold: 0.2,
+  })
+
+  let mirrorsRow = []
+  if (searchValue) {
+    mirrorsRow = fuse
+      .search(searchValue)
+      .map((result) => result.item)
+      .slice(start, end)
+  } else {
+    mirrorsRow = mirrors.slice(start, end)
+  }
 
   return (
     <Box>
@@ -367,9 +386,9 @@ const Fork = () => {
         {createMirrorData && isCreateSuccessFlashOpen && (
           <CreateMirrorSuccessFlash
             closeFlash={closeCreateSuccessFlash}
-            mirrorName={createMirrorData.data?.name as string}
-            mirrorUrl={createMirrorData.data?.html_url as string}
-            orgName={createMirrorData.data?.owner?.login as string}
+            mirrorName={createMirrorData.name as string}
+            mirrorUrl={createMirrorData.html_url as string}
+            orgName={createMirrorData.owner.login as string}
           />
         )}
       </Box>
@@ -377,14 +396,18 @@ const Fork = () => {
         {editMirrorData && isEditSuccessFlashOpen && (
           <EditMirrorSuccessFlash
             closeFlash={closeEditSuccessFlash}
-            mirrorName={editMirrorData.data.name as string}
-            orgName={editMirrorData.data.owner?.login as string}
-            mirrorUrl={editMirrorData.data.html_url as string}
+            mirrorName={editMirrorData.name as string}
+            orgName={editMirrorData.owner.login as string}
+            mirrorUrl={editMirrorData.html_url as string}
           />
         )}
       </Box>
       <ForkBreadcrumbs />
-      <MirrorSearch openCreateDialog={openCreateDialog} />
+      <MirrorSearch
+        searchValue={searchValue}
+        setSearchValue={setSearchValue}
+        openCreateDialog={openCreateDialog}
+      />
       {mirrors?.length === 0 ? (
         <Box
           sx={{
@@ -502,7 +525,7 @@ const Fork = () => {
           />
           <Table.Pagination
             aria-label="pagination"
-            totalCount={mirrors.length}
+            totalCount={searchValue ? mirrorsRow.length : mirrors.length}
             pageSize={pageSize}
             onChange={({ pageIndex }) => {
               setPageIndex(pageIndex)

@@ -16,18 +16,19 @@ export default function AppNotInstalledFlash() {
               flexDirection: 'row',
               alignItems: 'center',
             }}
-          ></Box>
-          <Box>
-            <Octicon icon={AlertIcon}></Octicon>
-          </Box>
-          <Box sx={{ marginLeft: '20px' }}>
-            This organization does not have the required App installed. Visit{' '}
-            <Link
-              href={`https://github.com/organizations/${orgData.login}/settings/installations`}
-            >
-              this page
-            </Link>{' '}
-            to install the App to the organization.
+          >
+            <Box>
+              <Octicon icon={AlertIcon}></Octicon>
+            </Box>
+            <Box sx={{ marginLeft: '20px' }}>
+              This organization does not have the required App installed. Visit{' '}
+              <Link
+                href={`https://github.com/organizations/${orgData.login}/settings/installations`}
+              >
+                this page
+              </Link>{' '}
+              to install the App to the organization.
+            </Box>
           </Box>
         </Flash>
       )}

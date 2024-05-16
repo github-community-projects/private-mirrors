@@ -1,10 +1,22 @@
 'use client'
 
-import { SearchIcon } from '@primer/octicons-react'
-import { Box, TextInput } from '@primer/react'
-import { Stack } from '@primer/react/lib-esm/Stack'
+import { SearchIcon, XCircleFillIcon } from '@primer/octicons-react'
+import { Box, FormControl, TextInput } from '@primer/react'
+import { ChangeEvent, FC } from 'react'
 
-export default function ForkSearch() {
+interface ForkSearchProps {
+  searchValue: string
+  setSearchValue: (value: string) => void
+}
+
+export const ForkSearch: FC<ForkSearchProps> = ({
+  searchValue,
+  setSearchValue,
+}) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setSearchValue(event.target.value)
+  }
+
   return (
     <Box
       sx={{
@@ -14,16 +26,28 @@ export default function ForkSearch() {
         width: '100%',
       }}
     >
-      <Stack align="center" direction="horizontal">
-        <Stack.Item grow={true}>
-          <TextInput
-            leadingVisual={SearchIcon}
-            placeholder="Find a repository"
-            size="large"
-            sx={{ width: '100%' }}
-          ></TextInput>
-        </Stack.Item>
-      </Stack>
+      <FormControl>
+        <TextInput
+          onChange={handleChange}
+          value={searchValue}
+          leadingVisual={SearchIcon}
+          placeholder="Find a fork"
+          size="large"
+          block
+          trailingAction={
+            <TextInput.Action
+              onClick={() => {
+                setSearchValue('')
+              }}
+              icon={XCircleFillIcon}
+              aria-label="Clear input"
+              sx={{
+                color: 'fg.subtle',
+              }}
+            />
+          }
+        />
+      </FormControl>
     </Box>
   )
 }

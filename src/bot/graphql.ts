@@ -153,22 +153,6 @@ mutation AddBranchProtection(
 }
 `
 
-export const getRepoLanguagesGQL = `
-query(
-  $owner: String!
-  $name: String!
-) {
-  repository(owner: $owner, name: $name) {
-    languages(first: 2) {
-      nodes {
-        color
-        name
-      }
-    }
-  }
-}
-`
-
 export const getReposInOrgGQL = `
 query(
   $login: String!
@@ -176,7 +160,7 @@ query(
   $cursor: String
 ) {
   organization(login: $login) {
-    repositories(isFork: $isFork, after: $cursor, first: 10) {
+    repositories(isFork: $isFork, after: $cursor, first: 10, orderBy: {field: UPDATED_AT, direction: DESC}) {
       totalCount
       nodes {
         databaseId

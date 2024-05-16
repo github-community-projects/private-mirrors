@@ -1,10 +1,25 @@
 'use client'
 
-import { PlusIcon, SearchIcon } from '@primer/octicons-react'
-import { Box, Button, TextInput } from '@primer/react'
+import { PlusIcon, SearchIcon, XCircleFillIcon } from '@primer/octicons-react'
+import { Box, Button, FormControl, TextInput } from '@primer/react'
 import { Stack } from '@primer/react/lib-esm/Stack'
+import { ChangeEvent, FC } from 'react'
 
-export default function MirrorSearch(props: { openCreateDialog: () => void }) {
+interface MirrorSearchProps {
+  searchValue: string
+  setSearchValue: (value: string) => void
+  openCreateDialog: () => void
+}
+
+export const MirrorSearch: FC<MirrorSearchProps> = ({
+  searchValue,
+  setSearchValue,
+  openCreateDialog,
+}) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setSearchValue(event.target.value)
+  }
+
   return (
     <Box
       sx={{
@@ -16,19 +31,35 @@ export default function MirrorSearch(props: { openCreateDialog: () => void }) {
     >
       <Stack align="center" direction="horizontal">
         <Stack.Item grow={true}>
-          <TextInput
-            leadingVisual={SearchIcon}
-            placeholder="Find a repository"
-            size="large"
-            sx={{ width: '100%' }}
-          ></TextInput>
+          <FormControl>
+            <TextInput
+              onChange={handleChange}
+              value={searchValue}
+              leadingVisual={SearchIcon}
+              placeholder="Find a mirror"
+              size="large"
+              block
+              trailingAction={
+                <TextInput.Action
+                  onClick={() => {
+                    setSearchValue('')
+                  }}
+                  icon={XCircleFillIcon}
+                  aria-label="Clear input"
+                  sx={{
+                    color: 'fg.subtle',
+                  }}
+                />
+              }
+            />
+          </FormControl>
         </Stack.Item>
         <Stack.Item>
           <Button
             leadingVisual={PlusIcon}
             size="large"
             variant="primary"
-            onClick={props.openCreateDialog}
+            onClick={openCreateDialog}
           >
             Create mirror
           </Button>

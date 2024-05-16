@@ -19,8 +19,9 @@ import { Stack } from '@primer/react/lib-esm/Stack'
 import AppNotInstalledFlash from 'app/components/flash/AppNotInstalledFlash'
 import { useForksData } from 'utils/forks'
 import { useOrgData } from 'utils/organization'
-import ForkSearch from 'app/components/search/ForkSearch'
 import { useState } from 'react'
+import { ForkSearch } from 'app/components/search/ForkSearch'
+import Fuse from 'fuse.js'
 
 const Organization = () => {
   const { organizationId } = useParams()
@@ -30,6 +31,8 @@ const Organization = () => {
   const orgData = useOrgData()
   const forksData = useForksData()?.organization.repositories
 
+  const [searchValue, setSearchValue] = useState('')
+
   const pageSize = 5
   const [pageIndex, setPageIndex] = useState(0)
   const start = pageIndex * pageSize
@@ -38,7 +41,7 @@ const Organization = () => {
   if (!forksData) {
     return (
       <Box>
-        <ForkSearch />
+        <ForkSearch searchValue={searchValue} setSearchValue={setSearchValue} />
         <Table.Container>
           <Table.Skeleton
             columns={[
@@ -72,14 +75,29 @@ const Organization = () => {
     )
   }
 
-  const forks = forksData.nodes.slice(start, end)
+  let forks = forksData.nodes
+
+  const fuse = new Fuse(forks, {
+    keys: ['name', 'owner.login', 'parent.name', 'parent.owner.login'],
+    threshold: 0.2,
+  })
+
+  let forksRow = []
+  if (searchValue) {
+    forksRow = fuse
+      .search(searchValue)
+      .map((result) => result.item)
+      .slice(start, end)
+  } else {
+    forksRow = forks.slice(start, end)
+  }
 
   return (
     <Box>
       <Box sx={{ marginBottom: '10px' }}>
         {!isLoading && !data?.installed && <AppNotInstalledFlash />}
       </Box>
-      <ForkSearch />
+      <ForkSearch searchValue={searchValue} setSearchValue={setSearchValue} />
       {forksData.totalCount === 0 ? (
         <Box
           sx={{
@@ -106,7 +124,7 @@ const Organization = () => {
           <DataTable
             aria-describedby="forks table"
             aria-labelledby="forks table"
-            data={forks}
+            data={forksRow}
             columns={[
               {
                 header: 'Repository',
@@ -222,7 +240,7 @@ const Organization = () => {
           />
           <Table.Pagination
             aria-label="pagination"
-            totalCount={forksData.totalCount}
+            totalCount={searchValue ? forksRow.length : forksData.totalCount}
             pageSize={pageSize}
             onChange={({ pageIndex }) => {
               setPageIndex(pageIndex)

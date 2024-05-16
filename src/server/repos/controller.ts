@@ -135,10 +135,7 @@ export const createMirrorHandler = async ({
       await git.checkoutBranch(input.newBranchName, defaultBranch)
       await git.push('origin', input.newBranchName)
 
-      return {
-        success: true,
-        data: newRepo.data,
-      }
+      return newRepo.data
     } catch (e) {
       // Clean up the private mirror repo made
       await privateOctokit.rest.repos.delete({
@@ -152,9 +149,12 @@ export const createMirrorHandler = async ({
     }
   } catch (error) {
     reposApiLogger.error('Error creating mirror', { error })
-    return {
-      success: false,
-    }
+
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: 'Error creating mirror',
+      cause: error,
+    })
   }
 }
 
@@ -183,6 +183,7 @@ export const listMirrorsHandler = async ({
       octokit.rest.search.repos,
       {
         q: `org:"${privateOrgData.data.login}"+props.fork:"${publicOrgData.data.login}/${input.forkName}" org:"${privateOrgData.data.login}"&mirror:"${publicOrgData.data.login}/${input.forkName}"+in:description`,
+        order: 'desc',
       },
       (response) => response.data,
     )
@@ -221,7 +222,7 @@ export const editMirrorHandler = async ({
       name: input.newMirrorName,
     })
 
-    return repo
+    return repo.data
   } catch (error) {
     reposApiLogger.error('Failed to edit mirror', { input, error })
 
