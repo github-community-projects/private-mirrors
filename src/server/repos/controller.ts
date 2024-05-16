@@ -185,6 +185,7 @@ export const listMirrorsHandler = async ({
       {
         q: `org:"${privateOrgData.data.login}"+props.fork:"${publicOrgData.data.login}/${input.forkName}" org:"${privateOrgData.data.login}"&mirror:"${publicOrgData.data.login}/${input.forkName}"+in:description`,
         order: 'desc',
+        sort: 'updated',
       },
       (response) => response.data,
     )
