@@ -32,6 +32,7 @@ export const MirrorSearch: FC<MirrorSearchProps> = ({
       <Stack align="center" direction="horizontal">
         <Stack.Item grow={true}>
           <FormControl>
+            <FormControl.Label visuallyHidden>Search</FormControl.Label>
             <TextInput
               onChange={handleChange}
               value={searchValue}

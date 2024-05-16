@@ -27,6 +27,7 @@ export const ForkSearch: FC<ForkSearchProps> = ({
       }}
     >
       <FormControl>
+        <FormControl.Label visuallyHidden>Search</FormControl.Label>
         <TextInput
           onChange={handleChange}
           value={searchValue}
