@@ -35,6 +35,5 @@ export default function Home() {
     }
   }, [session, router, session.data?.user])
 
-  // TODO: Avoid flashing the login screen
   return <Box>{!session.data?.user && <Login />}</Box>
 }
