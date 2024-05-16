@@ -1,18 +1,23 @@
 import { personalOctokit } from 'bot/octokit'
 import { useSession } from 'next-auth/react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-
-// TODO: Handle org not found
 
 export const getOrganizationData = async (
   accessToken: string,
   orgId: string,
 ) => {
-  return (await personalOctokit(accessToken).rest.orgs.get({ org: orgId })).data
+  try {
+    return (await personalOctokit(accessToken).rest.orgs.get({ org: orgId }))
+      .data
+  } catch (error) {
+    return null
+  }
 }
 
 export function useOrgData() {
+  const router = useRouter()
+
   const { organizationId } = useParams()
 
   const session = useSession()
@@ -29,10 +34,14 @@ export function useOrgData() {
 
     getOrganizationData(accessToken, organizationId as string).then(
       (orgData) => {
+        if (!orgData) {
+          router.push('/_error')
+        }
+
         setOrgData(orgData)
       },
     )
-  }, [organizationId, accessToken])
+  }, [organizationId, accessToken, router])
 
   return orgData
 }
