@@ -39,20 +39,31 @@ export const EditMirrorDialog: FC<EditMirrorDialogProps> = ({
       title="Edit mirror"
       subtitle="Mirroring a repository provides a place to iterate on changes privately, before any commits are publicly visible."
       footerButtons={[
-        { content: 'Cancel', onClick: closeDialog },
+        {
+          content: 'Cancel',
+          onClick: () => {
+            closeDialog()
+            setNewMirrorName('repository-name')
+          },
+        },
         {
           content: 'Confirm',
           variant: 'primary',
-          onClick: () =>
+          onClick: () => {
             editMirror({
               orgId,
               mirrorName,
               newMirrorName,
-            }),
+            })
+            setNewMirrorName('repository-name')
+          },
           disabled: newMirrorName === 'repository-name' || newMirrorName === '',
         },
       ]}
-      onClose={closeDialog}
+      onClose={() => {
+        closeDialog()
+        setNewMirrorName('repository-name')
+      }}
       width="large"
     >
       <Box>

@@ -31,15 +31,27 @@ export const CreateMirrorDialog: FC<CreateMirrorDialogProps> = ({
       title="Create a new mirror"
       subtitle="Mirroring a repository provides a place to iterate on changes privately, before any commits are publicly visible."
       footerButtons={[
-        { content: 'Cancel', onClick: closeDialog },
+        {
+          content: 'Cancel',
+          onClick: () => {
+            closeDialog()
+            setRepoName('repository-name')
+          },
+        },
         {
           content: 'Confirm',
           variant: 'primary',
-          onClick: () => createMirror({ repoName, branchName: repoName }),
+          onClick: () => {
+            createMirror({ repoName, branchName: repoName })
+            setRepoName('repository-name')
+          },
           disabled: repoName === 'repository-name' || repoName === '',
         },
       ]}
-      onClose={closeDialog}
+      onClose={() => {
+        closeDialog()
+        setRepoName('repository-name')
+      }}
       width="large"
     >
       <Box>
