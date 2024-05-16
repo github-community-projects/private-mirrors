@@ -4,7 +4,7 @@ import { getAuthenticatedOctokit } from '../../bot/octokit'
 import { generateAuthUrl } from '../../utils/auth'
 import { logger } from '../../utils/logger'
 import { SyncReposSchema } from './schema'
-import { temporaryDirectory } from 'tempy'
+import { temporaryDirectory } from '../../utils/dir'
 
 const gitApiLogger = logger.getSubLogger({ name: 'git-api' })
 

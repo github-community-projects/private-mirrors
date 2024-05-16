@@ -10,7 +10,7 @@ import { ListMirrorsSchema } from './schema'
 import { generateAuthUrl } from 'utils/auth'
 import simpleGit, { SimpleGitOptions } from 'simple-git'
 import { CreateMirrorSchema } from './schema'
-import { temporaryDirectory } from 'tempy'
+import { temporaryDirectory } from 'utils/dir'
 
 const reposApiLogger = logger.getSubLogger({ name: 'repos-api' })
 
