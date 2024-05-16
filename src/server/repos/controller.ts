@@ -135,7 +135,10 @@ export const createMirrorHandler = async ({
       await git.checkoutBranch(input.newBranchName, defaultBranch)
       await git.push('origin', input.newBranchName)
 
-      return newRepo.data
+      return {
+        success: true,
+        data: newRepo.data,
+      }
     } catch (e) {
       // Clean up the private mirror repo made
       await privateOctokit.rest.repos.delete({
@@ -150,11 +153,9 @@ export const createMirrorHandler = async ({
   } catch (error) {
     reposApiLogger.error('Error creating mirror', { error })
 
-    throw new TRPCError({
-      code: 'INTERNAL_SERVER_ERROR',
-      message: 'Error creating mirror',
-      cause: error,
-    })
+    return {
+      success: false,
+    }
   }
 }
 
@@ -192,11 +193,7 @@ export const listMirrorsHandler = async ({
   } catch (error) {
     reposApiLogger.info('Failed to fetch mirrors', { input, error })
 
-    throw new TRPCError({
-      code: 'INTERNAL_SERVER_ERROR',
-      message: 'Failed to fetch mirrors',
-      cause: error,
-    })
+    return false
   }
 }
 
@@ -222,15 +219,16 @@ export const editMirrorHandler = async ({
       name: input.newMirrorName,
     })
 
-    return repo.data
+    return {
+      success: true,
+      data: repo.data,
+    }
   } catch (error) {
     reposApiLogger.error('Failed to edit mirror', { input, error })
 
-    throw new TRPCError({
-      code: 'INTERNAL_SERVER_ERROR',
-      message: 'Failed to edit mirror',
-      cause: error,
-    })
+    return {
+      success: false,
+    }
   }
 }
 
@@ -259,14 +257,14 @@ export const deleteMirrorHandler = async ({
       repo: input.mirrorName,
     })
 
-    return true
+    return {
+      success: true,
+    }
   } catch (error) {
     reposApiLogger.error('Failed to delete mirror', { input, error })
 
-    throw new TRPCError({
-      code: 'INTERNAL_SERVER_ERROR',
-      message: 'Failed to delete mirror',
-      cause: error,
-    })
+    return {
+      success: false,
+    }
   }
 }

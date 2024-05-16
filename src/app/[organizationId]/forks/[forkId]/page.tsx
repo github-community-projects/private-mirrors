@@ -138,6 +138,7 @@ const Fork = () => {
 
   const {
     data: createMirrorData,
+    error: createMirrorError,
     isLoading: createMirrorLoading,
     mutateAsync: createMirror,
   } = trpc.createMirror.useMutation()
@@ -159,12 +160,16 @@ const Fork = () => {
 
   const {
     data: editMirrorData,
+    error: editMirrorError,
     isLoading: editMirrorLoading,
     mutateAsync: editMirror,
   } = trpc.editMirror.useMutation()
 
-  const { isLoading: deleteMirrorLoading, mutateAsync: deleteMirror } =
-    trpc.deleteMirror.useMutation()
+  const {
+    error: deleteMirrorError,
+    isLoading: deleteMirrorLoading,
+    mutateAsync: deleteMirror,
+  } = trpc.deleteMirror.useMutation()
 
   const handleOnCreateMirror = useCallback(
     async ({
@@ -189,7 +194,7 @@ const Fork = () => {
         forkRepoOwner: forkData?.owner.login ?? '',
         forkId: String(forkData?.id),
       }).then((res) => {
-        if (res) {
+        if (res.success) {
           openCreateSuccessFlash()
         } else {
           openCreateErrorFlash()
@@ -234,7 +239,7 @@ const Fork = () => {
         mirrorName,
         newMirrorName,
       }).then((res) => {
-        if (res) {
+        if (res.success) {
           openEditSuccessFlash()
         } else {
           openEditErrorFlash()
@@ -272,7 +277,7 @@ const Fork = () => {
         orgId: String(orgData?.id),
         orgName: orgData?.name ?? '',
       }).then((res) => {
-        if (!res) {
+        if (!res.success) {
           openDeleteErrorFlash()
         }
       })
@@ -368,37 +373,39 @@ const Fork = () => {
         )}
       </Box>
       <Box sx={{ marginBottom: '10px' }}>
-        {isCreateErrorFlashOpen && (
+        {createMirrorError && isCreateErrorFlashOpen && (
           <CreateMirrorErrorFlash closeFlash={closeCreateErrorFlash} />
         )}
       </Box>
       <Box sx={{ marginBottom: '10px' }}>
-        {isEditErrorFlashOpen && (
+        {editMirrorError && isEditErrorFlashOpen && (
           <CreateMirrorErrorFlash closeFlash={closeEditErrorFlash} />
         )}
       </Box>
       <Box sx={{ marginBottom: '10px' }}>
-        {isDeleteErrorFlashOpen && (
+        {deleteMirrorError && isDeleteErrorFlashOpen && (
           <DeleteMirrorErrorFlash closeFlash={closeDeleteErrorFlash} />
         )}
       </Box>
       <Box sx={{ marginBottom: '10px' }}>
-        {createMirrorData && isCreateSuccessFlashOpen && (
-          <CreateMirrorSuccessFlash
-            closeFlash={closeCreateSuccessFlash}
-            mirrorName={createMirrorData.name as string}
-            mirrorUrl={createMirrorData.html_url as string}
-            orgName={createMirrorData.owner.login as string}
-          />
-        )}
+        {createMirrorData &&
+          createMirrorData.success &&
+          isCreateSuccessFlashOpen && (
+            <CreateMirrorSuccessFlash
+              closeFlash={closeCreateSuccessFlash}
+              mirrorName={createMirrorData.data?.name as string}
+              mirrorUrl={createMirrorData.data?.html_url as string}
+              orgName={createMirrorData.data?.owner.login as string}
+            />
+          )}
       </Box>
       <Box sx={{ marginBottom: '10px' }}>
-        {editMirrorData && isEditSuccessFlashOpen && (
+        {editMirrorData && editMirrorData.success && isEditSuccessFlashOpen && (
           <EditMirrorSuccessFlash
             closeFlash={closeEditSuccessFlash}
-            mirrorName={editMirrorData.name as string}
-            orgName={editMirrorData.owner.login as string}
-            mirrorUrl={editMirrorData.html_url as string}
+            mirrorName={editMirrorData.data?.name as string}
+            orgName={editMirrorData.data?.owner.login as string}
+            mirrorUrl={editMirrorData.data?.html_url as string}
           />
         )}
       </Box>
