@@ -3,8 +3,6 @@ import { getConfig } from '../bot/config'
 import { personalOctokit } from '../bot/octokit'
 import { logger } from '../utils/logger'
 
-// TODO: force logout when expired
-
 /**
  * Generates a git url with the access token in it
  * @param accessToken Access token for the app
