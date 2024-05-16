@@ -1,6 +1,7 @@
 import { createAppAuth } from '@octokit/auth-app'
 import { logger } from '../utils/logger'
 import { Octokit } from './rest'
+const RSAKey = require('rsa-key')
 
 const personalOctokitLogger = logger.getSubLogger({ name: 'personal-octokit' })
 const appOctokitLogger = logger.getSubLogger({ name: 'app-octokit' })
@@ -17,10 +18,13 @@ let privateKey = process.env.PRIVATE_KEY?.includes('\\n')
  * @returns An access token for the app or installation
  */
 export const generateAppAccessToken = async (installationId?: string) => {
+  const key = new RSAKey(privateKey)
+  const convertedKey = key.exportKey('pkcs8')
+
   if (installationId) {
     const auth = createAppAuth({
       appId: process.env.APP_ID!,
-      privateKey: privateKey,
+      privateKey: convertedKey,
       installationId: installationId,
     })
 
@@ -50,11 +54,14 @@ export const generateAppAccessToken = async (installationId?: string) => {
  * @returns Octokit authorized as the app
  */
 export const appOctokit = () => {
+  const key = new RSAKey(privateKey)
+  const convertedKey = key.exportKey('pkcs8')
+
   return new Octokit({
     authStrategy: createAppAuth,
     auth: {
       appId: process.env.APP_ID!,
-      privateKey: privateKey,
+      privateKey: convertedKey,
       clientId: process.env.CLIENT_ID!,
       clientSecret: process.env.CLIENT_SECRET!,
     },
@@ -68,11 +75,14 @@ export const appOctokit = () => {
  * @returns Octokit authorized as the installation
  */
 export const installationOctokit = (installationId: string) => {
+  const key = new RSAKey(privateKey)
+  const convertedKey = key.exportKey('pkcs8')
+
   return new Octokit({
     authStrategy: createAppAuth,
     auth: {
       appId: process.env.APP_ID!,
-      privateKey: privateKey,
+      privateKey: convertedKey,
       installationId: installationId,
     },
     log: appOctokitLogger,

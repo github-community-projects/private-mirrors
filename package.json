@@ -18,7 +18,7 @@
     "prepare": "test -d node_modules/husky && husky || echo \"husky is not installed\""
   },
   "dependencies": {
-    "@octokit/auth-app": "7.1.0",
+    "@octokit/auth-app": "6.1.1",
     "@octokit/graphql-schema": "15.15.0",
     "@primer/octicons-react": "19.9.0",
     "@primer/react": "36.18.0",
@@ -33,6 +33,7 @@
     "octokit": "3.2.1",
     "probot": "13.2.2",
     "react": "18.3.1",
+    "rsa-key": "0.0.6",
     "simple-git": "3.24.0",
     "styled-components": "5.3.11",
     "superjson": "2.2.1",
