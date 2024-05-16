@@ -4,14 +4,6 @@ import { logger } from 'utils/logger'
 
 export const probot = createProbot()
 
-// Disable the bodyParser to allow the raw body to be read
-// https://github.com/github-community-projects/internal-contribution-forks/issues/88
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-}
-
 export default createNodeMiddleware(app, {
   probot: createProbot({
     defaults: {
