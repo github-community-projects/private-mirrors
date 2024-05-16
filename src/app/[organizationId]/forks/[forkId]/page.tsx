@@ -39,6 +39,7 @@ import { EditMirrorDialog } from 'app/components/dialog/EditMirrorDialog'
 import EditMirrorLoading from 'app/components/loading/EditMirrorLoading'
 import { EditMirrorSuccessFlash } from 'app/components/flash/EditMirrorSuccessFlash'
 import Fuse from 'fuse.js'
+import { EditMirrorErrorFlash } from 'app/components/flash/EditMirrorErrorFlash'
 
 const Fork = () => {
   const { organizationId, forkId } = useParams()
@@ -138,7 +139,6 @@ const Fork = () => {
 
   const {
     data: createMirrorData,
-    error: createMirrorError,
     isLoading: createMirrorLoading,
     mutateAsync: createMirror,
   } = trpc.createMirror.useMutation()
@@ -160,16 +160,12 @@ const Fork = () => {
 
   const {
     data: editMirrorData,
-    error: editMirrorError,
     isLoading: editMirrorLoading,
     mutateAsync: editMirror,
   } = trpc.editMirror.useMutation()
 
-  const {
-    error: deleteMirrorError,
-    isLoading: deleteMirrorLoading,
-    mutateAsync: deleteMirror,
-  } = trpc.deleteMirror.useMutation()
+  const { isLoading: deleteMirrorLoading, mutateAsync: deleteMirror } =
+    trpc.deleteMirror.useMutation()
 
   const handleOnCreateMirror = useCallback(
     async ({
@@ -373,17 +369,17 @@ const Fork = () => {
         )}
       </Box>
       <Box sx={{ marginBottom: '10px' }}>
-        {createMirrorError && isCreateErrorFlashOpen && (
+        {isCreateErrorFlashOpen && (
           <CreateMirrorErrorFlash closeFlash={closeCreateErrorFlash} />
         )}
       </Box>
       <Box sx={{ marginBottom: '10px' }}>
-        {editMirrorError && isEditErrorFlashOpen && (
-          <CreateMirrorErrorFlash closeFlash={closeEditErrorFlash} />
+        {isEditErrorFlashOpen && (
+          <EditMirrorErrorFlash closeFlash={closeEditErrorFlash} />
         )}
       </Box>
       <Box sx={{ marginBottom: '10px' }}>
-        {deleteMirrorError && isDeleteErrorFlashOpen && (
+        {isDeleteErrorFlashOpen && (
           <DeleteMirrorErrorFlash closeFlash={closeDeleteErrorFlash} />
         )}
       </Box>
