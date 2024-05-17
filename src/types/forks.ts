@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+// this type is generated from the graphql query to support
+// the requirements of the primer datatable component
 const forksObject = z.object({
   organization: z.object({
     repositories: z.object({

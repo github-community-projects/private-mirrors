@@ -14,6 +14,7 @@ import { temporaryDirectory } from 'utils/dir'
 
 const reposApiLogger = logger.getSubLogger({ name: 'repos-api' })
 
+// Creates a mirror of a forked repo
 export const createMirrorHandler = async ({
   input,
 }: {
@@ -159,6 +160,7 @@ export const createMirrorHandler = async ({
   }
 }
 
+// Lists all the mirrors of a forked repo
 export const listMirrorsHandler = async ({
   input,
 }: {
@@ -198,6 +200,7 @@ export const listMirrorsHandler = async ({
   }
 }
 
+// Edits the name of a mirror
 export const editMirrorHandler = async ({
   input,
 }: {
@@ -233,6 +236,7 @@ export const editMirrorHandler = async ({
   }
 }
 
+// Deletes a mirror
 export const deleteMirrorHandler = async ({
   input,
 }: {

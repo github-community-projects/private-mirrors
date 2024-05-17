@@ -1,7 +1,7 @@
 import { Box, Breadcrumbs, Label, Link, Text } from '@primer/react'
 import { Stack } from '@primer/react/lib-esm/Stack'
-import { ForkData } from 'utils/fork'
-import { OrgData } from 'utils/organization'
+import { ForkData } from 'hooks/useFork'
+import { OrgData } from 'hooks/useOrganization'
 
 interface ForkBreadcrumbsProps {
   orgData: OrgData

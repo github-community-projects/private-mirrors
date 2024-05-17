@@ -1,7 +1,11 @@
 import { Box, Spinner } from '@primer/react'
 import { Stack } from '@primer/react/lib-esm/Stack'
 
-export const DeleteMirrorLoading = () => {
+interface LoadingProps {
+  message: string
+}
+
+export const Loading = ({ message }: LoadingProps) => {
   return (
     <Box
       sx={{
@@ -16,7 +20,7 @@ export const DeleteMirrorLoading = () => {
         <Stack.Item>
           <Spinner sx={{ marginTop: '5px' }} />
         </Stack.Item>
-        <Stack.Item>Deleting mirror...</Stack.Item>
+        <Stack.Item>{message}</Stack.Item>
       </Stack>
     </Box>
   )

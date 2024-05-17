@@ -1,19 +1,21 @@
 import { CheckIcon, XIcon } from '@primer/octicons-react'
 import { Box, Flash, IconButton, Link, Octicon } from '@primer/react'
 
-interface EditMirrorSuccessFlashProps {
+interface SuccessFlashProps {
+  message: string
   mirrorUrl: string
   orgName: string
   mirrorName: string
   closeFlash: () => void
 }
 
-export const EditMirrorSuccessFlash = ({
+export const SuccessFlash = ({
+  message,
   mirrorUrl,
   orgName,
   mirrorName,
   closeFlash,
-}: EditMirrorSuccessFlashProps) => {
+}: SuccessFlashProps) => {
   return (
     <Flash variant="success">
       <Box
@@ -27,7 +29,7 @@ export const EditMirrorSuccessFlash = ({
           <Octicon icon={CheckIcon}></Octicon>
         </Box>
         <Box sx={{ marginLeft: '20px' }}>
-          You have successfully updated mirror{' '}
+          {message}{' '}
           <Link href={mirrorUrl} target="_blank" rel="noreferrer noopener">
             {orgName}/{mirrorName}
           </Link>
@@ -41,7 +43,7 @@ export const EditMirrorSuccessFlash = ({
           <IconButton
             icon={XIcon}
             variant="invisible"
-            aria-labelledby="dismiss edit success"
+            aria-labelledby="dismiss create success"
             onClick={closeFlash}
             size="small"
           />

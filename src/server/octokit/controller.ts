@@ -4,6 +4,7 @@ import { CheckInstallationSchema } from './schema'
 
 const octokitApiLogger = logger.getSubLogger({ name: 'octokit-api' })
 
+// Checks if the app is installed in the org
 export const checkInstallationHandler = async ({
   input,
 }: {

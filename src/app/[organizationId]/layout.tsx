@@ -2,7 +2,7 @@
 
 import { Box } from '@primer/react'
 import { OrgHeader } from 'app/components/header/OrgHeader'
-import { useOrgData } from 'utils/organization'
+import { useOrgData } from 'hooks/useOrganization'
 
 const DashLayout = ({ children }: { children: React.ReactNode }) => {
   const orgData = useOrgData()

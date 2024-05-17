@@ -8,7 +8,7 @@ import { logger } from '../utils/logger'
  * @param accessToken Access token for the app
  * @param owner Repo Owner
  * @param repo Repo Name
- * @returns
+ * @returns formatted authenticated git url
  */
 export const generateAuthUrl = (
   accessToken: string,

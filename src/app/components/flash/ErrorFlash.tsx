@@ -1,13 +1,12 @@
 import { AlertIcon, XIcon } from '@primer/octicons-react'
 import { Box, Flash, IconButton, Octicon } from '@primer/react'
 
-interface EditMirrorErrorFlashProps {
+interface ErrorFlashProps {
+  message: string
   closeFlash: () => void
 }
 
-export const EditMirrorErrorFlash = ({
-  closeFlash,
-}: EditMirrorErrorFlashProps) => {
+export const ErrorFlash = ({ message, closeFlash }: ErrorFlashProps) => {
   return (
     <Flash variant="danger">
       <Box
@@ -20,7 +19,7 @@ export const EditMirrorErrorFlash = ({
         <Box>
           <Octicon icon={AlertIcon}></Octicon>
         </Box>
-        <Box sx={{ marginLeft: '20px' }}>Failed to edit mirror.</Box>
+        <Box sx={{ marginLeft: '20px' }}>{message}</Box>
         <Box
           sx={{
             marginLeft: 'auto',
@@ -29,7 +28,7 @@ export const EditMirrorErrorFlash = ({
           <IconButton
             icon={XIcon}
             variant="invisible"
-            aria-labelledby="dismiss edit error"
+            aria-labelledby="dismiss error"
             onClick={closeFlash}
             size="small"
           />

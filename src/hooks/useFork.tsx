@@ -23,7 +23,7 @@ const getForkById = async (
 
 export const useForkData = () => {
   const session = useSession()
-  const { accessToken } = (session.data?.user as any) ?? {}
+  const accessToken = session.data?.user.accessToken
 
   const { organizationId, forkId } = useParams()
 
@@ -32,7 +32,7 @@ export const useForkData = () => {
   > | null>(null)
 
   useEffect(() => {
-    if (!organizationId || !forkId) {
+    if (!organizationId || !forkId || !accessToken) {
       return
     }
 

@@ -160,7 +160,7 @@ query(
   $cursor: String
 ) {
   organization(login: $login) {
-    repositories(isFork: $isFork, after: $cursor, first: 10, orderBy: {field: UPDATED_AT, direction: DESC}) {
+    repositories(isFork: $isFork, after: $cursor, first: 25, orderBy: {field: UPDATED_AT, direction: DESC}) {
       totalCount
       nodes {
         databaseId

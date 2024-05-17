@@ -1,7 +1,7 @@
 'use client'
 
 import { Box } from '@primer/react'
-import { Login } from 'app/components/Login'
+import { Login } from 'app/components/login/Login'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'

@@ -214,10 +214,12 @@ function bot(app: Probot) {
 
     const { mutate } = trpc.syncRepos.useMutation({
       onSuccess: (res) => {
-        botLogger.info('Synced repos on default branch push', res)
+        botLogger.info('Synced repos on default branch push', { res })
       },
       onError: (error) => {
-        botLogger.error('Failed to sync repos on default branch push', error)
+        botLogger.error('Failed to sync repos on default branch push', {
+          error,
+        })
       },
     })
 

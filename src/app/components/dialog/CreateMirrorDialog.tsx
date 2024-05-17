@@ -3,20 +3,20 @@ import { Stack } from '@primer/react/lib-esm/Stack'
 import { Dialog } from '@primer/react/lib-esm/drafts'
 
 import { useState } from 'react'
-import { ForkData } from 'utils/fork'
-import { OrgData } from 'utils/organization'
 
 interface CreateMirrorDialogProps {
-  orgData: OrgData
-  forkData: ForkData
+  orgLogin: string
+  forkParentOwnerLogin: string
+  forkParentName: string
   isOpen: boolean
   closeDialog: () => void
   createMirror: (data: { repoName: string; branchName: string }) => void
 }
 
 export const CreateMirrorDialog = ({
-  orgData,
-  forkData,
+  orgLogin,
+  forkParentOwnerLogin,
+  forkParentName,
   isOpen,
   closeDialog,
   createMirror,
@@ -67,11 +67,11 @@ export const CreateMirrorDialog = ({
           <FormControl.Caption>
             This is a private mirror of{' '}
             <Link
-              href={`https://github.com/${forkData?.parent?.owner.login}/${forkData?.parent?.name}`}
+              href={`https://github.com/${forkParentOwnerLogin}/${forkParentName}`}
               target="_blank"
               rel="noreferrer noopener"
             >
-              {forkData?.parent?.owner.login}/{forkData?.parent?.name}
+              {forkParentOwnerLogin}/{forkParentName}
             </Link>
           </FormControl.Caption>
         </FormControl>
@@ -96,7 +96,7 @@ export const CreateMirrorDialog = ({
                       paddingRight: '10px',
                     }}
                   >
-                    {orgData?.login}/{repoName}
+                    {orgLogin}/{repoName}
                   </Text>
                   <Label variant="secondary">{'Private'}</Label>
                 </Stack.Item>
@@ -110,12 +110,12 @@ export const CreateMirrorDialog = ({
                   >
                     Forked from{' '}
                     <Link
-                      href={`https://github.com/${forkData?.parent?.owner.login}/${forkData?.parent?.name}`}
+                      href={`https://github.com/${forkParentOwnerLogin}/${forkParentName}`}
                       target="_blank"
                       rel="noreferrer noopener"
                       sx={{ color: 'fg.muted' }}
                     >
-                      {forkData?.parent?.owner.login}/{forkData?.parent?.name}
+                      {forkParentOwnerLogin}/{forkParentName}
                     </Link>
                   </Text>
                 </Stack.Item>

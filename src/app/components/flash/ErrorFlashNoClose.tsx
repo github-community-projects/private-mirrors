@@ -5,9 +5,7 @@ interface ListMirrorsErrorFlashProps {
   message: string
 }
 
-export const ListMirrorsErrorFlash = ({
-  message,
-}: ListMirrorsErrorFlashProps) => {
+export const ErrorFlashNoClose = ({ message }: ListMirrorsErrorFlashProps) => {
   return (
     <Flash variant="danger">
       <Box

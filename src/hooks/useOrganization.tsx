@@ -21,7 +21,7 @@ export const useOrgData = () => {
   const { organizationId } = useParams()
 
   const session = useSession()
-  const { accessToken } = (session.data?.user as any) ?? {}
+  const accessToken = session.data?.user.accessToken
 
   const [orgData, setOrgData] = useState<Awaited<
     ReturnType<typeof getOrganizationData>

@@ -13,6 +13,8 @@ const getForksInOrg = async (accessToken: string, login: string) => {
     },
   )
 
+  // the primer datatable component requires the data to not contain null
+  //values and the type returned from the graphql query contains null values
   return {
     organization: {
       repositories: {
@@ -50,14 +52,14 @@ const getForksInOrg = async (accessToken: string, login: string) => {
 
 export const useForksData = (login: string | undefined) => {
   const session = useSession()
-  const { accessToken } = (session.data?.user as any) ?? {}
+  const accessToken = session.data?.user.accessToken
 
   const [forks, setForks] = useState<Awaited<
     ReturnType<typeof getForksInOrg>
   > | null>(null)
 
   useEffect(() => {
-    if (!login) {
+    if (!login || !accessToken) {
       return
     }
 

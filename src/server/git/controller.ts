@@ -8,6 +8,7 @@ import { temporaryDirectory } from '../../utils/dir'
 
 const gitApiLogger = logger.getSubLogger({ name: 'git-api' })
 
+// Syncs the fork and mirror repos
 export const syncReposHandler = async ({
   input,
 }: {

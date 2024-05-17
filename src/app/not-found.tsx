@@ -23,7 +23,7 @@ const NotFoundPage = () => {
         </Blankslate.Description>
         <Box sx={{ padding: '20px' }}>
           <Blankslate.SecondaryAction href="/">
-            Back to repositories
+            Back to home
           </Blankslate.SecondaryAction>
         </Box>
       </Blankslate>

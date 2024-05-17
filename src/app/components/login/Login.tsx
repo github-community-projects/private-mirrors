@@ -2,6 +2,10 @@ import { MarkGithubIcon } from '@primer/octicons-react'
 import { Box, Button, Octicon, Text } from '@primer/react'
 import { signIn } from 'next-auth/react'
 
+const signInWithGitHub = async () => {
+  await signIn('github')
+}
+
 export const Login = () => {
   return (
     <Box
@@ -45,7 +49,7 @@ export const Login = () => {
           <Button
             variant="primary"
             onClick={async () => {
-              await signIn('github')
+              await signInWithGitHub()
             }}
           >
             Sign in with GitHub

@@ -23,23 +23,18 @@ import { DataTable, Table } from '@primer/react/lib-esm/DataTable'
 import { Stack } from '@primer/react/lib-esm/Stack'
 import { AppNotInstalledFlash } from 'app/components/flash/AppNotInstalledFlash'
 import { MirrorSearch } from 'app/components/search/MirrorSearch'
-import { useForkData } from 'utils/fork'
-import { useOrgData } from 'utils/organization'
+import { useForkData } from 'hooks/useFork'
+import { useOrgData } from 'hooks/useOrganization'
 import { useCallback, useState } from 'react'
 import { ForkBreadcrumbs } from 'app/components/breadcrumbs/ForkBreadcrumbs'
 import { DeleteMirrorDialog } from 'app/components/dialog/DeleteMirrorDialog'
 import { CreateMirrorDialog } from 'app/components/dialog/CreateMirrorDialog'
-import { CreateMirrorSuccessFlash } from 'app/components/flash/CreateMirrorSuccessFlash'
-import { DeleteMirrorErrorFlash } from 'app/components/flash/DeleteMirrorErrorFlash'
-import { CreateMirrorLoading } from 'app/components/loading/CreateMirrorLoading'
-import { DeleteMirrorLoading } from 'app/components/loading/DeleteMirrorLoading'
-import { ListMirrorsErrorFlash } from 'app/components/flash/ListMirrorsErrorFlash'
-import { CreateMirrorErrorFlash } from 'app/components/flash/CreateMirrorErrorFlash'
+import { SuccessFlash } from 'app/components/flash/SuccessFlash'
+import { Loading } from 'app/components/loading/Loading'
+import { ErrorFlashNoClose } from 'app/components/flash/ErrorFlashNoClose'
+import { ErrorFlash } from 'app/components/flash/ErrorFlash'
 import { EditMirrorDialog } from 'app/components/dialog/EditMirrorDialog'
-import { EditMirrorLoading } from 'app/components/loading/EditMirrorLoading'
-import { EditMirrorSuccessFlash } from 'app/components/flash/EditMirrorSuccessFlash'
 import Fuse from 'fuse.js'
-import { EditMirrorErrorFlash } from 'app/components/flash/EditMirrorErrorFlash'
 
 const Fork = () => {
   const { organizationId, forkId } = useParams()
@@ -359,43 +354,53 @@ const Fork = () => {
     <Box>
       <Box sx={{ marginBottom: '10px' }}>
         {!isLoading && !data?.installed && (
-          <AppNotInstalledFlash orgData={orgData} />
+          <AppNotInstalledFlash orgLogin={orgData?.login as string} />
         )}
       </Box>
       <Box sx={{ marginBottom: '10px' }}>
-        {createMirrorLoading && <CreateMirrorLoading />}
+        {createMirrorLoading && <Loading message="Creating new mirror..." />}
       </Box>
       <Box sx={{ marginBottom: '10px' }}>
-        {editMirrorLoading && <EditMirrorLoading />}
+        {editMirrorLoading && <Loading message="Updating mirror..." />}
       </Box>
       <Box sx={{ marginBottom: '10px' }}>
-        {deleteMirrorLoading && <DeleteMirrorLoading />}
+        {deleteMirrorLoading && <Loading message="Deleting mirror..." />}
       </Box>
       <Box sx={{ marginBottom: '10px' }}>
         {listMirrorsError && (
-          <ListMirrorsErrorFlash message={listMirrorsError.message} />
+          <ErrorFlashNoClose message={listMirrorsError.message} />
         )}
       </Box>
       <Box sx={{ marginBottom: '10px' }}>
         {isCreateErrorFlashOpen && (
-          <CreateMirrorErrorFlash closeFlash={closeCreateErrorFlash} />
+          <ErrorFlash
+            message="Failed to create mirror."
+            closeFlash={closeCreateErrorFlash}
+          />
         )}
       </Box>
       <Box sx={{ marginBottom: '10px' }}>
         {isEditErrorFlashOpen && (
-          <EditMirrorErrorFlash closeFlash={closeEditErrorFlash} />
+          <ErrorFlash
+            message="Failed to update mirror."
+            closeFlash={closeEditErrorFlash}
+          />
         )}
       </Box>
       <Box sx={{ marginBottom: '10px' }}>
         {isDeleteErrorFlashOpen && (
-          <DeleteMirrorErrorFlash closeFlash={closeDeleteErrorFlash} />
+          <ErrorFlash
+            message="Failed to delete mirror."
+            closeFlash={closeDeleteErrorFlash}
+          />
         )}
       </Box>
       <Box sx={{ marginBottom: '10px' }}>
         {createMirrorData &&
           createMirrorData.success &&
           isCreateSuccessFlashOpen && (
-            <CreateMirrorSuccessFlash
+            <SuccessFlash
+              message="You have successfully created a new private mirror at"
               closeFlash={closeCreateSuccessFlash}
               mirrorName={createMirrorData.data?.name as string}
               mirrorUrl={createMirrorData.data?.html_url as string}
@@ -405,7 +410,8 @@ const Fork = () => {
       </Box>
       <Box sx={{ marginBottom: '10px' }}>
         {editMirrorData && editMirrorData.success && isEditSuccessFlashOpen && (
-          <EditMirrorSuccessFlash
+          <SuccessFlash
+            message="You have successfully updated mirror"
             closeFlash={closeEditSuccessFlash}
             mirrorName={editMirrorData.data?.name as string}
             orgName={editMirrorData.data?.owner.login as string}
@@ -548,15 +554,17 @@ const Fork = () => {
         </Table.Container>
       )}
       <CreateMirrorDialog
-        orgData={orgData}
-        forkData={forkData}
+        orgLogin={orgData?.login as string}
+        forkParentName={forkData?.parent?.name as string}
+        forkParentOwnerLogin={forkData?.parent?.owner.login as string}
         closeDialog={closeCreateDialog}
         isOpen={isCreateDialogOpen}
         createMirror={handleOnCreateMirror}
       />
       <EditMirrorDialog
-        orgData={orgData}
-        forkData={forkData}
+        orgLogin={orgData?.login as string}
+        forkParentName={forkData?.parent?.name as string}
+        forkParentOwnerLogin={forkData?.parent?.owner.login as string}
         orgId={organizationId as string}
         mirrorName={editMirrorName as string}
         closeDialog={closeEditDialog}
@@ -564,7 +572,7 @@ const Fork = () => {
         editMirror={handleOnEditMirror}
       />
       <DeleteMirrorDialog
-        orgData={orgData}
+        orgLogin={orgData?.login as string}
         orgId={organizationId as string}
         orgName={orgData?.name as string}
         mirrorName={deleteMirrorName as string}

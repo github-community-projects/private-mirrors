@@ -1,9 +1,8 @@
 import { Box, Text } from '@primer/react'
 import { Dialog } from '@primer/react/lib-esm/drafts'
-import { OrgData } from 'utils/organization'
 
 interface DeleteMirrorDialogProps {
-  orgData: OrgData
+  orgLogin: string
   orgId: string
   orgName: string
   mirrorName: string
@@ -17,7 +16,7 @@ interface DeleteMirrorDialogProps {
 }
 
 export const DeleteMirrorDialog = ({
-  orgData,
+  orgLogin,
   orgId,
   orgName,
   mirrorName,
@@ -46,7 +45,7 @@ export const DeleteMirrorDialog = ({
         Are you sure you&apos;d like to delete
         <Text sx={{ fontWeight: 'bold' }}>
           {' '}
-          {orgData?.login}/{mirrorName}?
+          {orgLogin}/{mirrorName}?
         </Text>
       </Box>
     </Dialog>

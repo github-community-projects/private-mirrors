@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { personalOctokit } from '../bot/octokit'
-import { Login } from './components/Login'
+import { Login } from './components/login/Login'
 
 const Home = () => {
   const router = useRouter()
