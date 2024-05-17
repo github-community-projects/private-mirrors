@@ -4,7 +4,7 @@ import reposRouter from '../../../server/repos/router'
 import { t, procedure } from '../../../utils/trpc-server'
 
 export const healthCheckerRouter = t.router({
-  healthchecker: procedure.query(({}) => {
+  healthChecker: procedure.query(({}) => {
     return 'ok'
   }),
 })

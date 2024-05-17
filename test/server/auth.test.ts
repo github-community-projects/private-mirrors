@@ -23,7 +23,7 @@ describe('Git router', () => {
       },
     })
 
-    const res = await caller.healthchecker()
+    const res = await caller.healthChecker()
 
     expect(res).toEqual('ok')
 
@@ -52,7 +52,7 @@ describe('Git router', () => {
       },
     })
 
-    await caller.healthchecker().catch((error) => {
+    await caller.healthChecker().catch((error) => {
       expect(error.code).toContain('UNAUTHORIZED')
     })
 
