@@ -1,3 +1,4 @@
+import 'next-auth'
 import { DefaultSession } from 'next-auth'
 
 declare module 'next-auth' {
@@ -7,5 +8,3 @@ declare module 'next-auth' {
     } & DefaultSession['user']
   }
 }
-
-export { Session }
