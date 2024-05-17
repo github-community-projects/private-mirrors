@@ -1,11 +1,14 @@
-'use client'
 import { AlertIcon } from '@primer/octicons-react'
 import { Box, Flash, Link, Octicon } from '@primer/react'
-import { useOrgData } from 'utils/organization'
+import { OrgData } from 'utils/organization'
 
-export const AppNotInstalledFlash = () => {
-  const orgData = useOrgData()
+interface AppNotInstalledFlashProps {
+  orgData: OrgData
+}
 
+export const AppNotInstalledFlash = ({
+  orgData,
+}: AppNotInstalledFlashProps) => {
   return (
     <Box>
       {orgData && (

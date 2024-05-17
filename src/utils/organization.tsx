@@ -45,3 +45,5 @@ export const useOrgData = () => {
 
   return orgData
 }
+
+export type OrgData = Awaited<ReturnType<typeof getOrganizationData>>

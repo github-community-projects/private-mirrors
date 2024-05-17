@@ -30,7 +30,7 @@ const Organization = () => {
   })
 
   const orgData = useOrgData()
-  const forksData = useForksData()?.organization.repositories
+  const forksData = useForksData(orgData?.login)?.organization.repositories
 
   // set search value to be empty string by default
   const [searchValue, setSearchValue] = useState('')
@@ -98,7 +98,9 @@ const Organization = () => {
   return (
     <Box>
       <Box sx={{ marginBottom: '10px' }}>
-        {!isLoading && !data?.installed && <AppNotInstalledFlash />}
+        {!isLoading && !data?.installed && (
+          <AppNotInstalledFlash orgData={orgData} />
+        )}
       </Box>
       <ForkSearch searchValue={searchValue} setSearchValue={setSearchValue} />
       {forksData.totalCount === 0 ? (

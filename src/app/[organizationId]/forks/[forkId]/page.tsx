@@ -304,7 +304,7 @@ const Fork = () => {
   if (!mirrors || mirrorsLoading) {
     return (
       <Box>
-        <ForkBreadcrumbs />
+        <ForkBreadcrumbs orgData={orgData} forkData={forkData} />
         <MirrorSearch
           searchValue={searchValue}
           setSearchValue={setSearchValue}
@@ -358,7 +358,9 @@ const Fork = () => {
   return (
     <Box>
       <Box sx={{ marginBottom: '10px' }}>
-        {!isLoading && !data?.installed && <AppNotInstalledFlash />}
+        {!isLoading && !data?.installed && (
+          <AppNotInstalledFlash orgData={orgData} />
+        )}
       </Box>
       <Box sx={{ marginBottom: '10px' }}>
         {createMirrorLoading && <CreateMirrorLoading />}
@@ -411,7 +413,7 @@ const Fork = () => {
           />
         )}
       </Box>
-      <ForkBreadcrumbs />
+      <ForkBreadcrumbs orgData={orgData} forkData={forkData} />
       <MirrorSearch
         searchValue={searchValue}
         setSearchValue={setSearchValue}
@@ -545,11 +547,15 @@ const Fork = () => {
         </Table.Container>
       )}
       <CreateMirrorDialog
+        orgData={orgData}
+        forkData={forkData}
         closeDialog={closeCreateDialog}
         isOpen={isCreateDialogOpen}
         createMirror={handleOnCreateMirror}
       />
       <EditMirrorDialog
+        orgData={orgData}
+        forkData={forkData}
         orgId={organizationId as string}
         mirrorName={editMirrorName as string}
         closeDialog={closeEditDialog}
@@ -557,6 +563,7 @@ const Fork = () => {
         editMirror={handleOnEditMirror}
       />
       <DeleteMirrorDialog
+        orgData={orgData}
         orgId={organizationId as string}
         orgName={orgData?.name as string}
         mirrorName={deleteMirrorName as string}

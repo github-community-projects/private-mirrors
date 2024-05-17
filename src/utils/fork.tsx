@@ -7,12 +7,18 @@ import { useEffect, useState } from 'react'
 const getForkById = async (
   accessToken: string,
   repoId: string,
-): Promise<Awaited<ReturnType<Octokit['rest']['repos']['get']>>['data']> => {
-  return (
-    await personalOctokit(accessToken).request('GET /repositories/:id', {
-      id: repoId,
-    })
-  ).data
+): Promise<
+  Awaited<ReturnType<Octokit['rest']['repos']['get']>>['data'] | null
+> => {
+  try {
+    return (
+      await personalOctokit(accessToken).request('GET /repositories/:id', {
+        id: repoId,
+      })
+    ).data
+  } catch (error) {
+    return null
+  }
 }
 
 export const useForkData = () => {
@@ -37,3 +43,5 @@ export const useForkData = () => {
 
   return fork
 }
+
+export type ForkData = Awaited<ReturnType<typeof getForkById>>

@@ -1,5 +1,3 @@
-'use client'
-
 import { MarkGithubIcon } from '@primer/octicons-react'
 import { Box, Button, Octicon, Text } from '@primer/react'
 import { signIn } from 'next-auth/react'

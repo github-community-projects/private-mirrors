@@ -1,8 +1,9 @@
 import { Box, Text } from '@primer/react'
 import { Dialog } from '@primer/react/lib-esm/drafts'
-import { useOrgData } from 'utils/organization'
+import { OrgData } from 'utils/organization'
 
 interface DeleteMirrorDialogProps {
+  orgData: OrgData
   orgId: string
   orgName: string
   mirrorName: string
@@ -16,6 +17,7 @@ interface DeleteMirrorDialogProps {
 }
 
 export const DeleteMirrorDialog = ({
+  orgData,
   orgId,
   orgName,
   mirrorName,
@@ -23,8 +25,6 @@ export const DeleteMirrorDialog = ({
   closeDialog,
   deleteMirror,
 }: DeleteMirrorDialogProps) => {
-  const orgData = useOrgData()
-
   if (!isOpen) {
     return null
   }

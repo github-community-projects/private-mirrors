@@ -3,24 +3,26 @@ import { Stack } from '@primer/react/lib-esm/Stack'
 import { Dialog } from '@primer/react/lib-esm/drafts'
 
 import { useState } from 'react'
-import { useForkData } from 'utils/fork'
-import { useOrgData } from 'utils/organization'
+import { ForkData } from 'utils/fork'
+import { OrgData } from 'utils/organization'
 
 interface CreateMirrorDialogProps {
+  orgData: OrgData
+  forkData: ForkData
   isOpen: boolean
   closeDialog: () => void
   createMirror: (data: { repoName: string; branchName: string }) => void
 }
 
 export const CreateMirrorDialog = ({
+  orgData,
+  forkData,
   isOpen,
   closeDialog,
   createMirror,
 }: CreateMirrorDialogProps) => {
+  // set to default value of 'repository-name' for display purposes
   const [repoName, setRepoName] = useState('repository-name')
-
-  const orgData = useOrgData()
-  const forkData = useForkData()
 
   if (!isOpen) {
     return null

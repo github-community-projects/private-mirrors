@@ -1,12 +1,12 @@
-'use client'
-
 import { Avatar, Link, Pagehead, Spinner, Text } from '@primer/react'
 import { Stack } from '@primer/react/lib-esm/Stack'
-import { useOrgData } from 'utils/organization'
+import { OrgData } from 'utils/organization'
 
-export const OrgHeader = () => {
-  const orgData = useOrgData()
+interface OrgHeaderProps {
+  orgData: OrgData
+}
 
+export const OrgHeader = ({ orgData }: OrgHeaderProps) => {
   return (
     <Pagehead>
       {orgData ? (

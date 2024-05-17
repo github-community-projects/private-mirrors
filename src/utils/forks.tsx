@@ -3,7 +3,6 @@ import { personalOctokit } from 'bot/octokit'
 import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
 import { ForksObject } from 'types/forks'
-import { useOrgData } from './organization'
 
 const getForksInOrg = async (accessToken: string, login: string) => {
   const res = await personalOctokit(accessToken).graphql.paginate<ForksObject>(
@@ -49,25 +48,23 @@ const getForksInOrg = async (accessToken: string, login: string) => {
   }
 }
 
-export const useForksData = () => {
+export const useForksData = (login: string | undefined) => {
   const session = useSession()
   const { accessToken } = (session.data?.user as any) ?? {}
-
-  const orgData = useOrgData()
 
   const [forks, setForks] = useState<Awaited<
     ReturnType<typeof getForksInOrg>
   > | null>(null)
 
   useEffect(() => {
-    if (!orgData) {
+    if (!login) {
       return
     }
 
-    getForksInOrg(accessToken, orgData.login).then((forks) => {
+    getForksInOrg(accessToken, login).then((forks) => {
       setForks(forks)
     })
-  }, [orgData, accessToken])
+  }, [login, accessToken])
 
   return forks
 }

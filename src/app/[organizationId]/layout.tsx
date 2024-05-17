@@ -4,9 +4,11 @@ import { Box } from '@primer/react'
 import { OrgHeader } from 'app/components/header/OrgHeader'
 import { signOut, useSession } from 'next-auth/react'
 import { useEffect } from 'react'
+import { useOrgData } from 'utils/organization'
 
 const DashLayout = ({ children }: { children: React.ReactNode }) => {
   const session = useSession()
+  const orgData = useOrgData()
 
   // sign user out if session is expired
   useEffect(() => {
@@ -24,7 +26,7 @@ const DashLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <Box sx={{ margin: '10px 90px' }}>
       <Box>
-        <OrgHeader />
+        <OrgHeader orgData={orgData} />
       </Box>
       <Box>{children}</Box>
     </Box>

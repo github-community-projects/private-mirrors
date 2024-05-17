@@ -1,5 +1,3 @@
-'use client'
-
 import { PlusIcon, SearchIcon, XCircleFillIcon } from '@primer/octicons-react'
 import { Box, Button, FormControl, TextInput } from '@primer/react'
 import { Stack } from '@primer/react/lib-esm/Stack'

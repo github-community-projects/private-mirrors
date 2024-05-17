@@ -1,5 +1,3 @@
-'use client'
-
 import { SearchIcon, XCircleFillIcon } from '@primer/octicons-react'
 import { Box, FormControl, TextInput } from '@primer/react'
 import { ChangeEvent } from 'react'

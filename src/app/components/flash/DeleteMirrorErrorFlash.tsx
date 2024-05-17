@@ -1,5 +1,5 @@
 import { AlertIcon, XIcon } from '@primer/octicons-react'
-import { Box, Flash, IconButton, Link, Octicon } from '@primer/react'
+import { Box, Flash, IconButton, Octicon } from '@primer/react'
 
 interface DeleteMirrorErrorFlashProps {
   closeFlash: () => void
