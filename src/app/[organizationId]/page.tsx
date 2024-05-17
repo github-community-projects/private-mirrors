@@ -170,6 +170,7 @@ const Organization = () => {
                             <Link
                               href={`https://github.com/${row.parent.owner.login}/${row.parent.name}`}
                               target="_blank"
+                              rel="noreferrer noopener"
                               sx={{ color: 'fg.muted' }}
                             >
                               {row.parent.owner.login}/{row.parent.name}

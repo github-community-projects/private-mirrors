@@ -463,6 +463,7 @@ const Fork = () => {
                       }}
                       href={row.html_url}
                       target="_blank"
+                      rel="noreferrer noopener"
                     >
                       {row.name}
                     </Link>

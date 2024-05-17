@@ -81,6 +81,7 @@ export const EditMirrorDialog = ({
             <Link
               href={`https://github.com/${forkData?.parent?.owner.login}/${forkData?.parent?.name}`}
               target="_blank"
+              rel="noreferrer noopener"
             >
               {forkData?.parent?.owner.login}/{forkData?.parent?.name}
             </Link>
@@ -123,6 +124,7 @@ export const EditMirrorDialog = ({
                     <Link
                       href={`https://github.com/${forkData?.parent?.owner.login}/${forkData?.parent?.name}`}
                       target="_blank"
+                      rel="noreferrer noopener"
                       sx={{ color: 'fg.muted' }}
                     >
                       {forkData?.parent?.owner.login}/{forkData?.parent?.name}

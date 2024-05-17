@@ -51,6 +51,7 @@ export const ForkBreadcrumbs = ({
               <Link
                 href={`https://github.com/${forkData?.parent?.owner.login}/${forkData?.parent?.name}`}
                 target="_blank"
+                rel="noreferrer noopener"
                 sx={{ color: 'fg.muted' }}
               >
                 {forkData?.parent?.owner.login}/{forkData?.parent?.name}

@@ -28,7 +28,7 @@ export const EditMirrorSuccessFlash = ({
         </Box>
         <Box sx={{ marginLeft: '20px' }}>
           You have successfully updated mirror{' '}
-          <Link href={mirrorUrl} target="_blank">
+          <Link href={mirrorUrl} target="_blank" rel="noreferrer noopener">
             {orgName}/{mirrorName}
           </Link>
           .

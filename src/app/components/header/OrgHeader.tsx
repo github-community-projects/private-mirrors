@@ -18,6 +18,7 @@ export const OrgHeader = ({ orgData }: OrgHeaderProps) => {
             <Link
               href={orgData.html_url}
               target="_blank"
+              rel="noreferrer noopener"
               sx={{ color: 'fg.default', fontSize: '3', fontWeight: 'bold' }}
             >
               {orgData.login}
