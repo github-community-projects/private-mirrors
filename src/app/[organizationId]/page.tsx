@@ -82,14 +82,14 @@ const Organization = () => {
     threshold: 0.2,
   })
 
-  let forksRow = []
+  let forksPaginationSet = []
   if (searchValue) {
-    forksRow = fuse
+    forksPaginationSet = fuse
       .search(searchValue)
       .map((result) => result.item)
       .slice(start, end)
   } else {
-    forksRow = forks.slice(start, end)
+    forksPaginationSet = forks.slice(start, end)
   }
 
   return (
@@ -124,7 +124,7 @@ const Organization = () => {
           <DataTable
             aria-describedby="forks table"
             aria-labelledby="forks table"
-            data={forksRow}
+            data={forksPaginationSet}
             columns={[
               {
                 header: 'Repository',
@@ -240,7 +240,9 @@ const Organization = () => {
           />
           <Table.Pagination
             aria-label="pagination"
-            totalCount={searchValue ? forksRow.length : forksData.totalCount}
+            totalCount={
+              searchValue ? forksPaginationSet.length : forksData.totalCount
+            }
             pageSize={pageSize}
             onChange={({ pageIndex }) => {
               setPageIndex(pageIndex)

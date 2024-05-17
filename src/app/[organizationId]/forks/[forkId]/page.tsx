@@ -339,14 +339,14 @@ const Fork = () => {
     threshold: 0.2,
   })
 
-  let mirrorsRow = []
+  let mirrorPaginationSet = []
   if (searchValue) {
-    mirrorsRow = fuse
+    mirrorPaginationSet = fuse
       .search(searchValue)
       .map((result) => result.item)
       .slice(start, end)
   } else {
-    mirrorsRow = mirrors.slice(start, end)
+    mirrorPaginationSet = mirrors.slice(start, end)
   }
 
   return (
@@ -437,7 +437,7 @@ const Fork = () => {
           <DataTable
             aria-describedby="mirrors table"
             aria-labelledby="mirrors table"
-            data={mirrorsRow}
+            data={mirrorPaginationSet}
             columns={[
               {
                 header: 'Mirror name',
@@ -528,7 +528,9 @@ const Fork = () => {
           />
           <Table.Pagination
             aria-label="pagination"
-            totalCount={searchValue ? mirrorsRow.length : mirrors.length}
+            totalCount={
+              searchValue ? mirrorPaginationSet.length : mirrors.length
+            }
             pageSize={pageSize}
             onChange={({ pageIndex }) => {
               setPageIndex(pageIndex)
