@@ -48,9 +48,7 @@
       "@/utils": ["utils"]
     },
     // "rootDirs": [],                        /* List of root folders whose combined content represents the structure of the project at runtime. */
-    "typeRoots": [
-      "next-auth.d.ts"
-    ] /* List of folders to include type definitions from. */,
+    // "typeRoots": [], /* List of folders to include type definitions from. */
     // "types": [],                           /* Type declaration files to be included in compilation. */
     // "allowSyntheticDefaultImports": true,  /* Allow default imports from modules with no default export. This does not affect code emit, just typechecking. */
     "esModuleInterop": true /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */,
@@ -77,6 +75,6 @@
     ]
   },
   "include": ["src", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"],
+  "exclude": ["node_modules", "test"],
   "compileOnSave": false
 }
