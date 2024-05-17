@@ -6,7 +6,10 @@ import { getServerSession } from 'next-auth'
 import { nextAuthOptions } from '../../auth/lib/nextauth-options'
 import { appRouter } from '../trpc-router'
 
-async function createContext({ req, resHeaders }: FetchCreateContextFnOptions) {
+const createContext = async ({
+  req,
+  resHeaders,
+}: FetchCreateContextFnOptions) => {
   const session = await getServerSession(nextAuthOptions)
 
   return { req, resHeaders, session }

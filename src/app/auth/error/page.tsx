@@ -3,7 +3,7 @@
 import { MarkGithubIcon } from '@primer/octicons-react'
 import { Box, Octicon, Text } from '@primer/react'
 
-export default function ErrorPage() {
+const ErrorPage = () => {
   return (
     <Box
       sx={{
@@ -46,3 +46,5 @@ export default function ErrorPage() {
     </Box>
   )
 }
+
+export default ErrorPage

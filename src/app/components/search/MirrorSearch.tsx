@@ -3,7 +3,7 @@
 import { PlusIcon, SearchIcon, XCircleFillIcon } from '@primer/octicons-react'
 import { Box, Button, FormControl, TextInput } from '@primer/react'
 import { Stack } from '@primer/react/lib-esm/Stack'
-import { ChangeEvent, FC } from 'react'
+import { ChangeEvent } from 'react'
 
 interface MirrorSearchProps {
   searchValue: string
@@ -11,11 +11,11 @@ interface MirrorSearchProps {
   openCreateDialog: () => void
 }
 
-export const MirrorSearch: FC<MirrorSearchProps> = ({
+export const MirrorSearch = ({
   searchValue,
   setSearchValue,
   openCreateDialog,
-}) => {
+}: MirrorSearchProps) => {
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchValue(event.target.value)
   }

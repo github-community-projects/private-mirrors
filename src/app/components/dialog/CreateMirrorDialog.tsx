@@ -2,7 +2,7 @@ import { Box, FormControl, Label, Link, Text, TextInput } from '@primer/react'
 import { Stack } from '@primer/react/lib-esm/Stack'
 import { Dialog } from '@primer/react/lib-esm/drafts'
 
-import { FC, useState } from 'react'
+import { useState } from 'react'
 import { useForkData } from 'utils/fork'
 import { useOrgData } from 'utils/organization'
 
@@ -12,11 +12,11 @@ interface CreateMirrorDialogProps {
   createMirror: (data: { repoName: string; branchName: string }) => void
 }
 
-export const CreateMirrorDialog: FC<CreateMirrorDialogProps> = ({
+export const CreateMirrorDialog = ({
   isOpen,
   closeDialog,
   createMirror,
-}) => {
+}: CreateMirrorDialogProps) => {
   const [repoName, setRepoName] = useState('repository-name')
 
   const orgData = useOrgData()

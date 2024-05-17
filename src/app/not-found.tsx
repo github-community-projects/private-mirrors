@@ -4,7 +4,7 @@ import { AlertIcon } from '@primer/octicons-react'
 import { Box, Octicon } from '@primer/react'
 import Blankslate from '@primer/react/lib-esm/Blankslate/Blankslate'
 
-export default function NotFoundPage() {
+const NotFoundPage = () => {
   return (
     <Box
       sx={{
@@ -30,3 +30,5 @@ export default function NotFoundPage() {
     </Box>
   )
 }
+
+export default NotFoundPage

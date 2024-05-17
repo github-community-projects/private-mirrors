@@ -1,7 +1,7 @@
 import { Box, Spinner } from '@primer/react'
 import { Stack } from '@primer/react/lib-esm/Stack'
 
-export default function DeleteMirrorLoading() {
+export const DeleteMirrorLoading = () => {
   return (
     <Box
       sx={{

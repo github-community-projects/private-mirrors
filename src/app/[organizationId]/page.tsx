@@ -16,7 +16,7 @@ import {
 import Blankslate from '@primer/react/lib-esm/Blankslate/Blankslate'
 import { DataTable, Table } from '@primer/react/lib-esm/DataTable'
 import { Stack } from '@primer/react/lib-esm/Stack'
-import AppNotInstalledFlash from 'app/components/flash/AppNotInstalledFlash'
+import { AppNotInstalledFlash } from 'app/components/flash/AppNotInstalledFlash'
 import { useForksData } from 'utils/forks'
 import { useOrgData } from 'utils/organization'
 import { useState } from 'react'

@@ -2,17 +2,17 @@
 
 import { SearchIcon, XCircleFillIcon } from '@primer/octicons-react'
 import { Box, FormControl, TextInput } from '@primer/react'
-import { ChangeEvent, FC } from 'react'
+import { ChangeEvent } from 'react'
 
 interface ForkSearchProps {
   searchValue: string
   setSearchValue: (value: string) => void
 }
 
-export const ForkSearch: FC<ForkSearchProps> = ({
+export const ForkSearch = ({
   searchValue,
   setSearchValue,
-}) => {
+}: ForkSearchProps) => {
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchValue(event.target.value)
   }

@@ -5,9 +5,9 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { personalOctokit } from '../bot/octokit'
-import Login from './components/Login'
+import { Login } from './components/Login'
 
-export default function Home() {
+const Home = () => {
   const router = useRouter()
   const session = useSession()
   const [organizations, setOrganizations] = useState<
@@ -37,3 +37,5 @@ export default function Home() {
 
   return <Box>{!session.data?.user && <Login />}</Box>
 }
+
+export default Home

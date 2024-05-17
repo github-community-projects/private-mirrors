@@ -15,7 +15,7 @@ const getForkById = async (
   ).data
 }
 
-export function useForkData() {
+export const useForkData = () => {
   const session = useSession()
   const { accessToken } = (session.data?.user as any) ?? {}
 

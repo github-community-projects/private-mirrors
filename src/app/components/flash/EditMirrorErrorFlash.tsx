@@ -1,14 +1,13 @@
 import { AlertIcon, XIcon } from '@primer/octicons-react'
 import { Box, Flash, IconButton, Link, Octicon } from '@primer/react'
-import { FC } from 'react'
 
 interface EditMirrorErrorFlashProps {
   closeFlash: () => void
 }
 
-export const EditMirrorErrorFlash: FC<EditMirrorErrorFlashProps> = ({
+export const EditMirrorErrorFlash = ({
   closeFlash,
-}) => {
+}: EditMirrorErrorFlashProps) => {
   return (
     <Flash variant="danger">
       <Box

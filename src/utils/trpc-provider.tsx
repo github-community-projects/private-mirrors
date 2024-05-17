@@ -7,9 +7,7 @@ import superjson from 'superjson'
 import queryClient from './query-client'
 import { trpc } from './trpc'
 
-export const TrpcProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const TrpcProvider = ({ children }: { children: React.ReactNode }) => {
   const url = process.env.NEXT_PUBLIC_VERCEL_URL
     ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
     : 'http://localhost:3000/api/trpc/'

@@ -4,7 +4,7 @@ import { MarkGithubIcon } from '@primer/octicons-react'
 import { Box, Button, Octicon, Text } from '@primer/react'
 import { signIn } from 'next-auth/react'
 
-export default function Login() {
+export const Login = () => {
   return (
     <Box
       sx={{

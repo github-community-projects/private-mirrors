@@ -1,12 +1,12 @@
 'use client'
 
 import { Box } from '@primer/react'
-import Login from 'app/components/Login'
+import { Login } from 'app/components/Login'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 
-export default function LoginPage() {
+const LoginPage = () => {
   const session = useSession()
   const router = useRouter()
 
@@ -18,3 +18,5 @@ export default function LoginPage() {
 
   return <Box>{!session.data?.user && <Login />}</Box>
 }
+
+export default LoginPage

@@ -15,7 +15,7 @@ export const getOrganizationData = async (
   }
 }
 
-export function useOrgData() {
+export const useOrgData = () => {
   const router = useRouter()
 
   const { organizationId } = useParams()

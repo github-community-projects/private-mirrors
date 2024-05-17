@@ -2,7 +2,7 @@ import { Box, FormControl, Label, Link, Text, TextInput } from '@primer/react'
 import { Stack } from '@primer/react/lib-esm/Stack'
 import { Dialog } from '@primer/react/lib-esm/drafts'
 
-import { FC, useState } from 'react'
+import { useState } from 'react'
 import { useForkData } from 'utils/fork'
 import { useOrgData } from 'utils/organization'
 
@@ -18,13 +18,13 @@ interface EditMirrorDialogProps {
   }) => void
 }
 
-export const EditMirrorDialog: FC<EditMirrorDialogProps> = ({
+export const EditMirrorDialog = ({
   orgId,
   mirrorName,
   isOpen,
   closeDialog,
   editMirror,
-}) => {
+}: EditMirrorDialogProps) => {
   const [newMirrorName, setNewMirrorName] = useState('repository-name')
 
   const orgData = useOrgData()

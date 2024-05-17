@@ -1,6 +1,5 @@
 import { CheckIcon, XIcon } from '@primer/octicons-react'
 import { Box, Flash, IconButton, Link, Octicon } from '@primer/react'
-import { FC } from 'react'
 
 interface CreateMirrorSuccessFlashProps {
   mirrorUrl: string
@@ -9,12 +8,12 @@ interface CreateMirrorSuccessFlashProps {
   closeFlash: () => void
 }
 
-export const CreateMirrorSuccessFlash: FC<CreateMirrorSuccessFlashProps> = ({
+export const CreateMirrorSuccessFlash = ({
   mirrorUrl,
   orgName,
   mirrorName,
   closeFlash,
-}) => {
+}: CreateMirrorSuccessFlashProps) => {
   return (
     <Flash variant="success">
       <Box

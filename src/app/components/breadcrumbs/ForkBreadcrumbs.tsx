@@ -3,7 +3,7 @@ import { Stack } from '@primer/react/lib-esm/Stack'
 import { useForkData } from 'utils/fork'
 import { useOrgData } from 'utils/organization'
 
-export default function ForkBreadcrumbs() {
+export const ForkBreadcrumbs = () => {
   const orgData = useOrgData()
   const forkData = useForkData()
 

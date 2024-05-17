@@ -1,15 +1,11 @@
 'use client'
 
 import { Box } from '@primer/react'
-import OrgHeader from 'app/components/header/OrgHeader'
+import { OrgHeader } from 'app/components/header/OrgHeader'
 import { signOut, useSession } from 'next-auth/react'
 import { useEffect } from 'react'
 
-export default function DashLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+const DashLayout = ({ children }: { children: React.ReactNode }) => {
   const session = useSession()
 
   // sign user out if session is expired
@@ -34,3 +30,5 @@ export default function DashLayout({
     </Box>
   )
 }
+
+export default DashLayout

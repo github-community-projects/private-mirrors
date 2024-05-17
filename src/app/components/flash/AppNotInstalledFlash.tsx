@@ -3,7 +3,7 @@ import { AlertIcon } from '@primer/octicons-react'
 import { Box, Flash, Link, Octicon } from '@primer/react'
 import { useOrgData } from 'utils/organization'
 
-export default function AppNotInstalledFlash() {
+export const AppNotInstalledFlash = () => {
   const orgData = useOrgData()
 
   return (

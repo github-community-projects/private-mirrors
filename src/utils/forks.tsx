@@ -49,7 +49,7 @@ const getForksInOrg = async (accessToken: string, login: string) => {
   }
 }
 
-export function useForksData() {
+export const useForksData = () => {
   const session = useSession()
   const { accessToken } = (session.data?.user as any) ?? {}
 

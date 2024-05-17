@@ -4,7 +4,7 @@ import { Avatar, Link, Pagehead, Spinner, Text } from '@primer/react'
 import { Stack } from '@primer/react/lib-esm/Stack'
 import { useOrgData } from 'utils/organization'
 
-export default function OrgHeader() {
+export const OrgHeader = () => {
   const orgData = useOrgData()
 
   return (

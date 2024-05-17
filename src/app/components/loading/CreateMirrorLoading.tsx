@@ -1,7 +1,7 @@
 import { Box, Spinner } from '@primer/react'
 import { Stack } from '@primer/react/lib-esm/Stack'
 
-export default function CreateMirrorLoading() {
+export const CreateMirrorLoading = () => {
   return (
     <Box
       sx={{
