@@ -46,6 +46,7 @@ const Fork = () => {
   const { data, isLoading } = trpc.checkInstallation.useQuery({
     orgId: organizationId as string,
   })
+
   const orgData = useOrgData()
   const forkData = useForkData()
 
@@ -130,8 +131,10 @@ const Fork = () => {
     [setIsEditSuccessFlashOpen],
   )
 
+  // set search value to be empty string by default
   const [searchValue, setSearchValue] = useState('')
 
+  // values for pagination
   const pageSize = 5
   const [pageIndex, setPageIndex] = useState(0)
   const start = pageIndex * pageSize
@@ -175,6 +178,7 @@ const Fork = () => {
       repoName: string
       branchName: string
     }) => {
+      // close other flashes and dialogs when this is opened
       closeCreateErrorFlash()
       closeCreateSuccessFlash()
       closeEditErrorFlash()
@@ -223,6 +227,7 @@ const Fork = () => {
       mirrorName: string
       newMirrorName: string
     }) => {
+      // close other flashes and dialogs when this is opened
       closeCreateErrorFlash()
       closeCreateSuccessFlash()
       closeEditErrorFlash()
@@ -261,6 +266,7 @@ const Fork = () => {
 
   const handleOnDeleteMirror = useCallback(
     async ({ mirrorName }: { mirrorName: string }) => {
+      // close other flashes and dialogs when this is opened
       closeCreateErrorFlash()
       closeCreateSuccessFlash()
       closeEditErrorFlash()
@@ -294,6 +300,7 @@ const Fork = () => {
     ],
   )
 
+  // show loading table
   if (!mirrors || mirrorsLoading) {
     return (
       <Box>
@@ -325,20 +332,19 @@ const Fork = () => {
             rows={5}
             cellPadding="spacious"
           />
-          <Table.Pagination
-            aria-label="pagination"
-            totalCount={0}
-          ></Table.Pagination>
+          <Table.Pagination aria-label="pagination" totalCount={0} />
         </Table.Container>
       </Box>
     )
   }
 
+  // set up search
   const fuse = new Fuse(mirrors, {
     keys: ['name', 'owner.name', 'owner.login'],
     threshold: 0.2,
   })
 
+  // set up pagination
   let mirrorPaginationSet = []
   if (searchValue) {
     mirrorPaginationSet = fuse
@@ -535,7 +541,7 @@ const Fork = () => {
             onChange={({ pageIndex }) => {
               setPageIndex(pageIndex)
             }}
-          ></Table.Pagination>
+          />
         </Table.Container>
       )}
       <CreateMirrorDialog

@@ -28,16 +28,20 @@ const Organization = () => {
   const { data, isLoading } = trpc.checkInstallation.useQuery({
     orgId: organizationId as string,
   })
+
   const orgData = useOrgData()
   const forksData = useForksData()?.organization.repositories
 
+  // set search value to be empty string by default
   const [searchValue, setSearchValue] = useState('')
 
+  // values for pagination
   const pageSize = 5
   const [pageIndex, setPageIndex] = useState(0)
   const start = pageIndex * pageSize
   const end = start + pageSize
 
+  // show loading table
   if (!forksData) {
     return (
       <Box>
@@ -66,10 +70,7 @@ const Organization = () => {
             rows={5}
             cellPadding="spacious"
           />
-          <Table.Pagination
-            aria-label="pagination"
-            totalCount={0}
-          ></Table.Pagination>
+          <Table.Pagination aria-label="pagination" totalCount={0} />
         </Table.Container>
       </Box>
     )
@@ -77,11 +78,13 @@ const Organization = () => {
 
   let forks = forksData.nodes
 
+  // set up search
   const fuse = new Fuse(forks, {
     keys: ['name', 'owner.login', 'parent.name', 'parent.owner.login'],
     threshold: 0.2,
   })
 
+  // set up pagination
   let forksPaginationSet = []
   if (searchValue) {
     forksPaginationSet = fuse
@@ -247,7 +250,7 @@ const Organization = () => {
             onChange={({ pageIndex }) => {
               setPageIndex(pageIndex)
             }}
-          ></Table.Pagination>
+          />
         </Table.Container>
       )}
     </Box>
