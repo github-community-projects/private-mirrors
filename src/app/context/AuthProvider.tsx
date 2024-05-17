@@ -7,8 +7,6 @@ import { ReactNode, useEffect } from 'react'
 const VerifiedAuthProvider = ({ children }: { children: ReactNode }) => {
   const session = useSession()
 
-  console.log('session', session)
-
   // sign user out if session is expired
   useEffect(() => {
     if (!session || session.status === 'loading') {
