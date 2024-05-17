@@ -2,8 +2,7 @@
 
 import { QueryClientProvider } from '@tanstack/react-query'
 import { getFetch, httpBatchLink, loggerLink } from '@trpc/client'
-import { signOut, useSession } from 'next-auth/react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import superjson from 'superjson'
 import queryClient from './query-client'
 import { trpc } from './trpc'
@@ -43,19 +42,6 @@ export const TrpcProvider = ({ children }: { children: React.ReactNode }) => {
       transformer: superjson,
     }),
   )
-
-  const session = useSession()
-
-  // sign user out if session is expired
-  useEffect(() => {
-    if (
-      !session ||
-      !session.data ||
-      new Date(session.data.expires) < new Date()
-    ) {
-      signOut()
-    }
-  }, [session])
 
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
