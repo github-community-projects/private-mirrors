@@ -101,6 +101,15 @@ export const nextAuthOptions: AuthOptions = {
         return undefined as any
       }
 
+      // creates a new date that is 12 hours from now
+      const twelveHoursFromNow = new Date(
+        new Date().getTime() + 12 * 60 * 60 * 1000,
+      )
+
+      if (session.expires && new Date(session.expires) > twelveHoursFromNow) {
+        session.expires = twelveHoursFromNow.toISOString()
+      }
+
       return {
         ...session,
         user: { ...session.user, accessToken: token?.accessToken as string },
