@@ -27,9 +27,6 @@ export const nextAuthOptions: AuthOptions = {
     signIn: '/auth/login',
     error: '/auth/error',
   },
-  session: {
-    maxAge: 12 * 60 * 60, // 12 hours
-  },
   debug: process.env.NODE_ENV === 'development',
   providers: [
     GitHub({
