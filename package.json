@@ -34,7 +34,6 @@
     "probot": "13.2.2",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "rsa-key": "0.0.6",
     "simple-git": "3.24.0",
     "styled-components": "5.3.11",
     "superjson": "2.2.1",
