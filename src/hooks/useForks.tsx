@@ -5,16 +5,18 @@ import { useEffect, useState } from 'react'
 import { ForksObject } from 'types/forks'
 
 const getForksInOrg = async (accessToken: string, login: string) => {
-  const res = await personalOctokit(accessToken).graphql.paginate<ForksObject>(
-    getReposInOrgGQL,
-    {
+  const res = await personalOctokit(accessToken)
+    .graphql.paginate<ForksObject>(getReposInOrgGQL, {
       login,
       isFork: true,
-    },
-  )
+    })
+    .catch((err) => {
+      console.error(err)
+      return err.data as ForksObject
+    })
 
   // the primer datatable component requires the data to not contain null
-  //values and the type returned from the graphql query contains null values
+  // values and the type returned from the graphql query contains null values
   return {
     organization: {
       repositories: {
@@ -29,10 +31,10 @@ const getForksInOrg = async (accessToken: string, login: string) => {
             login: node.owner.login,
           },
           parent: {
-            name: node.parent?.name,
+            name: node?.parent?.name,
             owner: {
-              login: node.parent?.owner.login,
-              avatarUrl: node.parent?.owner.avatarUrl,
+              login: node?.parent?.owner.login,
+              avatarUrl: node?.parent?.owner.avatarUrl,
             },
           },
           languages: {
