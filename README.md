@@ -76,7 +76,6 @@ Configuration is contained in a `.env` file which you'll need to customize for y
 
 - `PUBLIC_ORG` and `PRIVATE_ORG` environment variables if you want to keep your private mirrors in a different GitHub organization from the public forks
 - `ALLOWED_HANDLES` variable to a comma-separated list of GitHub user handles which ought to be allowed to access the app to create mirrors. If unset, all users who are members of the organization will be allowed to use the app.
-- use https://smee.io or your own infrastructure to make the docker service available to receive webhooks
 
 ```sh
 docker build -t internal-contribution-forks .
@@ -147,11 +146,7 @@ You should be up and running on [http://localhost:3000](http://localhost:3000)!
 
 Webhooks are an important part of this application, they listen for events that happen to your organization and trigger the app to do things like create branch protections or sync code between forks.
 
-You can use [smee.io](https://smee.io) to test webhooks locally. [ngrok](https://ngrok.com/) is another option.
-
-For smee: Go to [smee.io](https://smee.io/new), this will create a new URL for you to use. e.g. `https://smee.io/AbCd1234EfGh5678`.
-
-Copy the URL and paste it into the `WEBHOOK_PROXY_URL` environment variable in `.env`.
+We have our own webhook proxy that you can use to test webhooks locally. You will need to set `PUBLIC_ORG` (and `PRIVATE_ORG` if you want to test with a different organization) in your `.env` file to your GitHub organization name.
 
 ### GitHub Requirements
 
