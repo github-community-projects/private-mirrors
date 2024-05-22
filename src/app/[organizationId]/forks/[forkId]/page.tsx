@@ -126,6 +126,14 @@ const Fork = () => {
     [setIsEditSuccessFlashOpen],
   )
 
+  const closeAllFlashes = () => {
+    closeCreateErrorFlash()
+    closeCreateSuccessFlash()
+    closeEditErrorFlash()
+    closeEditSuccessFlash()
+    closeDeleteErrorFlash()
+  }
+
   // set search value to be empty string by default
   const [searchValue, setSearchValue] = useState('')
 
@@ -174,11 +182,7 @@ const Fork = () => {
       branchName: string
     }) => {
       // close other flashes and dialogs when this is opened
-      closeCreateErrorFlash()
-      closeCreateSuccessFlash()
-      closeEditErrorFlash()
-      closeEditSuccessFlash()
-      closeDeleteErrorFlash()
+      closeAllFlashes()
       closeCreateDialog()
 
       await createMirror({
@@ -199,16 +203,12 @@ const Fork = () => {
       refetchMirrors()
     },
     [
-      closeCreateErrorFlash,
+      closeAllFlashes,
       closeCreateDialog,
-      closeCreateSuccessFlash,
-      closeDeleteErrorFlash,
       createMirror,
       refetchMirrors,
       openCreateSuccessFlash,
       openCreateErrorFlash,
-      closeEditErrorFlash,
-      closeEditSuccessFlash,
       orgData,
       forkData,
     ],
@@ -223,11 +223,7 @@ const Fork = () => {
       newMirrorName: string
     }) => {
       // close other flashes and dialogs when this is opened
-      closeCreateErrorFlash()
-      closeCreateSuccessFlash()
-      closeEditErrorFlash()
-      closeEditSuccessFlash()
-      closeDeleteErrorFlash()
+      closeAllFlashes()
       closeEditDialog()
 
       await editMirror({
@@ -245,12 +241,8 @@ const Fork = () => {
       refetchMirrors()
     },
     [
-      closeCreateErrorFlash,
+      closeAllFlashes,
       closeEditDialog,
-      closeCreateSuccessFlash,
-      closeDeleteErrorFlash,
-      closeEditErrorFlash,
-      closeEditSuccessFlash,
       editMirror,
       refetchMirrors,
       openEditErrorFlash,
@@ -262,11 +254,7 @@ const Fork = () => {
   const handleOnDeleteMirror = useCallback(
     async ({ mirrorName }: { mirrorName: string }) => {
       // close other flashes and dialogs when this is opened
-      closeCreateErrorFlash()
-      closeCreateSuccessFlash()
-      closeEditErrorFlash()
-      closeEditSuccessFlash()
-      closeDeleteErrorFlash()
+      closeAllFlashes()
       closeDeleteDialog()
 
       await deleteMirror({
@@ -282,13 +270,9 @@ const Fork = () => {
       refetchMirrors()
     },
     [
+      closeAllFlashes,
       closeDeleteDialog,
-      closeCreateErrorFlash,
-      closeDeleteErrorFlash,
-      closeCreateSuccessFlash,
       deleteMirror,
-      closeEditErrorFlash,
-      closeEditSuccessFlash,
       openDeleteErrorFlash,
       refetchMirrors,
       orgData,
