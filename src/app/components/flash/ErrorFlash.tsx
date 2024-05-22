@@ -3,7 +3,7 @@ import { Box, Flash, IconButton, Octicon } from '@primer/react'
 
 interface ErrorFlashProps {
   message: string
-  closeFlash: () => void
+  closeFlash?: () => void
 }
 
 export const ErrorFlash = ({ message, closeFlash }: ErrorFlashProps) => {
@@ -20,19 +20,21 @@ export const ErrorFlash = ({ message, closeFlash }: ErrorFlashProps) => {
           <Octicon icon={AlertIcon}></Octicon>
         </Box>
         <Box sx={{ marginLeft: '20px' }}>{message}</Box>
-        <Box
-          sx={{
-            marginLeft: 'auto',
-          }}
-        >
-          <IconButton
-            icon={XIcon}
-            variant="invisible"
-            aria-labelledby="dismiss error"
-            onClick={closeFlash}
-            size="small"
-          />
-        </Box>
+        {closeFlash && (
+          <Box
+            sx={{
+              marginLeft: 'auto',
+            }}
+          >
+            <IconButton
+              icon={XIcon}
+              variant="invisible"
+              aria-labelledby="dismiss error"
+              onClick={closeFlash}
+              size="small"
+            />
+          </Box>
+        )}
       </Box>
     </Flash>
   )

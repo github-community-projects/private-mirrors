@@ -31,7 +31,6 @@ import { DeleteMirrorDialog } from 'app/components/dialog/DeleteMirrorDialog'
 import { CreateMirrorDialog } from 'app/components/dialog/CreateMirrorDialog'
 import { SuccessFlash } from 'app/components/flash/SuccessFlash'
 import { Loading } from 'app/components/loading/Loading'
-import { ErrorFlashNoClose } from 'app/components/flash/ErrorFlashNoClose'
 import { ErrorFlash } from 'app/components/flash/ErrorFlash'
 import { EditMirrorDialog } from 'app/components/dialog/EditMirrorDialog'
 import Fuse from 'fuse.js'
@@ -351,9 +350,7 @@ const Fork = () => {
         {deleteMirrorLoading && <Loading message="Deleting mirror..." />}
       </Box>
       <Box sx={{ marginBottom: '10px' }}>
-        {listMirrorsError && (
-          <ErrorFlashNoClose message={listMirrorsError.message} />
-        )}
+        {listMirrorsError && <ErrorFlash message={listMirrorsError.message} />}
       </Box>
       <Box sx={{ marginBottom: '10px' }}>
         {isCreateErrorFlashOpen && (
