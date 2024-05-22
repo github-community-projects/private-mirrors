@@ -4,8 +4,8 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { getFetch, httpBatchLink, loggerLink } from '@trpc/client'
 import { useState } from 'react'
 import superjson from 'superjson'
-import queryClient from './query-client'
-import { trpc } from './trpc'
+import queryClient from '../utils/query-client'
+import { trpc } from '../utils/trpc'
 
 const getBaseUrl = () => {
   if (typeof window !== 'undefined')

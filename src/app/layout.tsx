@@ -1,8 +1,8 @@
 import { BaseStyles, Box, ThemeProvider } from '@primer/react'
-import { TrpcProvider } from '../utils/trpc-provider'
-import { AuthProvider } from './context/AuthProvider'
+import { StyledComponentsRegistry } from '../providers/registry-provider'
+import { TrpcProvider } from '../providers/trpc-provider'
 import { MainHeader } from './components/header/MainHeader'
-import { StyledComponentsRegistry } from '../lib/registry'
+import { AuthProvider } from './context/AuthProvider'
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
