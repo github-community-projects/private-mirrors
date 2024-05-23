@@ -1,7 +1,10 @@
 import app from 'bot'
 import { createNodeMiddleware, createProbot } from 'probot'
+import { logger } from 'utils/logger'
 
 export const probot = createProbot()
+
+const probotLogger = logger.getSubLogger({ name: 'probot' })
 
 export const config = {
   api: {
@@ -10,6 +13,12 @@ export const config = {
 }
 
 export default createNodeMiddleware(app, {
-  probot: createProbot({}),
+  probot: createProbot({
+    defaults: {
+      log: {
+        child: () => probotLogger,
+      } as any,
+    },
+  }),
   webhooksPath: '/api/webhooks',
 })

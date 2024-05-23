@@ -50,15 +50,13 @@ export const logger = new Logger({
 
       const output = JSON.stringify(logObjWithMeta)
 
-      if (meta?.logLevelName === 'ERROR' || meta?.logLevelName === 'FATAL') {
-        console.error(output)
-      } else if (meta?.logLevelName === 'WARN') {
-        console.warn(output)
-      } else {
-        console.log(output)
-      }
+      console.log(output)
     },
   },
 })
 
 logger.info('Initialized logger')
+
+// Redirect next logs to our logger >:(
+console.warn = logger.info.bind(logger)
+console.error = logger.info.bind(logger)
