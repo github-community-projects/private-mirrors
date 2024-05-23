@@ -1,4 +1,6 @@
-import { TRPCError } from '@trpc/server'
+import simpleGit, { SimpleGitOptions } from 'simple-git'
+import { generateAuthUrl } from 'utils/auth'
+import { temporaryDirectory } from 'utils/dir'
 import { getConfig } from '../../bot/config'
 import {
   appOctokit,
@@ -6,11 +8,7 @@ import {
   installationOctokit,
 } from '../../bot/octokit'
 import { logger } from '../../utils/logger'
-import { ListMirrorsSchema } from './schema'
-import { generateAuthUrl } from 'utils/auth'
-import simpleGit, { SimpleGitOptions } from 'simple-git'
-import { CreateMirrorSchema } from './schema'
-import { temporaryDirectory } from 'utils/dir'
+import { CreateMirrorSchema, ListMirrorsSchema } from './schema'
 
 const reposApiLogger = logger.getSubLogger({ name: 'repos-api' })
 
@@ -80,6 +78,8 @@ export const createMirrorHandler = async ({
           `user.name=internal-contribution-forks[bot]`,
           // We want to use the private installation ID as the email so that we can push to the private repo
           `user.email=${privateInstallationId}+internal-contribution-forks[bot]@users.noreply.github.com`,
+          // Disable any global git hooks to prevent potential interference when running the app locally
+          'core.hooksPath=/dev/null',
         ],
       }
       const git = simpleGit(tempDir, options)

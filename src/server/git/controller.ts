@@ -2,9 +2,9 @@ import simpleGit, { SimpleGitOptions } from 'simple-git'
 import { getConfig } from '../../bot/config'
 import { getAuthenticatedOctokit } from '../../bot/octokit'
 import { generateAuthUrl } from '../../utils/auth'
+import { temporaryDirectory } from '../../utils/dir'
 import { logger } from '../../utils/logger'
 import { SyncReposSchema } from './schema'
-import { temporaryDirectory } from '../../utils/dir'
 
 const gitApiLogger = logger.getSubLogger({ name: 'git-api' })
 
@@ -62,6 +62,8 @@ export const syncReposHandler = async ({
       config: [
         `user.name=internal-contribution-forks[bot]`,
         `user.email=${privateInstallationId}+internal-contribution-forks[bot]@users.noreply.github.com`,
+        // Disable any global git hooks to prevent potential interference when running the app locally
+        'core.hooksPath=/dev/null',
       ],
     }
 
