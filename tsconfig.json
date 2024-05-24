@@ -74,7 +74,7 @@
       }
     ]
   },
-  "include": ["src", ".next/types/**/*.ts"],
+  "include": ["src", "scripts", ".next/types/**/*.ts"],
   "exclude": ["node_modules", "test"],
   "compileOnSave": false
 }

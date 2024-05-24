@@ -7,15 +7,15 @@
   "license": "MIT",
   "homepage": "https://github.com/github-community-projects/internal-contribution-forks",
   "scripts": {
-    "dev": "concurrently -c \"auto\" -n webhooks,app  \"dotenv-load node scripts/webhook-relay.mjs\" \"next dev\"",
-    "webhook": "dotenv-load node scripts/webhook-relay.mjs",
+    "dev": "concurrently -c \"auto\" -n webhooks,app  \"dotenv-load tsx scripts/webhook-relay.ts\" \"next dev\"",
+    "webhook": "dotenv-load tsx scripts/webhook-relay.ts",
     "build": "SKIP_ENV_VALIDATIONS='true' next build",
     "start": "next start",
     "lint": "SKIP_ENV_VALIDATIONS='true' next lint && prettier --check .",
     "lint:fix": "SKIP_ENV_VALIDATIONS='true' next lint --fix && prettier --write .",
     "bot:build": "tsc ./src/bot/index.ts --noEmit false --esModuleInterop --outDir ./build",
     "bot:start": "probot run ./build/index.js",
-    "test": "TEST_LOGGING=1 ts-node -O '{\"module\":\"commonjs\"}' node_modules/jest/bin/jest.js",
+    "test": "TEST_LOGGING=1 tsx node_modules/jest/bin/jest.js",
     "prepare": "test -d node_modules/husky && husky || echo \"husky is not installed\""
   },
   "dependencies": {
@@ -33,6 +33,7 @@
     "next-auth": "4.24.7",
     "octokit": "3.2.1",
     "probot": "13.2.2",
+    "proxy-agent": "6.4.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "simple-git": "3.24.0",
@@ -40,6 +41,7 @@
     "superjson": "2.2.1",
     "tempy": "1.0.1",
     "tslog": "4.9.2",
+    "undici": "6.16.1",
     "zod": "3.23.8"
   },
   "devDependencies": {
@@ -61,7 +63,7 @@
     "nock": "14.0.0-beta.6",
     "prettier": "3.2.5",
     "ts-jest": "29.1.2",
-    "ts-node": "10.9.2",
+    "tsx": "4.11.0",
     "typescript": "5.4.5"
   },
   "engines": {

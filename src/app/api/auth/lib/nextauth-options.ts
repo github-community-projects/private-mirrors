@@ -3,6 +3,8 @@ import { AuthOptions, Profile } from 'next-auth'
 import GitHub from 'next-auth/providers/github'
 import { logger } from '../../../../utils/logger'
 
+import 'utils/proxy'
+
 const authLogger = logger.getSubLogger({ name: 'auth' })
 
 /**
