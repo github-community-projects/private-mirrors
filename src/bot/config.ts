@@ -1,6 +1,6 @@
 import { Configuration } from '@probot/octokit-plugin-config/dist-types/types'
-import { logger } from 'utils/logger'
 import z from 'zod'
+import { logger } from '../utils/logger'
 import { appOctokit, installationOctokit } from './octokit'
 
 const configLogger = logger.getSubLogger({ name: 'config' })

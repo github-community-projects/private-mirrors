@@ -1,6 +1,6 @@
 import { Repository } from '@octokit/graphql-schema'
 import { Context } from 'probot'
-import { logger } from 'utils/logger'
+import { logger } from '../utils/logger'
 import {
   forkBranchProtectionGQL,
   forkBranchProtectionRulesetGQL,

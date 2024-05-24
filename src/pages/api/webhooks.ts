@@ -1,11 +1,11 @@
 import app from 'bot'
-import { createNodeMiddleware, createProbot, Logger } from 'probot'
+import { createNodeMiddleware, createProbot } from 'probot'
 import { logger } from 'utils/logger'
 
 export const probot = createProbot()
 
-// Disable the bodyParser to allow the raw body to be read
-// https://github.com/github-community-projects/internal-contribution-forks/issues/88
+const probotLogger = logger.getSubLogger({ name: 'probot' })
+
 export const config = {
   api: {
     bodyParser: false,
@@ -16,8 +16,8 @@ export default createNodeMiddleware(app, {
   probot: createProbot({
     defaults: {
       log: {
-        child: () => logger.getSubLogger({ name: 'probot' }),
-      } as any as Logger,
+        child: () => probotLogger,
+      } as any,
     },
   }),
   webhooksPath: '/api/webhooks',

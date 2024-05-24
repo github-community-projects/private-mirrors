@@ -1,4 +1,4 @@
-import { healthRouter } from '../../src/server/routers/health'
+import { healthCheckerRouter } from '../../src/app/api/trpc/trpc-router'
 import { Octomock } from '../octomock'
 import { createTestContext } from '../utils/auth'
 const om = new Octomock()
@@ -14,7 +14,7 @@ describe('Git router', () => {
   })
 
   it('should allow users that are authenticated', async () => {
-    const caller = healthRouter.createCaller(createTestContext())
+    const caller = healthCheckerRouter.createCaller(createTestContext())
 
     om.mockFunctions.rest.users.getAuthenticated.mockResolvedValue({
       status: 200,
@@ -23,9 +23,9 @@ describe('Git router', () => {
       },
     })
 
-    const res = await caller.ping()
+    const res = await caller.healthChecker()
 
-    expect(res).toEqual('pong')
+    expect(res).toEqual('ok')
 
     expect(om.mockFunctions.rest.users.getAuthenticated).toHaveBeenCalledTimes(
       1,
@@ -33,7 +33,7 @@ describe('Git router', () => {
   })
 
   it('should throw on invalid sessions', async () => {
-    const caller = healthRouter.createCaller(
+    const caller = healthCheckerRouter.createCaller(
       createTestContext({
         user: {
           name: 'fake-username',
@@ -52,7 +52,7 @@ describe('Git router', () => {
       },
     })
 
-    await caller.ping().catch((error) => {
+    await caller.healthChecker().catch((error) => {
       expect(error.code).toContain('UNAUTHORIZED')
     })
 

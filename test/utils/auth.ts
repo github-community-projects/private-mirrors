@@ -1,5 +1,5 @@
-import { Session } from 'next-auth'
-import { createContext } from '../../src/server/trpc'
+import { Session } from '../../src/types/next-auth'
+import { createContext } from '../../src/utils/trpc-server'
 
 export const createTestContext = (
   session?: Session,

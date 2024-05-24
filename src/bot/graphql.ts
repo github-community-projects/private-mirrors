@@ -152,3 +152,47 @@ mutation AddBranchProtection(
   }
 }
 `
+
+export const getReposInOrgGQL = `
+query(
+  $login: String!
+  $isFork: Boolean
+  $cursor: String
+) {
+  organization(login: $login) {
+    repositories(isFork: $isFork, after: $cursor, first: 25, orderBy: {field: UPDATED_AT, direction: DESC}) {
+      totalCount
+      nodes {
+        databaseId
+        name
+        isPrivate
+        updatedAt
+        owner {
+          login
+          avatarUrl
+        }
+        parent {
+          name
+          owner {
+            login
+            avatarUrl
+          }
+        }
+        languages(first: 4) {
+          nodes {
+            color
+            name
+          }
+        }
+        refs(refPrefix: "refs/") {
+          totalCount
+        }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+    }
+  }
+}
+`

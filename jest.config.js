@@ -1,4 +1,4 @@
-/** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
+/** @type {import('ts-jest').JestConfigWithTsJest} */
 module.exports = {
   preset: 'ts-jest',
   testRegex: '(/__tests__/.*|\\.(test|spec))\\.[tj]sx?$',
@@ -10,4 +10,15 @@ module.exports = {
     '<rootDir>/test/',
     '<rootDir>/src/utils/',
   ],
+  transformIgnorePatterns: ['node_modules/(?!(superjson)/)'],
+  transform: {
+    '^.+\\.(ts|tsx)?$': [
+      'ts-jest',
+      { configFile: './babel.config.testing.js' },
+    ],
+    '^.+\\.(js|jsx)$': [
+      'babel-jest',
+      { configFile: './babel.config.testing.js' },
+    ],
+  },
 }

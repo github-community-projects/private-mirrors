@@ -1,5 +1,6 @@
 import { createAppAuth } from '@octokit/auth-app'
-import { logger } from 'utils/logger'
+import { generatePKCS8Key } from 'utils/pem'
+import { logger } from '../utils/logger'
 import { Octokit } from './rest'
 
 const personalOctokitLogger = logger.getSubLogger({ name: 'personal-octokit' })
@@ -17,10 +18,12 @@ let privateKey = process.env.PRIVATE_KEY?.includes('\\n')
  * @returns An access token for the app or installation
  */
 export const generateAppAccessToken = async (installationId?: string) => {
+  const convertedKey = generatePKCS8Key(privateKey)
+
   if (installationId) {
     const auth = createAppAuth({
       appId: process.env.APP_ID!,
-      privateKey: privateKey,
+      privateKey: convertedKey,
       installationId: installationId,
     })
 
@@ -33,7 +36,7 @@ export const generateAppAccessToken = async (installationId?: string) => {
 
   const auth = createAppAuth({
     appId: process.env.APP_ID!,
-    privateKey: privateKey,
+    privateKey,
     clientId: process.env.CLIENT_ID!,
     clientSecret: process.env.CLIENT_SECRET!,
   })
@@ -50,11 +53,13 @@ export const generateAppAccessToken = async (installationId?: string) => {
  * @returns Octokit authorized as the app
  */
 export const appOctokit = () => {
+  const convertedKey = generatePKCS8Key(privateKey)
+
   return new Octokit({
     authStrategy: createAppAuth,
     auth: {
       appId: process.env.APP_ID!,
-      privateKey: privateKey,
+      privateKey: convertedKey,
       clientId: process.env.CLIENT_ID!,
       clientSecret: process.env.CLIENT_SECRET!,
     },
@@ -68,11 +73,13 @@ export const appOctokit = () => {
  * @returns Octokit authorized as the installation
  */
 export const installationOctokit = (installationId: string) => {
+  const convertedKey = generatePKCS8Key(privateKey)
+
   return new Octokit({
     authStrategy: createAppAuth,
     auth: {
       appId: process.env.APP_ID!,
-      privateKey: privateKey,
+      privateKey: convertedKey,
       installationId: installationId,
     },
     log: appOctokitLogger,
