@@ -1,3 +1,8 @@
+[![Docker Build](https://github.com/github-community-projects/internal-contribution-forks/actions/workflows/docker-build.yml/badge.svg)](https://github.com/github-community-projects/internal-contribution-forks/actions/workflows/docker-build.yml)
+[![Lint](https://github.com/github-community-projects/internal-contribution-forks/actions/workflows/lint.yml/badge.svg)](https://github.com/github-community-projects/internal-contribution-forks/actions/workflows/lint.yml)
+[![Tests](https://github.com/github-community-projects/internal-contribution-forks/actions/workflows/tests.yml/badge.svg)](https://github.com/github-community-projects/internal-contribution-forks/actions/workflows/tests.yml)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/github-community-projects/internal-contribution-forks/badge)](https://scorecard.dev/viewer/?uri=github.com/github-community-projects/internal-contribution-forks)
+
 <h1 align="center">
   Internal Contribution Forks
 </h1>
