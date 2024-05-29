@@ -4,22 +4,30 @@ updates:
     directory: '/'
     schedule:
       interval: 'weekly'
-    # limit to only security updates
-    open-pull-requests-limit: 0
     commit-message:
       prefix: 'chore'
       prefix-development: 'chore'
       include: 'scope'
+    groups:
+      dependencies:
+        applies-to: version-updates
+        update-types:
+          - 'minor'
+          - 'patch'
   - package-ecosystem: 'docker'
     directory: '/'
     schedule:
       interval: 'weekly'
-    # limit to only security updates
-    open-pull-requests-limit: 0
     commit-message:
       prefix: 'chore'
       prefix-development: 'chore'
       include: 'scope'
+    groups:
+      dependencies:
+        applies-to: version-updates
+        update-types:
+          - 'minor'
+          - 'patch'
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
