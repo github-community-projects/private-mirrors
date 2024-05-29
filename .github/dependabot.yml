@@ -8,6 +8,12 @@ updates:
       prefix: 'chore'
       prefix-development: 'chore'
       include: 'scope'
+    groups:
+      dependencies:
+        applies-to: version-updates
+        update-types:
+          - 'minor'
+          - 'patch'
   - package-ecosystem: 'docker'
     directory: '/'
     schedule:
@@ -16,6 +22,12 @@ updates:
       prefix: 'chore'
       prefix-development: 'chore'
       include: 'scope'
+    groups:
+      dependencies:
+        applies-to: version-updates
+        update-types:
+          - 'minor'
+          - 'patch'
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
@@ -24,3 +36,9 @@ updates:
       prefix: 'chore'
       prefix-development: 'chore'
       include: 'scope'
+    groups:
+      dependencies:
+        applies-to: version-updates
+        update-types:
+          - 'minor'
+          - 'patch'
