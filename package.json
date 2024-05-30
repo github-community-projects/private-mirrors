@@ -7,15 +7,15 @@
   "license": "MIT",
   "homepage": "https://github.com/github-community-projects/internal-contribution-forks",
   "scripts": {
-    "dev": "concurrently -c \"auto\" -n webhooks,app  \"dotenv-load ts-node scripts/webhook-relay.mjs\" \"next dev\"",
-    "webhook": "dotenv-load ts-node scripts/webhook-relay.ts",
+    "dev": "concurrently -c \"auto\" -n webhooks,app  \"dotenv-load node scripts/webhook-relay.mjs\" \"next dev\"",
+    "webhook": "dotenv-load node scripts/webhook-relay.ts",
     "build": "SKIP_ENV_VALIDATIONS='true' next build",
     "start": "next start",
     "lint": "SKIP_ENV_VALIDATIONS='true' next lint && prettier --check .",
     "lint:fix": "SKIP_ENV_VALIDATIONS='true' next lint --fix && prettier --write .",
     "bot:build": "tsc ./src/bot/index.ts --noEmit false --esModuleInterop --outDir ./build",
     "bot:start": "probot run ./build/index.js",
-    "test": "TEST_LOGGING=1 ts-node node_modules/jest/bin/jest.js",
+    "test": "TEST_LOGGING=1 ts-node -O '{\"module\":\"commonjs\"}' node_modules/jest/bin/jest.js",
     "prepare": "test -d node_modules/husky && husky || echo \"husky is not installed\""
   },
   "dependencies": {
