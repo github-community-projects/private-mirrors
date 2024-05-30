@@ -8,7 +8,7 @@
   "homepage": "https://github.com/github-community-projects/internal-contribution-forks",
   "scripts": {
     "dev": "concurrently -c \"auto\" -n webhooks,app  \"dotenv-load node scripts/webhook-relay.mjs\" \"next dev\"",
-    "webhook": "dotenv-load node scripts/webhook-relay.ts",
+    "webhook": "dotenv-load node scripts/webhook-relay.mjs",
     "build": "SKIP_ENV_VALIDATIONS='true' next build",
     "start": "next start",
     "lint": "SKIP_ENV_VALIDATIONS='true' next lint && prettier --check .",
