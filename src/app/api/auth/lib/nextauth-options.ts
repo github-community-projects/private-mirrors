@@ -2,6 +2,7 @@ import { personalOctokit } from 'bot/octokit'
 import { AuthOptions, Profile } from 'next-auth'
 import GitHub from 'next-auth/providers/github'
 import { logger } from '../../../../utils/logger'
+import { JWT } from 'next-auth/jwt'
 
 const authLogger = logger.getSubLogger({ name: 'auth' })
 
@@ -19,6 +20,67 @@ export const verifySession = async (token: string | undefined) => {
     return true
   } catch (error) {
     return false
+  }
+}
+
+/**
+ * Refresh access token
+ * @param clientId Client ID
+ * @param clientSecret Client Secret
+ * @param refreshToken Refresh token
+ * @returns object — New access token and refresh token
+ */
+export const refreshAccessToken = async (
+  token: JWT,
+  clientId: string,
+  clientSecret: string,
+  refreshToken: string,
+) => {
+  try {
+    authLogger.debug('Refreshing access token')
+
+    const url =
+      'https://github.com/login/oauth/access_token?' +
+      new URLSearchParams({
+        client_id: clientId,
+        client_secret: clientSecret,
+        refresh_token: refreshToken,
+        grant_type: 'refresh_token',
+      })
+
+    const response = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      method: 'POST',
+    }).then(async (res) => {
+      const responseText = await res.text()
+      const entries = new URLSearchParams(responseText)
+      const params = Object.fromEntries(entries)
+
+      if (params.error) {
+        throw new Error(params.error_description)
+      }
+
+      return params
+    })
+
+    return {
+      accessToken: response.access_token,
+      // Access token expiration is provided as number in seconds until expiration (value is always 8 hours)
+      accessTokenExpires: Date.now() + Number(response.expires_in) * 1000,
+      refreshToken: response.refresh_token,
+      // Refresh token expiration is provided as number of seconds until expiration (value is always 6 months)
+      refreshTokenExpires:
+        Date.now() + Number(response.refresh_token_expires_in) * 1000,
+    }
+  } catch (error) {
+    authLogger.error('Error refreshing access token', error)
+    // Return the original token with an error if we failed to refresh the token so the user gets signed out
+    return {
+      ...token,
+      error: 'RefreshAccessTokenError' as const,
+    }
   }
 }
 
@@ -88,39 +150,78 @@ export const nextAuthOptions: AuthOptions = {
       return false
     },
     session: async ({ session, token }) => {
-      // TODO: Need to figure out how to do this more efficiently
-      // Check if the user has a valid accessToken
-      // const validSession = await verifySession(token?.accessToken as string);
-
-      // if (!validSession) {
-      //   return undefined as any;
-      // }
-
-      // This is fine when the session is invalid
-      if (!token) {
-        return undefined as any
+      if (token) {
+        session.user.name = token.name as string
+        session.user.image = token.image as string
+        session.user.email = token.email as string
+        session.user.accessToken = token.accessToken as string
+        session.expires = new Date(
+          token.accessTokenExpires as number,
+        ).toISOString()
+        session.error = token.error
       }
 
-      // creates a new date that is 12 hours from now
-      const twelveHoursFromNow = new Date(
-        new Date().getTime() + 12 * 60 * 60 * 1000,
+      return session
+    },
+    jwt: async ({ token, user, account }) => {
+      // Initial sign in
+      if (user && account) {
+        authLogger.debug('Initial sign in')
+        console.log('account', account)
+        token = {
+          accessToken: account.access_token as string,
+          // Access token expiration is provided as number in seconds since epoch (value is always 8 hours)
+          accessTokenExpires: (account.expires_at as number) * 1000,
+          refreshToken: account.refresh_token as string,
+          // Refresh token expiration is provided as number of seconds until expiration (value is always 6 months)
+          refreshTokenExpires:
+            Date.now() + (account.refresh_token_expires_in as number) * 1000,
+          ...user,
+        }
+
+        return token
+      }
+
+      // Return previous token if the access token has not expired yet
+      if (
+        token.accessTokenExpires &&
+        Date.now() < (token.accessTokenExpires as number)
+      ) {
+        authLogger.debug('Access token valid')
+        return token
+      }
+
+      authLogger.debug('Access token has expired')
+
+      // Return previous token if the refresh token has expired
+      if (
+        token.refreshTokenExpires &&
+        Date.now() > (token.refreshTokenExpires as number)
+      ) {
+        authLogger.warn('Refresh token has expired')
+        return token
+      }
+
+      // Refresh the access token
+      const refreshedToken = await refreshAccessToken(
+        token,
+        process.env.GITHUB_CLIENT_ID!,
+        process.env.GITHUB_CLIENT_SECRET!,
+        token.refreshToken as string,
       )
 
-      if (session.expires && new Date(session.expires) > twelveHoursFromNow) {
-        session.expires = twelveHoursFromNow.toISOString()
+      // Return the previous token if we failed to refresh the token
+      if (!refreshedToken) {
+        return token
       }
 
-      return {
-        ...session,
-        user: { ...session.user, accessToken: token?.accessToken as string },
+      // Return the new token
+      token = {
+        ...refreshedToken,
+        ...user,
       }
-    },
-    // This type error is fine, we return undefined if the session is invalid
-    jwt: async ({ token, account }) => {
-      return {
-        ...token,
-        accessToken: token?.accessToken ?? account?.access_token,
-      }
+
+      return token
     },
   },
 }

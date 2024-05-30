@@ -1,5 +1,6 @@
 'use client'
 
+import { Session } from 'next-auth'
 import { SessionProvider, signOut, useSession } from 'next-auth/react'
 
 import { ReactNode, useEffect } from 'react'
@@ -13,7 +14,13 @@ const VerifiedAuthProvider = ({ children }: { children: ReactNode }) => {
       return
     }
 
+    if (session.data?.error === 'RefreshAccessTokenError') {
+      console.error('Could not refresh access token - signing out')
+      signOut()
+    }
+
     if (session.data && new Date(session.data.expires) < new Date()) {
+      console.log('session expired - signing out')
       signOut()
     }
   }, [session, session.status, session.data, session.data?.expires])
@@ -21,9 +28,15 @@ const VerifiedAuthProvider = ({ children }: { children: ReactNode }) => {
   return children
 }
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
+export const AuthProvider = ({
+  children,
+  session,
+}: {
+  children: ReactNode
+  session: Session | null
+}) => {
   return (
-    <SessionProvider>
+    <SessionProvider session={session}>
       <VerifiedAuthProvider>{children}</VerifiedAuthProvider>
     </SessionProvider>
   )
