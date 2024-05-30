@@ -3,7 +3,7 @@ import WebhookRelay from 'github-app-webhook-relay-polling'
 import crypto from 'node:crypto'
 import { App } from 'octokit'
 
-import './proxy.mjs'
+import '../src/utils/proxy.mjs'
 
 if (!process.env.PUBLIC_ORG) {
   console.error(
