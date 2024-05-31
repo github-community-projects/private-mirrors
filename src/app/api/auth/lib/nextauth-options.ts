@@ -194,10 +194,7 @@ export const nextAuthOptions: AuthOptions = {
       }
 
       // Return previous token if the access token has not expired yet
-      if (
-        token.accessTokenExpires &&
-        Date.now() < (token.accessTokenExpires as number)
-      ) {
+      if (Date.now() < (token.accessTokenExpires as number)) {
         authLogger.debug('Access token valid')
         return token
       }
@@ -205,10 +202,7 @@ export const nextAuthOptions: AuthOptions = {
       authLogger.debug('Access token has expired')
 
       // Return previous token if the refresh token has expired
-      if (
-        token.refreshTokenExpires &&
-        Date.now() >= (token.refreshTokenExpires as number)
-      ) {
+      if (Date.now() >= (token.refreshTokenExpires as number)) {
         authLogger.warn('Refresh token has expired')
         return token
       }
