@@ -86,7 +86,7 @@ export const refreshAccessToken = async (
         secondsToMilliseconds(Number(response.refresh_token_expires_in)),
     }
   } catch (error) {
-    authLogger.error('Error refreshing access token', error)
+    authLogger.error('Error refreshing access token', { error })
     // Return the original token with an error if we failed to refresh the token so the user gets signed out
     return {
       ...token,
