@@ -178,7 +178,6 @@ export const nextAuthOptions: AuthOptions = {
       // Initial sign in
       if (user && account) {
         authLogger.debug('Initial sign in')
-        console.log('account', account)
         token = {
           accessToken: account.access_token as string,
           // Access token expiration is provided as number in seconds since epoch (value is always 8 hours)
