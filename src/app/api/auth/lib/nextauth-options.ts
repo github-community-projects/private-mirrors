@@ -7,12 +7,12 @@ import { JWT } from 'next-auth/jwt'
 const authLogger = logger.getSubLogger({ name: 'auth' })
 
 /**
- * Converts seconds to milliseconds
- * @param seconds Seconds to convert
- * @returns number — Milliseconds
+ * Converts seconds until expiration to date in milliseconds
+ * @param seconds Seconds until expiration to convert
+ * @returns number — Expiration date in milliseconds
  */
-const secondsToMilliseconds = (seconds: number) => {
-  return seconds * 1000
+const normalizeExpirationDate = (seconds: number) => {
+  return Date.now() + seconds * 1000
 }
 
 /**
@@ -77,13 +77,12 @@ export const refreshAccessToken = async (
     return {
       accessToken: response.access_token,
       // Access token expiration is provided as number in seconds until expiration (value is always 8 hours)
-      accessTokenExpires:
-        Date.now() + secondsToMilliseconds(Number(response.expires_in)),
+      accessTokenExpires: normalizeExpirationDate(Number(response.expires_in)),
       refreshToken: response.refresh_token,
       // Refresh token expiration is provided as number of seconds until expiration (value is always 6 months)
-      refreshTokenExpires:
-        Date.now() +
-        secondsToMilliseconds(Number(response.refresh_token_expires_in)),
+      refreshTokenExpires: normalizeExpirationDate(
+        Number(response.refresh_token_expires_in),
+      ),
     }
   } catch (error) {
     authLogger.error('Error refreshing access token', { error })
@@ -181,14 +180,13 @@ export const nextAuthOptions: AuthOptions = {
         token = {
           accessToken: account.access_token as string,
           // Access token expiration is provided as number in seconds since epoch (value is always 8 hours)
-          accessTokenExpires: secondsToMilliseconds(
-            account.expires_at as number,
-          ),
+          // Convert to milliseconds
+          accessTokenExpires: (account.expires_at as number) * 1000,
           refreshToken: account.refresh_token as string,
           // Refresh token expiration is provided as number of seconds until expiration (value is always 6 months)
-          refreshTokenExpires:
-            Date.now() +
-            secondsToMilliseconds(account.refresh_token_expires_in as number),
+          refreshTokenExpires: normalizeExpirationDate(
+            account.refresh_token_expires_in as number,
+          ),
           ...user,
         }
 
