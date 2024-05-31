@@ -46,7 +46,7 @@ export const refreshAccessToken = async (
   refreshToken: string,
 ) => {
   try {
-    authLogger.debug('Refreshing access token', clientId)
+    authLogger.debug('Refreshing access token', { clientId })
 
     const url =
       'https://github.com/login/oauth/access_token?' +
