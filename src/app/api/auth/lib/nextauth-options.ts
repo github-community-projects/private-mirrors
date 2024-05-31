@@ -196,7 +196,7 @@ export const nextAuthOptions: AuthOptions = {
       // Return previous token if the refresh token has expired
       if (
         token.refreshTokenExpires &&
-        Date.now() > (token.refreshTokenExpires as number)
+        Date.now() >= (token.refreshTokenExpires as number)
       ) {
         authLogger.warn('Refresh token has expired')
         return token
