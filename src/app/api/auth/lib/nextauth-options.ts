@@ -7,6 +7,15 @@ import { JWT } from 'next-auth/jwt'
 const authLogger = logger.getSubLogger({ name: 'auth' })
 
 /**
+ * Converts seconds to milliseconds
+ * @param seconds Seconds to convert
+ * @returns number — Milliseconds
+ */
+const secondsToMilliseconds = (seconds: number) => {
+  return seconds * 1000
+}
+
+/**
  * Checks the session against the github API to see if the session is valid
  * @param token Token of the session
  * @returns boolean — Whether the session is valid
@@ -68,11 +77,13 @@ export const refreshAccessToken = async (
     return {
       accessToken: response.access_token,
       // Access token expiration is provided as number in seconds until expiration (value is always 8 hours)
-      accessTokenExpires: Date.now() + Number(response.expires_in) * 1000,
+      accessTokenExpires:
+        Date.now() + secondsToMilliseconds(Number(response.expires_in)),
       refreshToken: response.refresh_token,
       // Refresh token expiration is provided as number of seconds until expiration (value is always 6 months)
       refreshTokenExpires:
-        Date.now() + Number(response.refresh_token_expires_in) * 1000,
+        Date.now() +
+        secondsToMilliseconds(Number(response.refresh_token_expires_in)),
     }
   } catch (error) {
     authLogger.error('Error refreshing access token', error)
@@ -171,11 +182,14 @@ export const nextAuthOptions: AuthOptions = {
         token = {
           accessToken: account.access_token as string,
           // Access token expiration is provided as number in seconds since epoch (value is always 8 hours)
-          accessTokenExpires: (account.expires_at as number) * 1000,
+          accessTokenExpires: secondsToMilliseconds(
+            account.expires_at as number,
+          ),
           refreshToken: account.refresh_token as string,
           // Refresh token expiration is provided as number of seconds until expiration (value is always 6 months)
           refreshTokenExpires:
-            Date.now() + (account.refresh_token_expires_in as number) * 1000,
+            Date.now() +
+            secondsToMilliseconds(account.refresh_token_expires_in as number),
           ...user,
         }
 
