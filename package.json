@@ -31,7 +31,7 @@
     "fuse.js": "7.0.0",
     "next": "14.2.3",
     "next-auth": "4.24.7",
-    "octokit": "3.2.1",
+    "octokit": "4.0.2",
     "probot": "13.2.2",
     "proxy-agent": "6.4.0",
     "react": "18.3.1",
