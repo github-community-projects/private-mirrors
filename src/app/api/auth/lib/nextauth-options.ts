@@ -4,6 +4,8 @@ import GitHub from 'next-auth/providers/github'
 import { logger } from '../../../../utils/logger'
 import { JWT } from 'next-auth/jwt'
 
+import 'utils/proxy'
+
 const authLogger = logger.getSubLogger({ name: 'auth' })
 
 /**

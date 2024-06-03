@@ -3,6 +3,8 @@ import WebhookRelay from 'github-app-webhook-relay-polling'
 import crypto from 'node:crypto'
 import { App } from 'octokit'
 
+import './proxy.mjs'
+
 if (!process.env.PUBLIC_ORG) {
   console.error(
     'Missing PUBLIC_ORG environment variable. This is required for the webhook relay to work locally.',
