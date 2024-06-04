@@ -20,8 +20,10 @@ import { AppNotInstalledFlash } from 'app/components/flash/AppNotInstalledFlash'
 import { useForksData } from 'hooks/useForks'
 import { useOrgData } from 'hooks/useOrganization'
 import { useState } from 'react'
-import { ForkSearch } from 'app/components/search/ForkSearch'
+import { Search } from 'app/components/search/Search'
 import Fuse from 'fuse.js'
+import { OrgHeader } from 'app/components/header/OrgHeader'
+import { OrgBreadcrumbs } from 'app/components/breadcrumbs/OrgBreadcrumbs'
 
 const Organization = () => {
   const { organizationId } = useParams()
@@ -45,7 +47,13 @@ const Organization = () => {
   if (!forksData) {
     return (
       <Box>
-        <ForkSearch searchValue={searchValue} setSearchValue={setSearchValue} />
+        <OrgHeader orgData={orgData} />
+        <OrgBreadcrumbs orgData={orgData} />
+        <Search
+          placeholder="Find a fork"
+          searchValue={searchValue}
+          setSearchValue={setSearchValue}
+        />
         <Table.Container>
           <Table.Skeleton
             columns={[
@@ -97,12 +105,18 @@ const Organization = () => {
 
   return (
     <Box>
+      <OrgHeader orgData={orgData} />
       <Box sx={{ marginBottom: '10px' }}>
         {!isLoading && !data?.installed && (
           <AppNotInstalledFlash orgLogin={orgData?.login as string} />
         )}
       </Box>
-      <ForkSearch searchValue={searchValue} setSearchValue={setSearchValue} />
+      <OrgBreadcrumbs orgData={orgData} />
+      <Search
+        placeholder="Find a fork"
+        searchValue={searchValue}
+        setSearchValue={setSearchValue}
+      />
       {forksData.totalCount === 0 ? (
         <Box
           sx={{

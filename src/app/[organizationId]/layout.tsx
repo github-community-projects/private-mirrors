@@ -1,20 +1,9 @@
 'use client'
 
 import { Box } from '@primer/react'
-import { OrgHeader } from 'app/components/header/OrgHeader'
-import { useOrgData } from 'hooks/useOrganization'
 
 const DashLayout = ({ children }: { children: React.ReactNode }) => {
-  const orgData = useOrgData()
-
-  return (
-    <Box sx={{ margin: '10px 90px' }}>
-      <Box>
-        <OrgHeader orgData={orgData} />
-      </Box>
-      <Box>{children}</Box>
-    </Box>
-  )
+  return <Box>{children}</Box>
 }
 
 export default DashLayout
