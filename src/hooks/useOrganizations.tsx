@@ -1,6 +1,5 @@
 import { personalOctokit } from 'bot/octokit'
 import { useSession } from 'next-auth/react'
-import router from 'next/router'
 import { useEffect, useState } from 'react'
 
 const getOrganizationsData = async (accessToken: string) => {
@@ -27,11 +26,6 @@ export const useOrgsData = () => {
     }
 
     getOrganizationsData(accessToken).then((orgs) => {
-      // redirect to org page if user is only in one org
-      if (orgs && orgs.length === 1) {
-        router.push(`/${orgs[0].login}`)
-      }
-
       setOrganizationsData(orgs)
     })
   }, [accessToken])
