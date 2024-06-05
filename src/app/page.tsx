@@ -1,7 +1,7 @@
 'use client'
 
 import { Avatar, Box, Link, Octicon } from '@primer/react'
-import { useState } from 'react'
+import { use, useEffect, useState } from 'react'
 import { OrgsData, useOrgsData } from 'hooks/useOrganizations'
 import { Search } from './components/search/Search'
 import { DataTable, Table } from '@primer/react/lib-esm/DataTable'
@@ -10,17 +10,9 @@ import Blankslate from '@primer/react/lib-esm/Blankslate/Blankslate'
 import { OrganizationIcon } from '@primer/octicons-react'
 import { Stack } from '@primer/react/lib-esm/Stack'
 import { WelcomeHeader } from './components/header/WelcomeHeader'
-import { useRouter } from 'next/router'
 
 const Home = () => {
-  const router = useRouter()
-
   const orgsData = useOrgsData()
-
-  // redirect to org page if user has only one org
-  if (orgsData && orgsData.length === 1) {
-    router.push(`/${orgsData[0].login}`)
-  }
 
   // set search value to be empty string by default
   const [searchValue, setSearchValue] = useState('')
