@@ -126,13 +126,19 @@ const Fork = () => {
     [setIsEditSuccessFlashOpen],
   )
 
-  const closeAllFlashes = () => {
+  const closeAllFlashes = useCallback(() => {
     closeCreateErrorFlash()
     closeCreateSuccessFlash()
     closeEditErrorFlash()
     closeEditSuccessFlash()
     closeDeleteErrorFlash()
-  }
+  }, [
+    closeCreateErrorFlash,
+    closeCreateSuccessFlash,
+    closeEditErrorFlash,
+    closeEditSuccessFlash,
+    closeDeleteErrorFlash,
+  ])
 
   // set search value to be empty string by default
   const [searchValue, setSearchValue] = useState('')
