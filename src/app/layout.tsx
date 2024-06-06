@@ -33,8 +33,8 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
                     >
                       <MainHeader />
                     </Box>
-                    <Box sx={{ padding: '40px' }}>
-                      <Box sx={{ margin: '10px 90px' }}>{children}</Box>
+                    <Box sx={{ padding: '40px', margin: '10px 90px' }}>
+                      {children}
                     </Box>
                   </Box>
                 </TrpcProvider>
