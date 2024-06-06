@@ -15,15 +15,21 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (session.data?.user) {
-      // redirect to org page if user has only one org
-      if (orgsData && orgsData.length === 1) {
-        router.push(`/${orgsData[0].login}`)
+      // if orgs data is still loading, do nothing
+      if (orgsData.isLoading) {
+        return
+      }
+
+      // if user only has one org, go to that org's page
+      if (orgsData.data.length === 1) {
+        router.push(`/${orgsData.data[0].login}`)
+        return
       }
 
       // otherwise go to home page
       router.push('/')
     }
-  }, [session, orgsData, router])
+  }, [session.data?.user, orgsData.isLoading, orgsData.data, router])
 
   return <Box>{!session.data?.user && <Login />}</Box>
 }

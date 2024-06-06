@@ -24,7 +24,7 @@ const Home = () => {
   const end = start + pageSize
 
   // show loading table
-  if (!orgsData) {
+  if (orgsData.isLoading) {
     return (
       <Box>
         <WelcomeHeader />
@@ -51,7 +51,7 @@ const Home = () => {
   }
 
   // set up search
-  const fuse = new Fuse(orgsData, {
+  const fuse = new Fuse(orgsData.data, {
     keys: ['login'],
     threshold: 0.2,
   })
@@ -64,7 +64,7 @@ const Home = () => {
       .map((result) => result.item)
       .slice(start, end)
   } else {
-    orgsPaginationSet = orgsData.slice(start, end)
+    orgsPaginationSet = orgsData.data.slice(start, end)
   }
 
   return (
@@ -75,7 +75,7 @@ const Home = () => {
         searchValue={searchValue}
         setSearchValue={setSearchValue}
       />
-      {orgsData.length === 0 ? (
+      {orgsData.data.length === 0 ? (
         <Box
           sx={{
             border: '1px solid',
@@ -140,7 +140,7 @@ const Home = () => {
           <Table.Pagination
             aria-label="pagination"
             totalCount={
-              searchValue ? orgsPaginationSet.length : orgsData.length
+              searchValue ? orgsPaginationSet.length : orgsData.data.length
             }
             pageSize={pageSize}
             onChange={({ pageIndex }) => {
