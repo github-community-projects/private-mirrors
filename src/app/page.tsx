@@ -1,7 +1,7 @@
 'use client'
 
 import { Avatar, Box, Link, Octicon } from '@primer/react'
-import { use, useEffect, useState } from 'react'
+import { useState } from 'react'
 import { OrgsData, useOrgsData } from 'hooks/useOrganizations'
 import { Search } from './components/search/Search'
 import { DataTable, Table } from '@primer/react/lib-esm/DataTable'
