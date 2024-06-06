@@ -293,7 +293,7 @@ const Fork = () => {
         <ForkBreadcrumbs orgData={orgData} forkData={forkData} />
         <SearchWithCreate
           placeholder="Find a mirror"
-          createButtonText="Create mirror"
+          createButtonLabel="Create mirror"
           searchValue={searchValue}
           setSearchValue={setSearchValue}
           openCreateDialog={openCreateDialog}
@@ -414,7 +414,7 @@ const Fork = () => {
       <ForkBreadcrumbs orgData={orgData} forkData={forkData} />
       <SearchWithCreate
         placeholder="Find a mirror"
-        createButtonText="Create mirror"
+        createButtonLabel="Create mirror"
         searchValue={searchValue}
         setSearchValue={setSearchValue}
         openCreateDialog={openCreateDialog}

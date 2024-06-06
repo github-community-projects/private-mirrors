@@ -5,7 +5,7 @@ import { ChangeEvent } from 'react'
 
 interface SearchWithCreateProps {
   placeholder: string
-  createButtonText: string
+  createButtonLabel: string
   searchValue: string
   setSearchValue: (value: string) => void
   openCreateDialog: () => void
@@ -13,7 +13,7 @@ interface SearchWithCreateProps {
 
 export const SearchWithCreate = ({
   placeholder,
-  createButtonText: createButtonLabel,
+  createButtonLabel,
   searchValue,
   setSearchValue,
   openCreateDialog,
