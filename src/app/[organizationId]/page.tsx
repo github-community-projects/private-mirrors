@@ -84,7 +84,7 @@ const Organization = () => {
     )
   }
 
-  let forks = forksData.nodes
+  const forks = forksData.nodes
 
   // set up search
   const fuse = new Fuse(forks, {
