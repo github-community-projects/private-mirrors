@@ -50,10 +50,8 @@ const Home = () => {
     )
   }
 
-  let orgs = orgsData
-
   // set up search
-  const fuse = new Fuse(orgs, {
+  const fuse = new Fuse(orgsData, {
     keys: ['login'],
     threshold: 0.2,
   })
@@ -61,12 +59,12 @@ const Home = () => {
   // set up pagination
   let orgsPaginationSet: OrgsData = []
   if (searchValue) {
-    orgs = fuse
+    orgsPaginationSet = fuse
       .search(searchValue)
       .map((result) => result.item)
       .slice(start, end)
   } else {
-    orgsPaginationSet = orgs.slice(start, end)
+    orgsPaginationSet = orgsData.slice(start, end)
   }
 
   return (
