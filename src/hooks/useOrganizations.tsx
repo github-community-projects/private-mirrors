@@ -8,6 +8,7 @@ const getOrganizationsData = async (accessToken: string) => {
     const data = await octokit.rest.orgs.listForAuthenticatedUser()
     return data.data
   } catch (error) {
+    console.error('Error fetching organizations', { error })
     return null
   }
 }

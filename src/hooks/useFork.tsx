@@ -17,6 +17,7 @@ const getForkById = async (
       })
     ).data
   } catch (error) {
+    console.error('Error fetching fork', { error })
     return null
   }
 }
