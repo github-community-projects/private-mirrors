@@ -21,7 +21,7 @@ const LoginPage = () => {
       }
 
       // if user only has one org, go to that org's page
-      if (orgsData.data.length === 1) {
+      if (orgsData.data?.length === 1) {
         router.push(`/${orgsData.data[0].login}`)
         return
       }

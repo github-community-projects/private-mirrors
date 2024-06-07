@@ -50,6 +50,44 @@ const Home = () => {
     )
   }
 
+  // Show blankslate if no organizations are found
+  if (!orgsData.data || orgsData.data.length === 0) {
+    return (
+      <Box>
+        <WelcomeHeader />
+        <Search
+          placeholder="Find an organization"
+          searchValue={searchValue}
+          setSearchValue={setSearchValue}
+        />
+        <Box
+          sx={{
+            border: '1px solid',
+            borderColor: 'border.default',
+            padding: '40px',
+            borderRadius: '12px',
+          }}
+        >
+          <Blankslate>
+            <Box sx={{ padding: '10px' }}>
+              <Blankslate.Visual>
+                <Octicon
+                  icon={OrganizationIcon}
+                  size={24}
+                  color="fg.muted"
+                ></Octicon>
+              </Blankslate.Visual>
+            </Box>
+            <Blankslate.Heading>No organizations found</Blankslate.Heading>
+            <Blankslate.Description>
+              Please install the app in an organization to see it here.
+            </Blankslate.Description>
+          </Blankslate>
+        </Box>
+      </Box>
+    )
+  }
+
   // set up search
   const fuse = new Fuse(orgsData.data, {
     keys: ['login'],
@@ -75,80 +113,53 @@ const Home = () => {
         searchValue={searchValue}
         setSearchValue={setSearchValue}
       />
-      {orgsData.data.length === 0 ? (
-        <Box
-          sx={{
-            border: '1px solid',
-            borderColor: 'border.default',
-            padding: '40px',
-            borderRadius: '12px',
-          }}
-        >
-          <Blankslate>
-            <Box sx={{ padding: '10px' }}>
-              <Blankslate.Visual>
-                <Octicon
-                  icon={OrganizationIcon}
-                  size={24}
-                  color="fg.muted"
-                ></Octicon>
-              </Blankslate.Visual>
-            </Box>
-            <Blankslate.Heading>No organizations found</Blankslate.Heading>
-            <Blankslate.Description>
-              Please install the app in an organization to see it here.
-            </Blankslate.Description>
-          </Blankslate>
-        </Box>
-      ) : (
-        <Table.Container>
-          <DataTable
-            aria-describedby="orgs table"
-            aria-labelledby="orgs table"
-            data={orgsPaginationSet}
-            columns={[
-              {
-                header: 'Organization',
-                rowHeader: true,
-                field: 'login',
-                sortBy: 'alphanumeric',
-                renderCell: (row) => {
-                  return (
-                    <Stack direction="horizontal" align="center">
-                      <Stack.Item>
-                        <Avatar src={row.avatar_url} size={32} square={true} />
-                      </Stack.Item>
-                      <Stack.Item>
-                        <Link
-                          sx={{
-                            paddingRight: '5px',
-                            fontWeight: 'bold',
-                            fontSize: 2,
-                          }}
-                          href={`/${row.login}`}
-                        >
-                          {row.login}
-                        </Link>
-                      </Stack.Item>
-                    </Stack>
-                  )
-                },
+      <Table.Container>
+        <DataTable
+          aria-describedby="orgs table"
+          aria-labelledby="orgs table"
+          data={orgsPaginationSet}
+          columns={[
+            {
+              header: 'Organization',
+              rowHeader: true,
+              field: 'login',
+              sortBy: 'alphanumeric',
+              renderCell: (row) => {
+                return (
+                  <Stack direction="horizontal" align="center">
+                    <Stack.Item>
+                      <Avatar src={row.avatar_url} size={32} square={true} />
+                    </Stack.Item>
+                    <Stack.Item>
+                      <Link
+                        sx={{
+                          paddingRight: '5px',
+                          fontWeight: 'bold',
+                          fontSize: 2,
+                        }}
+                        href={`/${row.login}`}
+                      >
+                        {row.login}
+                      </Link>
+                    </Stack.Item>
+                  </Stack>
+                )
               },
-            ]}
-            cellPadding="spacious"
-          />
-          <Table.Pagination
-            aria-label="pagination"
-            totalCount={
-              searchValue ? orgsPaginationSet.length : orgsData.data.length
-            }
-            pageSize={pageSize}
-            onChange={({ pageIndex }) => {
-              setPageIndex(pageIndex)
-            }}
-          />
-        </Table.Container>
-      )}
+            },
+          ]}
+          cellPadding="spacious"
+        />
+        <Table.Pagination
+          aria-label="pagination"
+          totalCount={
+            searchValue ? orgsPaginationSet.length : orgsData.data.length
+          }
+          pageSize={pageSize}
+          onChange={({ pageIndex }) => {
+            setPageIndex(pageIndex)
+          }}
+        />
+      </Table.Container>
     </Box>
   )
 }
