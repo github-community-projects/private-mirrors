@@ -1,41 +1,167 @@
 'use client'
 
-import { Box } from '@primer/react'
-import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { personalOctokit } from '../bot/octokit'
-import { Login } from './components/login/Login'
+import { Avatar, Box, Link, Octicon } from '@primer/react'
+import { useState } from 'react'
+import { OrgsData, useOrgsData } from 'hooks/useOrganizations'
+import { Search } from './components/search/Search'
+import { DataTable, Table } from '@primer/react/lib-esm/DataTable'
+import Fuse from 'fuse.js'
+import Blankslate from '@primer/react/lib-esm/Blankslate/Blankslate'
+import { OrganizationIcon } from '@primer/octicons-react'
+import { Stack } from '@primer/react/lib-esm/Stack'
+import { WelcomeHeader } from './components/header/WelcomeHeader'
 
 const Home = () => {
-  const router = useRouter()
-  const session = useSession()
-  const [organizations, setOrganizations] = useState<
-    Awaited<ReturnType<typeof getAllOrganizations>>
-  >([])
+  const orgsData = useOrgsData()
 
-  const getAllOrganizations = async (accessToken: string) => {
-    const octokit = personalOctokit(accessToken)
-    const data = await octokit.rest.orgs.listForAuthenticatedUser()
-    return data.data
+  // set search value to be empty string by default
+  const [searchValue, setSearchValue] = useState('')
+
+  // values for pagination
+  const pageSize = 5
+  const [pageIndex, setPageIndex] = useState(0)
+  const start = pageIndex * pageSize
+  const end = start + pageSize
+
+  // show loading table
+  if (orgsData.isLoading) {
+    return (
+      <Box>
+        <WelcomeHeader />
+        <Search
+          placeholder="Find an organization"
+          searchValue={searchValue}
+          setSearchValue={setSearchValue}
+        />
+        <Table.Container>
+          <Table.Skeleton
+            columns={[
+              {
+                header: 'Organization',
+                rowHeader: true,
+              },
+            ]}
+            rows={5}
+            cellPadding="spacious"
+          />
+          <Table.Pagination aria-label="pagination" totalCount={0} />
+        </Table.Container>
+      </Box>
+    )
   }
 
-  useEffect(() => {
-    if (session.data?.user) {
-      const { accessToken } = session.data.user ?? {}
-      if (!accessToken) {
-        return
-      }
+  // Show blankslate if no organizations are found
+  if (!orgsData.data || orgsData.data.length === 0) {
+    return (
+      <Box>
+        <WelcomeHeader />
+        <Search
+          placeholder="Find an organization"
+          searchValue={searchValue}
+          setSearchValue={setSearchValue}
+        />
+        <Box
+          sx={{
+            border: '1px solid',
+            borderColor: 'border.default',
+            padding: '40px',
+            borderRadius: '12px',
+          }}
+        >
+          <Blankslate>
+            <Box sx={{ padding: '10px' }}>
+              <Blankslate.Visual>
+                <Octicon
+                  icon={OrganizationIcon}
+                  size={24}
+                  color="fg.muted"
+                ></Octicon>
+              </Blankslate.Visual>
+            </Box>
+            <Blankslate.Heading>No organizations found</Blankslate.Heading>
+            <Blankslate.Description>
+              Please install the app in an organization to see it here.
+            </Blankslate.Description>
+          </Blankslate>
+        </Box>
+      </Box>
+    )
+  }
 
-      getAllOrganizations(accessToken).then((orgs) => {
-        router.push(`/${orgs[0].login}`)
+  // set up search
+  const fuse = new Fuse(orgsData.data, {
+    keys: ['login'],
+    threshold: 0.2,
+  })
 
-        setOrganizations(orgs)
-      })
-    }
-  }, [session, router, session.data?.user])
+  // set up pagination
+  let orgsPaginationSet: OrgsData = []
+  if (searchValue) {
+    orgsPaginationSet = fuse
+      .search(searchValue)
+      .map((result) => result.item)
+      .slice(start, end)
+  } else {
+    orgsPaginationSet = orgsData.data.slice(start, end)
+  }
 
-  return <Box>{!session.data?.user && <Login />}</Box>
+  return (
+    <Box>
+      <WelcomeHeader />
+      <Search
+        placeholder="Find an organization"
+        searchValue={searchValue}
+        setSearchValue={setSearchValue}
+      />
+      <Table.Container>
+        <DataTable
+          aria-describedby="orgs table"
+          aria-labelledby="orgs table"
+          data={orgsPaginationSet}
+          columns={[
+            {
+              header: 'Organization',
+              rowHeader: true,
+              field: 'login',
+              sortBy: 'alphanumeric',
+              renderCell: (row) => {
+                return (
+                  <Stack direction="horizontal" align="center">
+                    <Stack.Item>
+                      <Avatar src={row.avatar_url} size={32} square={true} />
+                    </Stack.Item>
+                    <Stack.Item>
+                      <Link
+                        sx={{
+                          paddingRight: '5px',
+                          fontWeight: 'bold',
+                          fontSize: 2,
+                        }}
+                        href={`/${row.login}`}
+                      >
+                        {row.login}
+                      </Link>
+                    </Stack.Item>
+                  </Stack>
+                )
+              },
+            },
+          ]}
+          cellPadding="spacious"
+        />
+        <Table.Pagination
+          aria-label="pagination"
+          totalCount={
+            searchValue ? orgsPaginationSet.length : orgsData.data.length
+          }
+          pageSize={pageSize}
+          onChange={({ pageIndex }) => {
+            setPageIndex(pageIndex)
+          }}
+        />
+      </Table.Container>
+    </Box>
+  )
 }
 
 export default Home

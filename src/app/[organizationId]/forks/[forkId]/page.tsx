@@ -22,7 +22,7 @@ import Blankslate from '@primer/react/lib-esm/Blankslate/Blankslate'
 import { DataTable, Table } from '@primer/react/lib-esm/DataTable'
 import { Stack } from '@primer/react/lib-esm/Stack'
 import { AppNotInstalledFlash } from 'app/components/flash/AppNotInstalledFlash'
-import { MirrorSearch } from 'app/components/search/MirrorSearch'
+import { SearchWithCreate } from 'app/components/search/SearchWithCreate'
 import { useForkData } from 'hooks/useFork'
 import { useOrgData } from 'hooks/useOrganization'
 import { useCallback, useState } from 'react'
@@ -34,6 +34,7 @@ import { Loading } from 'app/components/loading/Loading'
 import { ErrorFlash } from 'app/components/flash/ErrorFlash'
 import { EditMirrorDialog } from 'app/components/dialog/EditMirrorDialog'
 import Fuse from 'fuse.js'
+import { ForkHeader } from 'app/components/header/ForkHeader'
 
 const Fork = () => {
   const { organizationId, forkId } = useParams()
@@ -125,13 +126,19 @@ const Fork = () => {
     [setIsEditSuccessFlashOpen],
   )
 
-  const closeAllFlashes = () => {
+  const closeAllFlashes = useCallback(() => {
     closeCreateErrorFlash()
     closeCreateSuccessFlash()
     closeEditErrorFlash()
     closeEditSuccessFlash()
     closeDeleteErrorFlash()
-  }
+  }, [
+    closeCreateErrorFlash,
+    closeCreateSuccessFlash,
+    closeEditErrorFlash,
+    closeEditSuccessFlash,
+    closeDeleteErrorFlash,
+  ])
 
   // set search value to be empty string by default
   const [searchValue, setSearchValue] = useState('')
@@ -282,8 +289,11 @@ const Fork = () => {
   if (!mirrors || mirrorsLoading) {
     return (
       <Box>
+        <ForkHeader forkData={forkData} />
         <ForkBreadcrumbs orgData={orgData} forkData={forkData} />
-        <MirrorSearch
+        <SearchWithCreate
+          placeholder="Find a mirror"
+          createButtonLabel="Create mirror"
           searchValue={searchValue}
           setSearchValue={setSearchValue}
           openCreateDialog={openCreateDialog}
@@ -335,6 +345,7 @@ const Fork = () => {
 
   return (
     <Box>
+      <ForkHeader forkData={forkData} />
       <Box sx={{ marginBottom: '10px' }}>
         {!isLoading && !data?.installed && (
           <AppNotInstalledFlash orgLogin={orgData?.login as string} />
@@ -401,7 +412,9 @@ const Fork = () => {
         )}
       </Box>
       <ForkBreadcrumbs orgData={orgData} forkData={forkData} />
-      <MirrorSearch
+      <SearchWithCreate
+        placeholder="Find a mirror"
+        createButtonLabel="Create mirror"
         searchValue={searchValue}
         setSearchValue={setSearchValue}
         openCreateDialog={openCreateDialog}

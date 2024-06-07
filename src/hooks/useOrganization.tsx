@@ -11,6 +11,7 @@ export const getOrganizationData = async (
     return (await personalOctokit(accessToken).rest.orgs.get({ org: orgId }))
       .data
   } catch (error) {
+    console.error('Error fetching organization', { error })
     return null
   }
 }

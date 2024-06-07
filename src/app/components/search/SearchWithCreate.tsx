@@ -3,17 +3,21 @@ import { Box, Button, FormControl, TextInput } from '@primer/react'
 import { Stack } from '@primer/react/lib-esm/Stack'
 import { ChangeEvent } from 'react'
 
-interface MirrorSearchProps {
+interface SearchWithCreateProps {
+  placeholder: string
+  createButtonLabel: string
   searchValue: string
   setSearchValue: (value: string) => void
   openCreateDialog: () => void
 }
 
-export const MirrorSearch = ({
+export const SearchWithCreate = ({
+  placeholder,
+  createButtonLabel,
   searchValue,
   setSearchValue,
   openCreateDialog,
-}: MirrorSearchProps) => {
+}: SearchWithCreateProps) => {
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchValue(event.target.value)
   }
@@ -35,7 +39,7 @@ export const MirrorSearch = ({
               onChange={handleChange}
               value={searchValue}
               leadingVisual={SearchIcon}
-              placeholder="Find a mirror"
+              placeholder={placeholder}
               size="large"
               block
               trailingAction={
@@ -60,7 +64,7 @@ export const MirrorSearch = ({
             variant="primary"
             onClick={openCreateDialog}
           >
-            Create mirror
+            {createButtonLabel}
           </Button>
         </Stack.Item>
       </Stack>

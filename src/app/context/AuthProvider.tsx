@@ -23,7 +23,13 @@ const VerifiedAuthProvider = ({ children }: { children: ReactNode }) => {
       console.log('session expired - signing out')
       signOut()
     }
-  }, [session, session.status, session.data, session.data?.expires])
+  }, [
+    session,
+    session.status,
+    session.data,
+    session.data?.error,
+    session.data?.expires,
+  ])
 
   return children
 }
