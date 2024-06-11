@@ -25,7 +25,7 @@ export const createAllPushProtection = async (
   repositoryNodeId: string,
   actorNodeId: string,
 ) => {
-  rulesLogger.debug('Creating branch protection ruleset for fork', {
+  rulesLogger.debug('Creating branch protection for fork', {
     repositoryOwner: context.payload.repository.owner.login,
     repositoryName: context.payload.repository.name,
   })
@@ -38,6 +38,8 @@ export const createAllPushProtection = async (
       'all-branch-protections-icf',
       ['~ALL'],
     )
+
+    rulesLogger.info('Branch protection created')
   } catch (error) {
     rulesLogger.error(
       new Error(
@@ -46,18 +48,23 @@ export const createAllPushProtection = async (
     )
 
     try {
-      const createBranchProtectionRes = await createBranchProtection(
-        context,
-        repositoryNodeId,
-        '*',
-        actorNodeId,
+      await createBranchProtection(context, repositoryNodeId, '*', actorNodeId)
+
+      rulesLogger.info('Branch protection created')
+    } catch (error) {
+      rulesLogger.error(
+        new Error(
+          'Failed to create branch protection from BP GQL, trying REST instead',
+        ),
       )
 
-      rulesLogger.info('Branch protection created', {
-        response: JSON.parse(JSON.stringify(createBranchProtectionRes)),
-      })
-    } catch (error) {
-      rulesLogger.error(new Error('Failed to create branch protection'))
+      try {
+        await createBranchProtectionREST(context, '*')
+
+        rulesLogger.info('Branch protection created')
+      } catch (error) {
+        rulesLogger.error(new Error('Failed to create branch protection'))
+      }
     }
   }
 }
@@ -90,6 +97,8 @@ export const createDefaultBranchProtection = async (
       ['~DEFAULT_BRANCH'],
       true,
     )
+
+    rulesLogger.info('Branch protection created')
   } catch (error) {
     rulesLogger.error(
       new Error(
@@ -98,7 +107,7 @@ export const createDefaultBranchProtection = async (
     )
 
     try {
-      const createBranchProtectionRes = await createBranchProtection(
+      await createBranchProtection(
         context,
         repositoryNodeId,
         defaultBranch,
@@ -106,9 +115,7 @@ export const createDefaultBranchProtection = async (
         true,
       )
 
-      rulesLogger.info('Branch protection created', {
-        response: JSON.parse(JSON.stringify(createBranchProtectionRes)),
-      })
+      rulesLogger.info('Branch protection created')
     } catch (error) {
       rulesLogger.error(
         new Error(
@@ -117,14 +124,9 @@ export const createDefaultBranchProtection = async (
       )
 
       try {
-        const createBranchProtectionRes = await createBranchProtectionREST(
-          context,
-          defaultBranch,
-        )
+        await createBranchProtectionREST(context, defaultBranch)
 
-        rulesLogger.info('Branch protection created', {
-          response: JSON.parse(JSON.stringify(createBranchProtectionRes)),
-        })
+        rulesLogger.info('Branch protection created')
       } catch (error) {
         rulesLogger.error(new Error('Failed to create branch protection'))
       }
@@ -146,6 +148,8 @@ const createBranchProtectionRuleset = async (
   includeRefs: string[],
   isMirror = false,
 ) => {
+  rulesLogger.debug('Creating branch protection ruleset')
+
   // Get the current branch protection rulesets
   const getBranchProtectionRuleset = await context.octokit.graphql<{
     repository: Repository
@@ -178,7 +182,7 @@ const createBranchProtectionRuleset = async (
     includeRefs,
   })
 
-  rulesLogger.info('Created branch protection rule', {
+  rulesLogger.info('Successfully created branch protection ruleset', {
     response: JSON.parse(JSON.stringify(branchProtectionRuleset)),
   })
 }
@@ -197,9 +201,7 @@ const createBranchProtection = async (
   actorId: string,
   isMirror = false,
 ) => {
-  rulesLogger.info('Creating branch protection', {
-    isMirror,
-  })
+  rulesLogger.debug('Creating branch protection with BQ GQL')
 
   const query = isMirror ? mirrorBranchProtectionGQL : forkBranchProtectionGQL
 
@@ -209,7 +211,7 @@ const createBranchProtection = async (
     actorId,
   })
 
-  rulesLogger.info('Created branch protection', {
+  rulesLogger.info('Successfully created branch protection with BQ GQL', {
     response: JSON.parse(JSON.stringify(forkBranchProtection)),
   })
 }
@@ -223,6 +225,8 @@ const createBranchProtectionREST = async (
   context: ContextEvent,
   pattern: string,
 ) => {
+  rulesLogger.debug('Creating branch protection with REST')
+
   const res = await context.octokit.repos.updateBranchProtection({
     branch: pattern,
     enforce_admins: true,
@@ -241,7 +245,7 @@ const createBranchProtectionREST = async (
     restrictions: null,
   })
 
-  rulesLogger.info('Created branch protection rule to default branch', {
+  rulesLogger.info('Successfully created branch protection with REST', {
     response: JSON.parse(JSON.stringify(res)),
     repositoryOwner: context.payload.repository.owner.login,
     repositoryName: context.payload.repository.name,
