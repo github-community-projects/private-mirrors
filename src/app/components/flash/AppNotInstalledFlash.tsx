@@ -1,6 +1,5 @@
 import { AlertIcon } from '@primer/octicons-react'
 import { Box, Flash, Link, Octicon } from '@primer/react'
-import { OrgData } from 'hooks/useOrganization'
 
 interface AppNotInstalledFlashProps {
   orgLogin: string

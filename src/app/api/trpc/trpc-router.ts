@@ -1,10 +1,10 @@
 import gitRouter from '../../../server/git/router'
 import octokitRouter from '../../../server/octokit/router'
 import reposRouter from '../../../server/repos/router'
-import { t, procedure } from '../../../utils/trpc-server'
+import { procedure, t } from '../../../utils/trpc-server'
 
 export const healthCheckerRouter = t.router({
-  healthChecker: procedure.query(({}) => {
+  healthChecker: procedure.query(() => {
     return 'ok'
   }),
 })

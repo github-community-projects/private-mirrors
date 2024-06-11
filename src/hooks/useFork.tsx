@@ -1,21 +1,17 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 import { personalOctokit } from 'bot/octokit'
 import { useSession } from 'next-auth/react'
 import { useParams } from 'next/navigation'
 import { Octokit } from 'octokit'
 import { useEffect, useState } from 'react'
 
-const getForkById = async (
-  accessToken: string,
-  repoId: string,
-): Promise<
-  Awaited<ReturnType<Octokit['rest']['repos']['get']>>['data'] | null
-> => {
+const getForkById = async (accessToken: string, repoId: string) => {
   try {
     return (
       await personalOctokit(accessToken).request('GET /repositories/:id', {
         id: repoId,
       })
-    ).data
+    ).data as Awaited<ReturnType<Octokit['rest']['repos']['get']>>['data']
   } catch (error) {
     console.error('Error fetching fork', { error })
     return null

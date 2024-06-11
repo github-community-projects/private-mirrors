@@ -9,12 +9,14 @@ type CustomProperties = Record<string, string>
 const botLogger = logger.getSubLogger({ name: 'bot' })
 
 // Helper function to get the fork name from the repository custom properties
-export const getForkName = async (props: CustomProperties) => {
+export const getForkName = (props: CustomProperties) => {
   return props.fork ?? null
 }
 
 // Helper function to get the metadata from the repository description
-export const getMetadata = (description: string | null) => {
+export const getMetadata = (
+  description: string | null,
+): Record<string, string> => {
   botLogger.debug('Getting metadata from repository description', {
     description,
   })
@@ -24,7 +26,7 @@ export const getMetadata = (description: string | null) => {
   }
 
   try {
-    return JSON.parse(description)
+    return JSON.parse(description) as Record<string, string>
   } catch (error) {
     botLogger.warn('Failed to parse repository description', { description })
     return {}
@@ -33,12 +35,12 @@ export const getMetadata = (description: string | null) => {
 
 function bot(app: Probot) {
   // Catch-all to log all webhook events
-  app.onAny(async (context) => {
+  app.onAny((context) => {
     botLogger.debug('Received webhook event `onAny`', { event: context.name })
   })
 
   // Good for debugging :)
-  app.on('ping', async (_) => {
+  app.on('ping', () => {
     botLogger.debug('pong')
   })
 
@@ -62,7 +64,7 @@ function bot(app: Probot) {
     }
 
     // Check repo properties to see if this is a mirror
-    const forkNameWithOwner = await getForkName(
+    const forkNameWithOwner = getForkName(
       (
         context.payload.repository as typeof context.payload.repository & {
           custom_properties: CustomProperties
@@ -118,7 +120,7 @@ function bot(app: Probot) {
     }
 
     // Check repo properties to see if this is a mirror
-    const forkNameWithOwner = await getForkName(
+    const forkNameWithOwner = getForkName(
       (
         context.payload.repository as typeof context.payload.repository & {
           custom_properties: CustomProperties
@@ -160,7 +162,7 @@ function bot(app: Probot) {
     botLogger.info('Push event')
 
     // Check repo properties to see if this is a mirror
-    const forkNameWithOwner = await getForkName(
+    const forkNameWithOwner = getForkName(
       (
         context.payload.repository as typeof context.payload.repository & {
           custom_properties: CustomProperties
@@ -224,7 +226,7 @@ function bot(app: Probot) {
         mirrorOwner,
         orgId,
       })
-      .catch((error) => {
+      .catch((error: Error) => {
         botLogger.error('Failed to sync repository', { error })
       })
 

@@ -1,8 +1,8 @@
 import { personalOctokit } from 'bot/octokit'
 import { AuthOptions, Profile } from 'next-auth'
+import { JWT } from 'next-auth/jwt'
 import GitHub from 'next-auth/providers/github'
 import { logger } from '../../../../utils/logger'
-import { JWT } from 'next-auth/jwt'
 
 import 'utils/proxy'
 
@@ -50,14 +50,15 @@ export const refreshAccessToken = async (
   try {
     authLogger.debug('Refreshing access token', { clientId })
 
+    const params = new URLSearchParams({
+      client_id: clientId,
+      client_secret: clientSecret,
+      refresh_token: refreshToken,
+      grant_type: 'refresh_token',
+    })
+
     const url =
-      'https://github.com/login/oauth/access_token?' +
-      new URLSearchParams({
-        client_id: clientId,
-        client_secret: clientSecret,
-        refresh_token: refreshToken,
-        grant_type: 'refresh_token',
-      })
+      'https://github.com/login/oauth/access_token?' + params.toString()
 
     const response = await fetch(url, {
       headers: {
@@ -130,7 +131,7 @@ export const nextAuthOptions: AuthOptions = {
     },
   },
   callbacks: {
-    signIn: async (params) => {
+    signIn: (params) => {
       authLogger.debug('Sign in callback')
 
       const profile = params.profile as Profile & { login?: string }
@@ -161,15 +162,13 @@ export const nextAuthOptions: AuthOptions = {
 
       return false
     },
-    session: async ({ session, token }) => {
+    session: ({ session, token }) => {
       if (token) {
         session.user.name = token.name as string
         session.user.image = token.image as string
         session.user.email = token.email as string
-        session.user.accessToken = token.accessToken as string
-        session.expires = new Date(
-          token.accessTokenExpires as number,
-        ).toISOString()
+        session.user.accessToken = token.accessToken
+        session.expires = new Date(token.accessTokenExpires).toISOString()
         session.error = token.error
       }
 
@@ -196,7 +195,7 @@ export const nextAuthOptions: AuthOptions = {
       }
 
       // Return previous token if the access token has not expired yet
-      if (Date.now() < (token.accessTokenExpires as number)) {
+      if (Date.now() < token.accessTokenExpires) {
         authLogger.debug('Access token valid')
         return token
       }
@@ -204,7 +203,7 @@ export const nextAuthOptions: AuthOptions = {
       authLogger.debug('Access token has expired')
 
       // Return previous token if the refresh token has expired
-      if (Date.now() >= (token.refreshTokenExpires as number)) {
+      if (Date.now() >= token.refreshTokenExpires) {
         authLogger.warn('Refresh token has expired')
         return token
       }
@@ -214,7 +213,7 @@ export const nextAuthOptions: AuthOptions = {
         token,
         process.env.GITHUB_CLIENT_ID!,
         process.env.GITHUB_CLIENT_SECRET!,
-        token.refreshToken as string,
+        token.refreshToken,
       )
 
       // Return the previous token if we failed to refresh the token

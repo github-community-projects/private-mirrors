@@ -1,5 +1,5 @@
-import { BugIcon, GitBranchIcon, RepoForkedIcon } from '@primer/octicons-react'
-import { Avatar, Octicon, Pagehead, Text } from '@primer/react'
+import { RepoForkedIcon } from '@primer/octicons-react'
+import { Octicon, Pagehead, Text } from '@primer/react'
 import { Stack } from '@primer/react/lib-esm/Stack'
 
 export const WelcomeHeader = () => {
