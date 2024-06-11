@@ -86,8 +86,6 @@ const redact = (obj: winston.Logform.TransformableInfo) => {
   const copy = structuredClone(obj)
   redactObject(copy)
 
-  console.log(copy)
-
   return copy
 }
 
