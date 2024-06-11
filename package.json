@@ -46,19 +46,17 @@
   },
   "devDependencies": {
     "@babel/preset-env": "7.24.5",
-    "@eslint/js": "^9.4.0",
     "@tanstack/eslint-plugin-query": "5.35.6",
-    "@types/eslint__js": "^8.42.3",
     "@types/jest": "29.5.12",
     "@types/node": "20.12.12",
     "@types/node-fetch": "2.6.11",
     "@types/react": "18.3.2",
-    "@typescript-eslint/eslint-plugin": "^7.13.0",
-    "@typescript-eslint/parser": "^7.13.0",
+    "@typescript-eslint/eslint-plugin": "7.13.0",
+    "@typescript-eslint/parser": "7.13.0",
     "babel-jest": "29.7.0",
     "concurrently": "8.2.2",
     "dotenv-load": "3.0.0",
-    "eslint": "^8.57.0",
+    "eslint": "8.57.0",
     "eslint-config-next": "14.2.3",
     "github-app-webhook-relay-polling": "1.1.0",
     "husky": "9.0.11",
@@ -68,8 +66,8 @@
     "prettier": "3.2.5",
     "ts-jest": "29.1.2",
     "ts-node": "10.9.2",
-    "typescript": "^5.4.5",
-    "typescript-eslint": "^7.13.0"
+    "typescript": "5.4.5",
+    "typescript-eslint": "7.13.0"
   },
   "engines": {
     "node": ">= 18"
