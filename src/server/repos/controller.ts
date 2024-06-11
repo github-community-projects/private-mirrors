@@ -59,7 +59,7 @@ export const createMirrorHandler = async ({
       }
 
       if (!(e as Error).message.includes('Not Found')) {
-        logger.error('asdf')
+        logger.error(e)
         throw e
       }
     }
@@ -147,7 +147,7 @@ export const createMirrorHandler = async ({
         repo: input.newRepoName,
       })
 
-      logger.error('asdf')
+      logger.error(e)
 
       throw e
     }

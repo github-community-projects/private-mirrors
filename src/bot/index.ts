@@ -220,7 +220,7 @@ function bot(app: Probot) {
         mirrorOwner,
         orgId,
       })
-      .catch((error) => {
+      .catch(() => {
         botLogger.error(new Error('Failed to sync repository'))
       })
 
