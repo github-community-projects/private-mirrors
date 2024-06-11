@@ -121,12 +121,12 @@ export const nextAuthOptions: AuthOptions = {
 
         authLogger.error('Auth error', {
           code,
-          metadata: JSON.parse(JSON.stringify(metadata)),
+          metadata,
         })
       } else {
         authLogger.error('Auth error', {
           code,
-          metadata: JSON.parse(JSON.stringify(metadata)),
+          metadata,
         })
       }
     },
@@ -136,7 +136,7 @@ export const nextAuthOptions: AuthOptions = {
     debug(code, metadata) {
       authLogger.debug('Auth debug', {
         code,
-        metadata: JSON.parse(JSON.stringify(metadata)),
+        metadata,
       })
     },
   },

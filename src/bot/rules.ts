@@ -164,7 +164,7 @@ const createBranchProtectionRuleset = async (
     )
   ) {
     rulesLogger.info('Branch protection rule already exists', {
-      response: JSON.parse(JSON.stringify(getBranchProtectionRuleset)),
+      getBranchProtectionRuleset,
     })
 
     return
@@ -183,7 +183,7 @@ const createBranchProtectionRuleset = async (
   })
 
   rulesLogger.info('Successfully created branch protection ruleset', {
-    response: JSON.parse(JSON.stringify(branchProtectionRuleset)),
+    branchProtectionRuleset,
   })
 }
 
@@ -212,7 +212,7 @@ const createBranchProtection = async (
   })
 
   rulesLogger.info('Successfully created branch protection with BQ GQL', {
-    response: JSON.parse(JSON.stringify(forkBranchProtection)),
+    forkBranchProtection,
   })
 }
 
@@ -246,7 +246,7 @@ const createBranchProtectionREST = async (
   })
 
   rulesLogger.info('Successfully created branch protection with REST', {
-    response: JSON.parse(JSON.stringify(res)),
+    res,
     repositoryOwner: context.payload.repository.owner.login,
     repositoryName: context.payload.repository.name,
   })

@@ -16,41 +16,19 @@ const getLoggerLevel = () => {
   return 'info'
 }
 
-const getLogFormat = () => {
-  if (
-    process.env.NODE_ENV === 'development' ||
-    process.env.NODE_ENV === 'test' ||
-    process.env.TEST_LOGGING === '1'
-  ) {
-    return combine(
-      colorize({ all: true }),
-      errors({ stack: true }),
-      timestamp({
-        format: 'YYYY-MM-DD hh:mm:ss.SSS A',
-      }),
-      align(),
-      printf((info) => {
-        let logString = `[${info.timestamp}] ${info.level}: ${info.message}`
-
-        if (info.metadata) {
-          logString + `\n${JSON.stringify(info.metadata, null, 2)}`
-        }
-
-        if (info.stack) {
-          logString + `\n${info.stack}`
-        }
-
-        return logString
-      }),
-    )
+const formatMeta = (meta: any) => {
+  // You can format the splat yourself
+  const splat = meta[Symbol.for('splat')]
+  if (splat && splat.length) {
+    return splat.length === 1
+      ? `\n${JSON.stringify(splat[0], null, 2)}`
+      : `\n${JSON.stringify(splat, null, 2)}`
   }
+  return ''
+}
 
-  return combine(
-    errors({ stack: true }),
-    timestamp(),
-    winston.format((info) => redact(info))(),
-    json(),
-  )
+const formatStack = (stack: any) => {
+  return stack ? `\n${stack}` : ''
 }
 
 const sensitiveKeys = [
@@ -82,11 +60,40 @@ const redactObject = (info: winston.Logform.TransformableInfo) => {
   })
 }
 
-const redact = (obj: winston.Logform.TransformableInfo) => {
-  const copy = structuredClone(obj)
+const redact = (info: winston.Logform.TransformableInfo) => {
+  const copy = structuredClone(info)
+
   redactObject(copy)
 
   return copy
+}
+
+const getLogFormat = () => {
+  if (
+    process.env.NODE_ENV === 'development' ||
+    process.env.NODE_ENV === 'test' ||
+    process.env.TEST_LOGGING === '1'
+  ) {
+    return combine(
+      colorize({ all: true }),
+      errors({ stack: true }),
+      timestamp({
+        format: 'YYYY-MM-DD hh:mm:ss.SSS A',
+      }),
+      align(),
+      printf(
+        ({ timestamp, level, name, message, stack, ...meta }) =>
+          `[${timestamp}] - ${level} [${name}] ${message} ${formatMeta(meta)} ${formatStack(stack)}`,
+      ),
+    )
+  }
+
+  return combine(
+    errors({ stack: true }),
+    timestamp(),
+    // winston.format((info) => redact(info))(),
+    json(),
+  )
 }
 
 export const logger = winston.createLogger({
@@ -95,8 +102,8 @@ export const logger = winston.createLogger({
   transports: [new winston.transports.Console()],
 })
 
-logger.info('Initialized logger')
+logger.child({ name: 'default' }).info('Initialized logger')
 
 // Redirect next logs to our logger >:(
-console.warn = logger.info.bind(logger)
-console.error = logger.info.bind(logger)
+console.warn = logger.child({ name: console }).info.bind(logger)
+console.error = logger.child({ name: console }).info.bind(logger)
