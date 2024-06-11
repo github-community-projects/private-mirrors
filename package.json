@@ -40,8 +40,10 @@
     "styled-components": "5.3.11",
     "superjson": "2.2.1",
     "tempy": "1.0.1",
+    "traverse": "0.6.9",
     "tslog": "4.9.2",
     "undici": "6.16.1",
+    "winston": "3.13.0",
     "zod": "3.23.8"
   },
   "devDependencies": {
@@ -51,6 +53,7 @@
     "@types/node": "20.12.12",
     "@types/node-fetch": "2.6.11",
     "@types/react": "18.3.2",
+    "@types/traverse": "0.6.36",
     "babel-jest": "29.7.0",
     "concurrently": "8.2.2",
     "dotenv-load": "3.0.0",

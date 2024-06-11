@@ -5,9 +5,6 @@ import {
 import { getServerSession } from 'next-auth'
 import { nextAuthOptions } from '../../auth/lib/nextauth-options'
 import { appRouter } from '../trpc-router'
-import { logger } from '../../../../utils/logger'
-
-const trpcLogger = logger.getSubLogger({ name: 'trpc' })
 
 const createContext = async ({
   req,
@@ -19,7 +16,7 @@ const createContext = async ({
 }
 
 const handler = (request: Request) => {
-  trpcLogger.info(`incoming request ${request.url}`)
+  console.info(`incoming request ${request.url}`)
   return fetchRequestHandler({
     endpoint: '/api/trpc',
     req: request,

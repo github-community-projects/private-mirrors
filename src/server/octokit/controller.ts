@@ -2,7 +2,7 @@ import { appOctokit } from '../../bot/octokit'
 import { logger } from '../../utils/logger'
 import { CheckInstallationSchema } from './schema'
 
-const octokitApiLogger = logger.getSubLogger({ name: 'octokit-api' })
+const octokitApiLogger = logger.child({ name: 'octokit-api' })
 
 // Checks if the app is installed in the org
 export const checkInstallationHandler = async ({
@@ -23,7 +23,7 @@ export const checkInstallationHandler = async ({
 
     return { installed: false }
   } catch (error) {
-    octokitApiLogger.info('Failed to check installation', { input, error })
+    octokitApiLogger.info(new Error('Failed to check installation'))
 
     return { installed: false }
   }

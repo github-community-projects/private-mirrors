@@ -3,9 +3,6 @@ import { personalOctokit } from 'bot/octokit'
 import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
 import { ForksObject } from 'types/forks'
-import { logger } from '../utils/logger'
-
-const forksLogger = logger.getSubLogger({ name: 'useForks' })
 
 const getForksInOrg = async (accessToken: string, login: string) => {
   const res = await personalOctokit(accessToken)
@@ -14,7 +11,7 @@ const getForksInOrg = async (accessToken: string, login: string) => {
       isFork: true,
     })
     .catch((err) => {
-      forksLogger.error('Error fetching forks', { err })
+      console.error('Error fetching forks', { err })
       return err.data as ForksObject
     })
 

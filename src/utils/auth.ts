@@ -21,7 +21,7 @@ export const generateAuthUrl = (
   return `https://${USER}:${PASS}@${REPO}`
 }
 
-const middlewareLogger = logger.getSubLogger({ name: 'middleware' })
+const middlewareLogger = logger.child({ name: 'middleware' })
 
 /**
  * Checks if the access token has access to the mirror org and repo
@@ -91,7 +91,7 @@ export const checkGitHubAuth = async (
       }
     }
   } catch (error) {
-    middlewareLogger.error('Error checking github auth', error)
+    middlewareLogger.error(new Error('Error checking github auth'))
     throw new TRPCError({ code: 'UNAUTHORIZED' })
   }
 }

@@ -10,7 +10,7 @@ import {
 import { logger } from '../../utils/logger'
 import { CreateMirrorSchema, ListMirrorsSchema } from './schema'
 
-const reposApiLogger = logger.getSubLogger({ name: 'repos-api' })
+const reposApiLogger = logger.child({ name: 'repos-api' })
 
 // Creates a mirror of a forked repo
 export const createMirrorHandler = async ({
@@ -19,11 +19,11 @@ export const createMirrorHandler = async ({
   input: CreateMirrorSchema
 }) => {
   try {
-    reposApiLogger.info('createMirror', { input: input })
+    reposApiLogger.info('createMirror', { input })
 
     const config = await getConfig(input.orgId)
 
-    reposApiLogger.debug('Fetched config', config)
+    reposApiLogger.debug('Fetched config', { config })
 
     const { publicOrg, privateOrg } = config
 
@@ -59,7 +59,7 @@ export const createMirrorHandler = async ({
       }
 
       if (!(e as Error).message.includes('Not Found')) {
-        logger.error({ error: e })
+        logger.error('asdf')
         throw e
       }
     }
@@ -147,12 +147,12 @@ export const createMirrorHandler = async ({
         repo: input.newRepoName,
       })
 
-      logger.error({ error: e })
+      logger.error('asdf')
 
       throw e
     }
   } catch (error) {
-    reposApiLogger.error('Error creating mirror', { error })
+    reposApiLogger.error(new Error('Error creating mirror'))
 
     return {
       success: false,
@@ -194,7 +194,7 @@ export const listMirrorsHandler = async ({
 
     return repos
   } catch (error) {
-    reposApiLogger.info('Failed to fetch mirrors', { input, error })
+    reposApiLogger.error(new Error('Failed to fetch mirrors'))
 
     return false
   }
@@ -228,7 +228,7 @@ export const editMirrorHandler = async ({
       data: repo.data,
     }
   } catch (error) {
-    reposApiLogger.error('Failed to edit mirror', { input, error })
+    reposApiLogger.error(new Error('Failed to edit mirror'))
 
     return {
       success: false,
@@ -266,7 +266,7 @@ export const deleteMirrorHandler = async ({
       success: true,
     }
   } catch (error) {
-    reposApiLogger.error('Failed to delete mirror', { input, error })
+    reposApiLogger.error(new Error('Failed to delete mirror'))
 
     return {
       success: false,

@@ -6,7 +6,7 @@ import { temporaryDirectory } from '../../utils/dir'
 import { logger } from '../../utils/logger'
 import { SyncReposSchema } from './schema'
 
-const gitApiLogger = logger.getSubLogger({ name: 'git-api' })
+const gitApiLogger = logger.child({ name: 'git-api' })
 
 // Syncs the fork and mirror repos
 export const syncReposHandler = async ({
@@ -19,7 +19,7 @@ export const syncReposHandler = async ({
 
     const config = await getConfig(input.orgId)
 
-    gitApiLogger.debug('Fetched config', config)
+    gitApiLogger.debug('Fetched config', { config })
 
     const { publicOrg, privateOrg } = config
 
@@ -88,7 +88,7 @@ export const syncReposHandler = async ({
         input.forkBranchName,
         `fork/${input.forkBranchName}`,
       )
-      gitApiLogger.debug('Checked out branch', input.forkBranchName)
+      gitApiLogger.debug('Checked out branch ' + input.forkBranchName)
       await git.mergeFromTo(
         `mirror/${input.mirrorBranchName}`,
         input.forkBranchName,
@@ -101,7 +101,7 @@ export const syncReposHandler = async ({
         input.mirrorBranchName,
         `mirror/${input.mirrorBranchName}`,
       )
-      gitApiLogger.debug('Checked out branch', input.mirrorBranchName)
+      gitApiLogger.debug('Checked out branch ' + input.mirrorBranchName)
       await git.mergeFromTo(
         `fork/${input.forkBranchName}`,
         input.mirrorBranchName,

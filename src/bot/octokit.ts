@@ -1,10 +1,6 @@
 import { createAppAuth } from '@octokit/auth-app'
 import { generatePKCS8Key } from 'utils/pem'
-import { logger } from '../utils/logger'
 import { Octokit } from './rest'
-
-const personalOctokitLogger = logger.getSubLogger({ name: 'personal-octokit' })
-const appOctokitLogger = logger.getSubLogger({ name: 'app-octokit' })
 
 // This is a bug with the way the private key is stored in the docker env
 // See https://github.com/moby/moby/issues/46773
@@ -63,7 +59,7 @@ export const appOctokit = () => {
       clientId: process.env.CLIENT_ID!,
       clientSecret: process.env.CLIENT_SECRET!,
     },
-    log: appOctokitLogger,
+    log: console,
   })
 }
 
@@ -82,7 +78,7 @@ export const installationOctokit = (installationId: string) => {
       privateKey: convertedKey,
       installationId: installationId,
     },
-    log: appOctokitLogger,
+    log: console,
   })
 }
 
@@ -94,7 +90,7 @@ export const installationOctokit = (installationId: string) => {
 export const personalOctokit = (token: string) => {
   return new Octokit({
     auth: token,
-    log: personalOctokitLogger,
+    log: console,
   })
 }
 

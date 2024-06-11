@@ -6,7 +6,7 @@ import { JWT } from 'next-auth/jwt'
 
 import 'utils/proxy'
 
-const authLogger = logger.getSubLogger({ name: 'auth' })
+const authLogger = logger.child({ name: 'auth' })
 
 /**
  * Converts seconds until expiration to date in milliseconds
@@ -48,7 +48,7 @@ export const refreshAccessToken = async (
   refreshToken: string,
 ) => {
   try {
-    authLogger.debug('Refreshing access token', { clientId })
+    authLogger.debug('Refreshing access token for: ' + clientId)
 
     const url =
       'https://github.com/login/oauth/access_token?' +
@@ -87,7 +87,8 @@ export const refreshAccessToken = async (
       ),
     }
   } catch (error) {
-    authLogger.error('Error refreshing access token', { error })
+    authLogger.error(new Error('Error refreshing access token'))
+
     // Return the original token with an error if we failed to refresh the token so the user gets signed out
     return {
       ...token,
@@ -117,16 +118,26 @@ export const nextAuthOptions: AuthOptions = {
       if (!(metadata instanceof Error) && metadata.provider) {
         // redact the provider secret here
         delete metadata.provider
-        authLogger.error({ code, metadata })
+
+        authLogger.error('Auth error', {
+          code,
+          metadata: JSON.parse(JSON.stringify(metadata)),
+        })
       } else {
-        authLogger.error({ code, metadata })
+        authLogger.error('Auth error', {
+          code,
+          metadata: JSON.parse(JSON.stringify(metadata)),
+        })
       }
     },
     warn(code) {
-      authLogger.warn({ code })
+      authLogger.warn(code)
     },
     debug(code, metadata) {
-      authLogger.debug({ code, metadata })
+      authLogger.debug('Auth debug', {
+        code,
+        metadata: JSON.parse(JSON.stringify(metadata)),
+      })
     },
   },
   callbacks: {
@@ -149,7 +160,7 @@ export const nextAuthOptions: AuthOptions = {
         return false
       }
 
-      authLogger.debug('Trying to sign in with handle:', profile.login)
+      authLogger.debug('Trying to sign in with handle: ' + profile.login)
 
       if (allowedHandles.includes(profile.login)) {
         return true

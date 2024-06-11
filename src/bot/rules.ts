@@ -9,7 +9,7 @@ import {
   mirrorBranchProtectionRulesetGQL,
 } from './graphql'
 
-const rulesLogger = logger.getSubLogger({ name: 'bot' })
+const rulesLogger = logger.child({ name: 'bot' })
 
 type ContextEvent = Context<'repository.created' | 'repository.edited' | 'push'>
 
@@ -40,10 +40,9 @@ export const createAllPushProtection = async (
     )
   } catch (error) {
     rulesLogger.error(
-      'Failed to create branch protection for fork, falling back to branch protections',
-      {
-        error,
-      },
+      new Error(
+        'Failed to create branch protection for fork, falling back to branch protections',
+      ),
     )
 
     const createBranchProtectionRes = await createBranchProtection(
@@ -54,7 +53,7 @@ export const createAllPushProtection = async (
     )
 
     rulesLogger.info('Branch protection created', {
-      createBranchProtectionRes,
+      response: JSON.parse(JSON.stringify(createBranchProtectionRes)),
     })
   }
 }
@@ -89,10 +88,9 @@ export const createDefaultBranchProtection = async (
     )
   } catch (error) {
     rulesLogger.error(
-      'Failed to add branch protections to default branch, trying BP GQL instead',
-      {
-        error,
-      },
+      new Error(
+        'Failed to add branch protections to default branch, trying BP GQL instead',
+      ),
     )
 
     try {
@@ -105,14 +103,13 @@ export const createDefaultBranchProtection = async (
       )
 
       rulesLogger.info('Branch protection created', {
-        createBranchProtectionRes,
+        response: JSON.parse(JSON.stringify(createBranchProtectionRes)),
       })
     } catch (error) {
       rulesLogger.error(
-        'Failed to create branch protection from BP GQL, trying REST instead',
-        {
-          error,
-        },
+        new Error(
+          'Failed to create branch protection from BP GQL, trying REST instead',
+        ),
       )
 
       const createBranchProtectionRes = await createBranchProtectionREST(
@@ -120,7 +117,7 @@ export const createDefaultBranchProtection = async (
         defaultBranch,
       )
       rulesLogger.info('Branch protection created', {
-        createBranchProtectionRes,
+        response: JSON.parse(JSON.stringify(createBranchProtectionRes)),
       })
     }
   }
@@ -154,7 +151,7 @@ const createBranchProtectionRuleset = async (
     )
   ) {
     rulesLogger.info('Branch protection rule already exists', {
-      getBranchProtectionRuleset,
+      response: JSON.parse(JSON.stringify(getBranchProtectionRuleset)),
     })
 
     return
@@ -173,7 +170,7 @@ const createBranchProtectionRuleset = async (
   })
 
   rulesLogger.info('Created branch protection rule', {
-    branchProtectionRuleset,
+    response: JSON.parse(JSON.stringify(branchProtectionRuleset)),
   })
 }
 
@@ -204,7 +201,7 @@ const createBranchProtection = async (
   })
 
   rulesLogger.info('Created branch protection', {
-    forkBranchProtection,
+    response: JSON.parse(JSON.stringify(forkBranchProtection)),
   })
 }
 
@@ -236,7 +233,7 @@ const createBranchProtectionREST = async (
   })
 
   rulesLogger.info('Created branch protection rule to default branch', {
-    res,
+    response: JSON.parse(JSON.stringify(res)),
     repositoryOwner: context.payload.repository.owner.login,
     repositoryName: context.payload.repository.name,
   })

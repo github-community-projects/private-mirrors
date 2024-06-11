@@ -4,7 +4,7 @@ import { logger } from 'utils/logger'
 
 export const probot = createProbot()
 
-const probotLogger = logger.getSubLogger({ name: 'probot' })
+const probotLogger = logger.child({ name: 'probot' })
 
 export const config = {
   api: {

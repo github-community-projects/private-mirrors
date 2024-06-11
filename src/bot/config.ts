@@ -3,7 +3,7 @@ import z from 'zod'
 import { logger } from '../utils/logger'
 import { appOctokit, installationOctokit } from './octokit'
 
-const configLogger = logger.getSubLogger({ name: 'config' })
+const configLogger = logger.child({ name: 'config' })
 
 const internalContributionForksConfig = z.object({
   publicOrg: z.string(),
@@ -56,8 +56,8 @@ export const validateConfig = (config: InternalContributionForksConfig) => {
   try {
     internalContributionForksConfig.parse(config)
   } catch (e) {
-    configLogger.error('Invalid config found!')
-    configLogger.error(e)
+    configLogger.error(new Error('Invalid config found!'))
+
     throw new Error(
       'Invalid config found! Please check the config and error log for more details.',
     )
@@ -83,8 +83,11 @@ export const getConfig = async (orgId?: string) => {
   // Lastly check github for a config
   if (!orgId) {
     logger.error(
-      'No orgId present, Organization ID is required to set a config when not using environment variables',
+      new Error(
+        'No orgId present, Organization ID is required to set a config when not using environment variables',
+      ),
     )
+
     throw new Error('Organization ID is required to set a config!')
   }
 

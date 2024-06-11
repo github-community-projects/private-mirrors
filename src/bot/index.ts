@@ -6,7 +6,7 @@ import { createAllPushProtection, createDefaultBranchProtection } from './rules'
 
 type CustomProperties = Record<string, string>
 
-const botLogger = logger.getSubLogger({ name: 'bot' })
+const botLogger = logger.child({ name: 'bot' })
 
 // Helper function to get the fork name from the repository custom properties
 export const getForkName = async (props: CustomProperties) => {
@@ -99,9 +99,7 @@ function bot(app: Probot) {
         defaultBranch,
       )
     } catch (error) {
-      botLogger.error('Failed to add branch protections', {
-        error,
-      })
+      botLogger.error(new Error('Failed to add branch protections'))
     }
   })
 
@@ -150,9 +148,7 @@ function bot(app: Probot) {
         defaultBranch,
       )
     } catch (error) {
-      botLogger.error('Failed to add branch protections', {
-        error,
-      })
+      botLogger.error(new Error('Failed to add branch protections'))
     }
   })
 
@@ -225,7 +221,7 @@ function bot(app: Probot) {
         orgId,
       })
       .catch((error) => {
-        botLogger.error('Failed to sync repository', { error })
+        botLogger.error(new Error('Failed to sync repository'))
       })
 
     botLogger.info('Synced repository', { res })
@@ -248,7 +244,7 @@ function bot(app: Probot) {
         defaultBranch,
       )
     } catch (error) {
-      botLogger.error('Failed to add branch protections', { error })
+      botLogger.error(new Error('Failed to add branch protections'))
     }
   })
 }

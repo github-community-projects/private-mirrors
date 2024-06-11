@@ -1,58 +1,92 @@
-import { Logger } from 'tslog'
+import winston from 'winston'
+import traverse from 'traverse'
 
-// If you need logs during tests you can set the env var TEST_LOGGING=true
-const getLoggerType = () => {
+const { align, combine, colorize, errors, json, printf, timestamp } =
+  winston.format
+
+const getLoggerLevel = () => {
   if (process.env.NODE_ENV === 'development') {
-    return 'pretty'
+    return 'debug'
   }
 
   if (process.env.NODE_ENV === 'test' || process.env.TEST_LOGGING === '1') {
-    return 'pretty'
+    return 'debug'
   }
 
-  return 'json'
+  return 'info'
 }
 
-export const logger = new Logger({
-  type: getLoggerType(),
-  maskValuesRegEx: [
-    /"access_token":"[^"]+"/g,
-    /(?<=:\/\/)([^:]+):([^@]+)(?=@)/g,
-  ],
-  overwrite: {
-    transportJSON: (logObjWithMeta: any) => {
-      const meta = logObjWithMeta._meta
+const getLogFormat = () => {
+  if (
+    process.env.NODE_ENV === 'development' ||
+    process.env.NODE_ENV === 'test' ||
+    process.env.TEST_LOGGING === '1'
+  ) {
+    return combine(
+      colorize({ all: true }),
+      errors({ stack: true }),
+      timestamp({
+        format: 'YYYY-MM-DD hh:mm:ss.SSS A',
+      }),
+      align(),
+      printf((info) =>
+        info.metadata
+          ? `[${info.timestamp}] ${info.level}: ${info.message}\n${JSON.stringify(info.metadata, null, 2)}`
+          : `[${info.timestamp}] ${info.level}: ${info.message}`,
+      ),
+    )
+  }
 
-      delete logObjWithMeta._meta
+  return combine(
+    errors({ stack: true }),
+    timestamp(),
+    winston.format((info) => redact(info))(),
+    json(),
+  )
+}
 
-      // If the log is only a string, then set "message"
-      if (
-        logObjWithMeta.hasOwnProperty('0') &&
-        typeof logObjWithMeta['0'] === 'string'
-      ) {
-        const message = logObjWithMeta['0']
-        delete logObjWithMeta['0']
-        logObjWithMeta = {
-          message,
-          data: logObjWithMeta,
-          meta,
-        }
-      } else {
-        logObjWithMeta = {
-          data: logObjWithMeta,
-          meta,
-        }
-      }
+const sensitiveKeys = [
+  /access[-._]?token/i,
+  /cookie/i,
+  /passw(or)?d/i,
+  /^pw$/,
+  /^pass$/i,
+  /secret/i,
+  /token/i,
+  /api[-._]?key/i,
+  /session[-._]?id/i,
+  /(?<=:\/\/)([^:]+):([^@]+)(?=@)/g,
+]
 
-      if (Object.keys(logObjWithMeta.data).length === 0) {
-        delete logObjWithMeta.data
-      }
+const isSensitiveKey = (keyStr: string | undefined) => {
+  if (!keyStr) {
+    return false
+  }
 
-      const output = JSON.stringify(logObjWithMeta)
+  return sensitiveKeys.some((regex) => regex.test(keyStr))
+}
 
-      console.log(output)
-    },
-  },
+const redactObject = (info: winston.Logform.TransformableInfo) => {
+  traverse(info).forEach(function redactor() {
+    if (this.key && isSensitiveKey(this.key)) {
+      this.update('[REDACTED]')
+    }
+  })
+}
+
+const redact = (obj: winston.Logform.TransformableInfo) => {
+  const copy = structuredClone(obj)
+  redactObject(copy)
+
+  console.log(copy)
+
+  return copy
+}
+
+export const logger = winston.createLogger({
+  level: getLoggerLevel(),
+  format: getLogFormat(),
+  transports: [new winston.transports.Console()],
 })
 
 logger.info('Initialized logger')
