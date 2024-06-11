@@ -1,9 +1,9 @@
-import { procedure, router } from '../../utils/trpc-server'
+import { gitProcedure, router } from '../../utils/trpc-server'
 import { syncReposHandler } from './controller'
 import { SyncReposSchema } from './schema'
 
 const gitRouter = router({
-  syncRepos: procedure
+  syncRepos: gitProcedure
     .input(SyncReposSchema)
     .mutation(({ input }) => syncReposHandler({ input })),
 })

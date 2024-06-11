@@ -43,12 +43,19 @@ export const checkGitHubAppInstallationAuth = async (
 
   const octokit = personalOctokit(accessToken)
 
-  const data = await octokit.rest.repos.get({
-    owner: mirrorOrgOwner,
-    repo: mirrorRepo,
-  })
+  const data = await octokit.rest.repos
+    .get({
+      owner: mirrorOrgOwner,
+      repo: mirrorRepo,
+    })
+    .catch((error) => {
+      middlewareLogger.error('Error checking github app installation auth', {
+        error,
+      })
+      return null
+    })
 
-  if (!data.data) {
+  if (!data?.data) {
     middlewareLogger.error('App does not have access to mirror repo')
     throw new TRPCError({ code: 'UNAUTHORIZED' })
   }

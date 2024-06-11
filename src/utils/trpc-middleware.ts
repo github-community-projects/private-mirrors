@@ -1,12 +1,13 @@
+import { TRPCError } from '@trpc/server'
 import { checkGitHubAppInstallationAuth, checkGitHubAuth } from './auth'
 import { Middleware } from './trpc-server'
 
-export const verifyAuth: Middleware = async (opts) => {
-  const { ctx, rawInput, path } = opts
+export const verifyGitHubAppAuth: Middleware = async (opts) => {
+  const { ctx, rawInput } = opts
 
-  if (path === 'git.syncRepos') {
-    // Check app authentication
-    checkGitHubAppInstallationAuth(
+  // Check app authentication
+  try {
+    await checkGitHubAppInstallationAuth(
       (rawInput as Record<string, string>)?.accessToken,
       (rawInput as Record<string, string>)?.mirrorOwner,
       (rawInput as Record<string, string>)?.mirrorName,
@@ -15,10 +16,17 @@ export const verifyAuth: Middleware = async (opts) => {
     return opts.next({
       ctx,
     })
+  } catch (error) {
+    console.error('Error checking github app installation auth', error)
+    throw new TRPCError({ code: 'UNAUTHORIZED' })
   }
+}
+
+export const verifyAuth: Middleware = async (opts) => {
+  const { ctx, rawInput } = opts
 
   // Verify valid github session
-  checkGitHubAuth(
+  await checkGitHubAuth(
     ctx.session?.user?.accessToken,
     (rawInput as Record<string, string>)?.orgId, // Fetch orgId if there is one
   )
