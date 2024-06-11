@@ -29,11 +29,19 @@ const getLogFormat = () => {
         format: 'YYYY-MM-DD hh:mm:ss.SSS A',
       }),
       align(),
-      printf((info) =>
-        info.metadata
-          ? `[${info.timestamp}] ${info.level}: ${info.message}\n${JSON.stringify(info.metadata, null, 2)}`
-          : `[${info.timestamp}] ${info.level}: ${info.message}`,
-      ),
+      printf((info) => {
+        let logString = `[${info.timestamp}] ${info.level}: ${info.message}`
+
+        if (info.metadata) {
+          logString + `\n${JSON.stringify(info.metadata, null, 2)}`
+        }
+
+        if (info.stack) {
+          logString + `\n${info.stack}`
+        }
+
+        return logString
+      }),
     )
   }
 
