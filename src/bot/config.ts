@@ -42,8 +42,8 @@ export const getEnvConfig = () => {
   )
 
   const config = {
-    publicOrg: process.env.PUBLIC_ORG as string,
-    privateOrg: process.env.PUBLIC_ORG as string,
+    publicOrg: process.env.PUBLIC_ORG,
+    privateOrg: process.env.PUBLIC_ORG,
   } as InternalContributionForksConfig
 
   if (process.env.PRIVATE_ORG) {

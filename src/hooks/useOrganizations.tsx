@@ -29,7 +29,7 @@ export const useOrgsData = () => {
       .then((orgs) => {
         setOrganizationData(orgs.data)
       })
-      .catch((error) => {
+      .catch((error: Error) => {
         setError(error)
       })
       .finally(() => {

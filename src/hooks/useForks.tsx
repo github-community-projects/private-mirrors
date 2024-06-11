@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 import { getReposInOrgGQL } from 'bot/graphql'
 import { personalOctokit } from 'bot/octokit'
 import { useSession } from 'next-auth/react'
@@ -13,9 +14,9 @@ const getForksInOrg = async (accessToken: string, login: string) => {
       login,
       isFork: true,
     })
-    .catch((err) => {
-      forksLogger.error('Error fetching forks', { err })
-      return err.data as ForksObject
+    .catch((error: Error & { data: ForksObject }) => {
+      forksLogger.error('Error fetching forks', { error })
+      return error.data
     })
 
   // the primer datatable component requires the data to not contain null
@@ -43,7 +44,7 @@ const getForksInOrg = async (accessToken: string, login: string) => {
           languages: {
             nodes: node.languages.nodes.map((node) => ({
               name: node.name,
-              color: node.color as string,
+              color: node.color,
             })),
           },
           refs: {

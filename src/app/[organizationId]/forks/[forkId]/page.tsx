@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 'use client'
 
 import { useParams } from 'next/navigation'
@@ -21,23 +22,23 @@ import {
 import Blankslate from '@primer/react/lib-esm/Blankslate/Blankslate'
 import { DataTable, Table } from '@primer/react/lib-esm/DataTable'
 import { Stack } from '@primer/react/lib-esm/Stack'
+import { ForkBreadcrumbs } from 'app/components/breadcrumbs/ForkBreadcrumbs'
+import { CreateMirrorDialog } from 'app/components/dialog/CreateMirrorDialog'
+import { DeleteMirrorDialog } from 'app/components/dialog/DeleteMirrorDialog'
+import { EditMirrorDialog } from 'app/components/dialog/EditMirrorDialog'
 import { AppNotInstalledFlash } from 'app/components/flash/AppNotInstalledFlash'
+import { ErrorFlash } from 'app/components/flash/ErrorFlash'
+import { SuccessFlash } from 'app/components/flash/SuccessFlash'
+import { ForkHeader } from 'app/components/header/ForkHeader'
+import { Loading } from 'app/components/loading/Loading'
 import { SearchWithCreate } from 'app/components/search/SearchWithCreate'
+import Fuse from 'fuse.js'
 import { useForkData } from 'hooks/useFork'
 import { useOrgData } from 'hooks/useOrganization'
 import { useCallback, useState } from 'react'
-import { ForkBreadcrumbs } from 'app/components/breadcrumbs/ForkBreadcrumbs'
-import { DeleteMirrorDialog } from 'app/components/dialog/DeleteMirrorDialog'
-import { CreateMirrorDialog } from 'app/components/dialog/CreateMirrorDialog'
-import { SuccessFlash } from 'app/components/flash/SuccessFlash'
-import { Loading } from 'app/components/loading/Loading'
-import { ErrorFlash } from 'app/components/flash/ErrorFlash'
-import { EditMirrorDialog } from 'app/components/dialog/EditMirrorDialog'
-import Fuse from 'fuse.js'
-import { ForkHeader } from 'app/components/header/ForkHeader'
 
 const Fork = () => {
-  const { organizationId, forkId } = useParams()
+  const { organizationId } = useParams()
   const { data, isLoading } = trpc.checkInstallation.useQuery({
     orgId: organizationId as string,
   })

@@ -8,7 +8,7 @@ const appOctokitLogger = logger.getSubLogger({ name: 'app-octokit' })
 
 // This is a bug with the way the private key is stored in the docker env
 // See https://github.com/moby/moby/issues/46773
-let privateKey = process.env.PRIVATE_KEY?.includes('\\n')
+const privateKey = process.env.PRIVATE_KEY?.includes('\\n')
   ? process.env.PRIVATE_KEY.replace(/\\n/g, '\n')
   : process.env.PRIVATE_KEY!
 

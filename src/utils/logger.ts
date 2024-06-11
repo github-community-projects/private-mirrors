@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Logger } from 'tslog'
 
 // If you need logs during tests you can set the env var TEST_LOGGING=true
@@ -20,14 +21,22 @@ export const logger = new Logger({
     /(?<=:\/\/)([^:]+):([^@]+)(?=@)/g,
   ],
   overwrite: {
-    transportJSON: (logObjWithMeta: any) => {
+    transportJSON: (log) => {
+      let logObjWithMeta = log as {
+        _meta?: Record<string, any>
+        meta?: Record<string, any>
+        message?: string
+        data?: Record<string, any>
+        [key: string]: any
+      }
+
       const meta = logObjWithMeta._meta
 
       delete logObjWithMeta._meta
 
       // If the log is only a string, then set "message"
       if (
-        logObjWithMeta.hasOwnProperty('0') &&
+        Object.prototype.hasOwnProperty.call(logObjWithMeta, '0') &&
         typeof logObjWithMeta['0'] === 'string'
       ) {
         const message = logObjWithMeta['0']
@@ -44,7 +53,7 @@ export const logger = new Logger({
         }
       }
 
-      if (Object.keys(logObjWithMeta.data).length === 0) {
+      if (Object.keys(logObjWithMeta.data ?? {}).length === 0) {
         delete logObjWithMeta.data
       }
 

@@ -48,7 +48,7 @@ export const checkGitHubAppInstallationAuth = async (
       owner: mirrorOrgOwner,
       repo: mirrorRepo,
     })
-    .catch((error) => {
+    .catch((error: Error) => {
       middlewareLogger.error('Error checking github app installation auth', {
         error,
       })
