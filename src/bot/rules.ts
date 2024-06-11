@@ -41,20 +41,24 @@ export const createAllPushProtection = async (
   } catch (error) {
     rulesLogger.error(
       new Error(
-        'Failed to create branch protection for fork, falling back to branch protections',
+        'Failed to create branch protection ruleset for fork, falling back to branch protections',
       ),
     )
 
-    const createBranchProtectionRes = await createBranchProtection(
-      context,
-      repositoryNodeId,
-      '*',
-      actorNodeId,
-    )
+    try {
+      const createBranchProtectionRes = await createBranchProtection(
+        context,
+        repositoryNodeId,
+        '*',
+        actorNodeId,
+      )
 
-    rulesLogger.info('Branch protection created', {
-      response: JSON.parse(JSON.stringify(createBranchProtectionRes)),
-    })
+      rulesLogger.info('Branch protection created', {
+        response: JSON.parse(JSON.stringify(createBranchProtectionRes)),
+      })
+    } catch (error) {
+      rulesLogger.error(new Error('Failed to create branch protection'))
+    }
   }
 }
 
@@ -89,7 +93,7 @@ export const createDefaultBranchProtection = async (
   } catch (error) {
     rulesLogger.error(
       new Error(
-        'Failed to add branch protections to default branch, trying BP GQL instead',
+        'Failed to add branch protection ruleset to default branch, trying BP GQL instead',
       ),
     )
 
@@ -112,13 +116,18 @@ export const createDefaultBranchProtection = async (
         ),
       )
 
-      const createBranchProtectionRes = await createBranchProtectionREST(
-        context,
-        defaultBranch,
-      )
-      rulesLogger.info('Branch protection created', {
-        response: JSON.parse(JSON.stringify(createBranchProtectionRes)),
-      })
+      try {
+        const createBranchProtectionRes = await createBranchProtectionREST(
+          context,
+          defaultBranch,
+        )
+
+        rulesLogger.info('Branch protection created', {
+          response: JSON.parse(JSON.stringify(createBranchProtectionRes)),
+        })
+      } catch (error) {
+        rulesLogger.error(new Error('Failed to create branch protection'))
+      }
     }
   }
 }
