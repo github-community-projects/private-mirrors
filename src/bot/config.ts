@@ -55,9 +55,8 @@ export const getEnvConfig = () => {
 export const validateConfig = (config: InternalContributionForksConfig) => {
   try {
     internalContributionForksConfig.parse(config)
-  } catch (e) {
-    configLogger.error('Invalid config found!')
-    configLogger.error(e)
+  } catch (error) {
+    configLogger.error('Invalid config found!', { error })
     throw new Error(
       'Invalid config found! Please check the config and error log for more details.',
     )
@@ -82,7 +81,7 @@ export const getConfig = async (orgId?: string) => {
 
   // Lastly check github for a config
   if (!orgId) {
-    logger.error(
+    configLogger.error(
       'No orgId present, Organization ID is required to set a config when not using environment variables',
     )
     throw new Error('Organization ID is required to set a config!')
@@ -90,7 +89,7 @@ export const getConfig = async (orgId?: string) => {
 
   config = await getGitHubConfig(orgId)
 
-  logger.info(`Using following config values`, {
+  configLogger.info(`Using following config values`, {
     config,
   })
 

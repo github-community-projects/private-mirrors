@@ -23,7 +23,7 @@ export const createMirrorHandler = async ({
 
     const config = await getConfig(input.orgId)
 
-    reposApiLogger.debug('Fetched config', config)
+    reposApiLogger.debug('Fetched config', { config })
 
     const { publicOrg, privateOrg } = config
 
@@ -52,15 +52,15 @@ export const createMirrorHandler = async ({
           `Repo ${orgData.data.login}/${input.newRepoName} already exists`,
         )
       }
-    } catch (e) {
+    } catch (error) {
       // We just threw this error, so we know it's safe to rethrow
-      if ((e as Error).message.includes('already exists')) {
-        throw e
+      if ((error as Error).message.includes('already exists')) {
+        throw error
       }
 
-      if (!(e as Error).message.includes('Not Found')) {
-        logger.error({ error: e })
-        throw e
+      if (!(error as Error).message.includes('Not Found')) {
+        reposApiLogger.error('Not found', { error })
+        throw error
       }
     }
 
@@ -140,16 +140,16 @@ export const createMirrorHandler = async ({
         success: true,
         data: newRepo.data,
       }
-    } catch (e) {
+    } catch (error) {
       // Clean up the private mirror repo made
       await privateOctokit.rest.repos.delete({
         owner: privateOrg,
         repo: input.newRepoName,
       })
 
-      logger.error({ error: e })
+      reposApiLogger.error('Error creating mirror', { error })
 
-      throw e
+      throw error
     }
   } catch (error) {
     reposApiLogger.error('Error creating mirror', { error })

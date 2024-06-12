@@ -23,7 +23,7 @@ export const checkInstallationHandler = async ({
 
     return { installed: false }
   } catch (error) {
-    octokitApiLogger.info('Failed to check installation', { input, error })
+    octokitApiLogger.error('Failed to check app installation', { input, error })
 
     return { installed: false }
   }

@@ -118,16 +118,16 @@ export const nextAuthOptions: AuthOptions = {
       if (!(metadata instanceof Error) && metadata.provider) {
         // redact the provider secret here
         delete metadata.provider
-        authLogger.error({ code, metadata })
+        authLogger.error('Auth error', { code, metadata })
       } else {
-        authLogger.error({ code, metadata })
+        authLogger.error('Auth error', { code, metadata })
       }
     },
     warn(code) {
-      authLogger.warn({ code })
+      authLogger.warn('Auth warn', { code })
     },
     debug(code, metadata) {
-      authLogger.debug({ code, metadata })
+      authLogger.debug('Auth debug', { code, metadata })
     },
   },
   callbacks: {
