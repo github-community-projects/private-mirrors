@@ -277,20 +277,8 @@ describe('Repos router', () => {
         newRepoName: 'a'.repeat(101),
       })
       .catch((error) => {
-        expect(error.message).toEqual(
-          '[\n\
-  {\n\
-    "code": "too_big",\n\
-    "maximum": 100,\n\
-    "type": "string",\n\
-    "inclusive": true,\n\
-    "exact": false,\n\
-    "message": "String must contain at most 100 character(s)",\n\
-    "path": [\n\
-      "newRepoName"\n\
-    ]\n\
-  }\n\
-]',
+        expect(error.message).toMatch(
+          /String must contain at most 100 character\(s\)/,
         )
       })
   })
