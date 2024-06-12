@@ -63,6 +63,7 @@ export const CreateMirrorDialog = ({
             onChange={(e) => setRepoName(e.target.value)}
             block
             placeholder="e.g. repository-name"
+            maxLength={100}
           />
           <FormControl.Caption>
             This is a private mirror of{' '}

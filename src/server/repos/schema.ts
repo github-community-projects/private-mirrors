@@ -5,7 +5,7 @@ export const CreateMirrorSchema = z.object({
   forkRepoOwner: z.string(),
   forkRepoName: z.string(),
   forkId: z.string(),
-  newRepoName: z.string(),
+  newRepoName: z.string().max(100),
   newBranchName: z.string(),
 })
 
@@ -17,7 +17,7 @@ export const ListMirrorsSchema = z.object({
 export const EditMirrorSchema = z.object({
   orgId: z.string(),
   mirrorName: z.string(),
-  newMirrorName: z.string(),
+  newMirrorName: z.string().max(100),
 })
 
 export const DeleteMirrorSchema = z.object({
