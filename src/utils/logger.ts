@@ -1,6 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import safeStringify from 'fast-safe-stringify'
 import { Logger } from 'tslog'
+
+// This is a workaround for the issue with JSON.stringify and circular references
+const stringify = (obj: any) => {
+  try {
+    return JSON.stringify(obj)
+  } catch (e) {
+    return safeStringify(obj)
+  }
+}
 
 // If you need logs during tests you can set the env var TEST_LOGGING=true
 const getLoggerType = () => {
@@ -60,7 +70,7 @@ export const logger = new Logger({
         output.data = logObjWithMeta['1']
       }
 
-      console.log(output)
+      console.log(stringify(output))
     },
   },
 })
