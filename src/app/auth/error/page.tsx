@@ -1,9 +1,12 @@
 'use client'
 
 import { MarkGithubIcon } from '@primer/octicons-react'
-import { Box, Octicon, Text } from '@primer/react'
+import { Box, Button, Octicon, Text } from '@primer/react'
+import { useRouter } from 'next/navigation'
 
 const ErrorPage = () => {
+  const router = useRouter()
+
   return (
     <Box
       sx={{
@@ -41,6 +44,15 @@ const ErrorPage = () => {
               Reach out to your organization admin to get access
             </Text>
           </Box>
+        </Box>
+        <Box sx={{ marginTop: '15px' }}>
+          <Button
+            onClick={() => {
+              router.push('/')
+            }}
+          >
+            Back to sign in
+          </Button>
         </Box>
       </Box>
     </Box>
