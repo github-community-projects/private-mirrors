@@ -25,13 +25,13 @@ export const createAllPushProtection = async (
   repositoryNodeId: string,
   actorNodeId: string,
 ) => {
-  rulesLogger.debug('Creating branch protection ruleset for fork', {
+  rulesLogger.info('Creating branch protection for all branches', {
     repositoryOwner: context.payload.repository.owner.login,
     repositoryName: context.payload.repository.name,
   })
 
   try {
-    // Add branch protection via rulesets to the all branches
+    // Add branch protection via rulesets to all branches
     await createBranchProtectionRuleset(
       context,
       actorNodeId,
@@ -40,22 +40,35 @@ export const createAllPushProtection = async (
     )
   } catch (error) {
     rulesLogger.error(
-      'Failed to create branch protection for fork, falling back to branch protections',
+      'Failed to create branch protection via rulesets, falling back to branch protections',
       {
         error,
       },
     )
 
-    const createBranchProtectionRes = await createBranchProtection(
-      context,
-      repositoryNodeId,
-      '*',
-      actorNodeId,
-    )
+    try {
+      // Add branch protection via GQL to all branches
+      await createBranchProtection(context, repositoryNodeId, '*', actorNodeId)
+    } catch (error) {
+      rulesLogger.error(
+        'Failed to create branch protection via GQL, falling back to REST',
+        {
+          error,
+        },
+      )
 
-    rulesLogger.info('Branch protection created', {
-      createBranchProtectionRes,
-    })
+      try {
+        // Add branch protection via REST to all branches
+        await createBranchProtectionREST(context, '*')
+      } catch (error) {
+        rulesLogger.error(
+          'Failed to create branch protection for all branches',
+          {
+            error,
+          },
+        )
+      }
+    }
   }
 }
 
@@ -73,13 +86,13 @@ export const createDefaultBranchProtection = async (
   actorNodeId: string,
   defaultBranch: string,
 ) => {
-  rulesLogger.debug('Creating branch protection ruleset for mirror', {
+  rulesLogger.info('Creating branch protection for default branch', {
     repositoryOwner: context.payload.repository.owner.login,
     repositoryName: context.payload.repository.name,
   })
 
   try {
-    // Add branch protections via ruleset to the default branch
+    // Add branch protection via ruleset to the default branch
     await createBranchProtectionRuleset(
       context,
       actorNodeId,
@@ -96,17 +109,14 @@ export const createDefaultBranchProtection = async (
     )
 
     try {
-      const createBranchProtectionRes = await createBranchProtection(
+      // Add branch protection via GQL to the default branch
+      await createBranchProtection(
         context,
         repositoryNodeId,
         defaultBranch,
         actorNodeId,
         true,
       )
-
-      rulesLogger.info('Branch protection created', {
-        createBranchProtectionRes,
-      })
     } catch (error) {
       rulesLogger.error(
         'Failed to create branch protection from BP GQL, trying REST instead',
@@ -115,13 +125,17 @@ export const createDefaultBranchProtection = async (
         },
       )
 
-      const createBranchProtectionRes = await createBranchProtectionREST(
-        context,
-        defaultBranch,
-      )
-      rulesLogger.info('Branch protection created', {
-        createBranchProtectionRes,
-      })
+      try {
+        // Add branch protection via REST to the default branch
+        await createBranchProtectionREST(context, defaultBranch)
+      } catch (error) {
+        rulesLogger.error(
+          'Failed to create branch protection for default branch',
+          {
+            error,
+          },
+        )
+      }
     }
   }
 }
@@ -140,6 +154,10 @@ const createBranchProtectionRuleset = async (
   includeRefs: string[],
   isMirror = false,
 ) => {
+  rulesLogger.info('Creating branch protection via rulesets', {
+    isMirror,
+  })
+
   // Get the current branch protection rulesets
   const getBranchProtectionRuleset = await context.octokit.graphql<{
     repository: Repository
@@ -153,7 +171,7 @@ const createBranchProtectionRuleset = async (
       (ruleset) => ruleset?.name === ruleName,
     )
   ) {
-    rulesLogger.info('Branch protection rule already exists', {
+    rulesLogger.info('Branch protection ruleset already exists', {
       getBranchProtectionRuleset,
     })
 
@@ -172,7 +190,7 @@ const createBranchProtectionRuleset = async (
     includeRefs,
   })
 
-  rulesLogger.info('Created branch protection rule', {
+  rulesLogger.info('Created branch protection via rulesets', {
     branchProtectionRuleset,
   })
 }
@@ -191,7 +209,7 @@ const createBranchProtection = async (
   actorId: string,
   isMirror = false,
 ) => {
-  rulesLogger.info('Creating branch protection', {
+  rulesLogger.info('Creating branch protection via GQL', {
     isMirror,
   })
 
@@ -203,7 +221,7 @@ const createBranchProtection = async (
     actorId,
   })
 
-  rulesLogger.info('Created branch protection', {
+  rulesLogger.info('Created branch protection via GQL', {
     forkBranchProtection,
   })
 }
@@ -217,6 +235,8 @@ const createBranchProtectionREST = async (
   context: ContextEvent,
   pattern: string,
 ) => {
+  rulesLogger.info('Creating branch protection via REST')
+
   const res = await context.octokit.repos.updateBranchProtection({
     branch: pattern,
     enforce_admins: true,
@@ -235,7 +255,7 @@ const createBranchProtectionREST = async (
     restrictions: null,
   })
 
-  rulesLogger.info('Created branch protection rule to default branch', {
+  rulesLogger.info('Created branch protection via REST', {
     res,
     repositoryOwner: context.payload.repository.owner.login,
     repositoryName: context.payload.repository.name,

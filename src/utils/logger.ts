@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Logger } from 'tslog'
 
 // If you need logs during tests you can set the env var TEST_LOGGING=true
@@ -17,55 +18,60 @@ const getLoggerType = () => {
 export const logger = new Logger({
   type: getLoggerType(),
   maskValuesRegEx: [
-    /"access_token":"[^"]+"/g,
+    /"access[-._]?token":"[^"]+"/g,
+    /"api[-._]?key":"[^"]+"/g,
+    /"client[-._]?secret":"[^"]+"/g,
+    /"cookie":"[^"]+"/g,
+    /"password":"[^"]+"/g,
+    /"refresh[-._]?token":"[^"]+"/g,
+    /"secret":"[^"]+"/g,
+    /"token":"[^"]+"/g,
     /(?<=:\/\/)([^:]+):([^@]+)(?=@)/g,
   ],
   overwrite: {
     transportJSON: (log) => {
-      let logObjWithMeta = log as {
-        _meta?: Record<string, any>
-        meta?: Record<string, any>
-        message?: string
-        data?: Record<string, any>
+      const logObjWithMeta = log as {
         [key: string]: any
+        _meta?: Record<string, any>
       }
 
-      const meta = logObjWithMeta._meta
+      const output: {
+        meta?: Record<string, any>
+        message?: string
+        info?: Record<string, any>
+        data?: Record<string, any>
+      } = {}
 
-      delete logObjWithMeta._meta
+      // set meta
+      output.meta = logObjWithMeta._meta
 
-      // If the log is only a string, then set "message"
+      // set message if it's a string or set it as info
       if (
         Object.prototype.hasOwnProperty.call(logObjWithMeta, '0') &&
         typeof logObjWithMeta['0'] === 'string'
       ) {
-        const message = logObjWithMeta['0']
-        delete logObjWithMeta['0']
-        logObjWithMeta = {
-          message,
-          data: logObjWithMeta,
-          meta,
-        }
+        output.message = logObjWithMeta['0']
       } else {
-        logObjWithMeta = {
-          data: logObjWithMeta,
-          meta,
-        }
+        output.info = logObjWithMeta['0']
       }
 
-      if (Object.keys(logObjWithMeta.data ?? {}).length === 0) {
-        delete logObjWithMeta.data
+      // set data
+      if (Object.prototype.hasOwnProperty.call(logObjWithMeta, '1')) {
+        output.data = logObjWithMeta['1']
       }
-
-      const output = JSON.stringify(logObjWithMeta)
 
       console.log(output)
     },
   },
 })
 
-logger.info('Initialized logger')
+logger.getSubLogger({ name: 'default' }).info('Initialized logger')
 
 // Redirect next logs to our logger >:(
-console.warn = logger.info.bind(logger)
-console.error = logger.info.bind(logger)
+console.warn = logger
+  .getSubLogger({ name: 'console' })
+  .warn.bind(logger.getSubLogger({ name: 'console' }))
+// Currently set to warn because of warning issued by undici showing as error
+console.error = logger
+  .getSubLogger({ name: 'console' })
+  .warn.bind(logger.getSubLogger({ name: 'console' }))

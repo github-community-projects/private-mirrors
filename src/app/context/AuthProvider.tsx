@@ -5,6 +5,9 @@ import { Session } from 'next-auth'
 import { SessionProvider, signOut, useSession } from 'next-auth/react'
 
 import { ReactNode, useEffect } from 'react'
+import { logger } from 'utils/logger'
+
+const authProviderLogger = logger.getSubLogger({ name: 'auth-provider' })
 
 const VerifiedAuthProvider = ({ children }: { children: ReactNode }) => {
   const session = useSession()
@@ -16,12 +19,12 @@ const VerifiedAuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     if (session.data?.error === 'RefreshAccessTokenError') {
-      console.error('Could not refresh access token - signing out')
+      authProviderLogger.error('Could not refresh access token - signing out')
       signOut()
     }
 
     if (session.data && new Date(session.data.expires) < new Date()) {
-      console.log('session expired - signing out')
+      authProviderLogger.info('session expired - signing out')
       signOut()
     }
   }, [
