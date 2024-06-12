@@ -263,4 +263,35 @@ describe('Repos router', () => {
     })
     expect(stubbedGit.clone).toHaveBeenCalledTimes(1)
   })
+
+  it('reject repository names over the character limit', async () => {
+    const caller = reposRouter.createCaller(createTestContext())
+
+    await caller
+      .createMirror({
+        forkId: 'test',
+        orgId: 'test',
+        forkRepoName: 'fork-test',
+        forkRepoOwner: 'github',
+        newBranchName: 'test',
+        newRepoName: 'a'.repeat(101),
+      })
+      .catch((error) => {
+        expect(error.message).toEqual(
+          '[\n\
+  {\n\
+    "code": "too_big",\n\
+    "maximum": 100,\n\
+    "type": "string",\n\
+    "inclusive": true,\n\
+    "exact": false,\n\
+    "message": "String must contain at most 100 character(s)",\n\
+    "path": [\n\
+      "newRepoName"\n\
+    ]\n\
+  }\n\
+]',
+        )
+      })
+  })
 })
