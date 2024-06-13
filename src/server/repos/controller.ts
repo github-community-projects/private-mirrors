@@ -9,6 +9,7 @@ import {
 } from '../../bot/octokit'
 import { logger } from '../../utils/logger'
 import { CreateMirrorSchema, ListMirrorsSchema } from './schema'
+import { TRPCError } from '@trpc/server'
 
 const reposApiLogger = logger.getSubLogger({ name: 'repos-api' })
 
@@ -154,9 +155,10 @@ export const createMirrorHandler = async ({
   } catch (error) {
     reposApiLogger.error('Error creating mirror', { error })
 
-    return {
-      success: false,
-    }
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: (error as Error).message,
+    })
   }
 }
 
@@ -196,7 +198,10 @@ export const listMirrorsHandler = async ({
   } catch (error) {
     reposApiLogger.info('Failed to fetch mirrors', { input, error })
 
-    return false
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: (error as Error).message,
+    })
   }
 }
 
@@ -230,9 +235,10 @@ export const editMirrorHandler = async ({
   } catch (error) {
     reposApiLogger.error('Failed to edit mirror', { input, error })
 
-    return {
-      success: false,
-    }
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: (error as Error).message,
+    })
   }
 }
 
@@ -268,8 +274,9 @@ export const deleteMirrorHandler = async ({
   } catch (error) {
     reposApiLogger.error('Failed to delete mirror', { input, error })
 
-    return {
-      success: false,
-    }
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: (error as Error).message,
+    })
   }
 }
