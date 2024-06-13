@@ -38,7 +38,7 @@ const Organization = () => {
   const [searchValue, setSearchValue] = useState('')
 
   // values for pagination
-  const pageSize = 5
+  const pageSize = 10
   const [pageIndex, setPageIndex] = useState(0)
   const start = pageIndex * pageSize
   const end = start + pageSize
@@ -75,7 +75,7 @@ const Organization = () => {
                 width: 'auto',
               },
             ]}
-            rows={5}
+            rows={10}
             cellPadding="spacious"
           />
           <Table.Pagination aria-label="pagination" totalCount={0} />
@@ -93,15 +93,14 @@ const Organization = () => {
   })
 
   // set up pagination
-  let forksPaginationSet = []
+  let forksSet = []
   if (searchValue) {
-    forksPaginationSet = fuse
-      .search(searchValue)
-      .map((result) => result.item)
-      .slice(start, end)
+    forksSet = fuse.search(searchValue).map((result) => result.item)
   } else {
-    forksPaginationSet = forks.slice(start, end)
+    forksSet = forks
   }
+
+  const forksPaginationSet = forksSet.slice(start, end)
 
   return (
     <Box>
@@ -260,9 +259,7 @@ const Organization = () => {
           />
           <Table.Pagination
             aria-label="pagination"
-            totalCount={
-              searchValue ? forksPaginationSet.length : forksData.totalCount
-            }
+            totalCount={forksSet.length}
             pageSize={pageSize}
             onChange={({ pageIndex }) => {
               setPageIndex(pageIndex)
