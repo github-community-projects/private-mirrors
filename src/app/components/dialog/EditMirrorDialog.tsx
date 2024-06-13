@@ -29,8 +29,8 @@ export const EditMirrorDialog = ({
   closeDialog,
   editMirror,
 }: EditMirrorDialogProps) => {
-  // set to default value of 'repository-name' for display purposes
-  const [newMirrorName, setNewMirrorName] = useState('repository-name')
+  // set to the current mirror name for display purposes
+  const [newMirrorName, setNewMirrorName] = useState(mirrorName)
 
   if (!isOpen) {
     return null
@@ -45,7 +45,7 @@ export const EditMirrorDialog = ({
           content: 'Cancel',
           onClick: () => {
             closeDialog()
-            setNewMirrorName('repository-name')
+            setNewMirrorName(mirrorName)
           },
         },
         {
@@ -57,14 +57,14 @@ export const EditMirrorDialog = ({
               mirrorName,
               newMirrorName,
             })
-            setNewMirrorName('repository-name')
+            setNewMirrorName(mirrorName)
           },
-          disabled: newMirrorName === 'repository-name' || newMirrorName === '',
+          disabled: newMirrorName === mirrorName || newMirrorName === '',
         },
       ]}
       onClose={() => {
         closeDialog()
-        setNewMirrorName('repository-name')
+        setNewMirrorName(mirrorName)
       }}
       width="large"
     >
@@ -74,7 +74,7 @@ export const EditMirrorDialog = ({
           <TextInput
             onChange={(e) => setNewMirrorName(e.target.value)}
             block
-            placeholder="e.g. repository-name"
+            placeholder={newMirrorName}
             maxLength={100}
           />
           <FormControl.Caption>
