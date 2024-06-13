@@ -92,7 +92,7 @@ const Organization = () => {
     threshold: 0.2,
   })
 
-  // set up pagination
+  // perform search if there is a search value
   let forksSet = []
   if (searchValue) {
     forksSet = fuse.search(searchValue).map((result) => result.item)
@@ -100,6 +100,7 @@ const Organization = () => {
     forksSet = forks
   }
 
+  // slice the data based on the pagination
   const forksPaginationSet = forksSet.slice(start, end)
 
   return (

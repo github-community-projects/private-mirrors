@@ -352,6 +352,7 @@ const Fork = () => {
     mirrorSet = mirrors
   }
 
+  // slice the data based on the pagination
   const mirrorPaginationSet = mirrorSet.slice(start, end)
 
   return (

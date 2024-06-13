@@ -94,7 +94,7 @@ const Home = () => {
     threshold: 0.2,
   })
 
-  // set up pagination
+  // perform search if there is a search value
   let orgsSet: OrgsData = []
   if (searchValue) {
     orgsSet = fuse.search(searchValue).map((result) => result.item)
@@ -102,6 +102,7 @@ const Home = () => {
     orgsSet = orgsData.data
   }
 
+  // slice the data based on the pagination
   const orgsPaginationSet = orgsSet.slice(start, end)
 
   return (
