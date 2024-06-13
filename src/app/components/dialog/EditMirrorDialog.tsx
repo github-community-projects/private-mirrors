@@ -2,7 +2,7 @@ import { Box, FormControl, Label, Link, Text, TextInput } from '@primer/react'
 import { Stack } from '@primer/react/lib-esm/Stack'
 import { Dialog } from '@primer/react/lib-esm/drafts'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 interface EditMirrorDialogProps {
   orgLogin: string
@@ -31,6 +31,10 @@ export const EditMirrorDialog = ({
 }: EditMirrorDialogProps) => {
   // set to the current mirror name for display purposes
   const [newMirrorName, setNewMirrorName] = useState(mirrorName)
+
+  useEffect(() => {
+    setNewMirrorName(mirrorName)
+  }, [mirrorName, setNewMirrorName])
 
   if (!isOpen) {
     return null
