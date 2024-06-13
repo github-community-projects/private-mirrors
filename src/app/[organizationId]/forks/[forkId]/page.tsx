@@ -329,7 +329,7 @@ const Fork = () => {
                 align: 'end',
               },
             ]}
-            rows={10}
+            rows={pageSize}
             cellPadding="spacious"
           />
           <Table.Pagination aria-label="pagination" totalCount={0} />
