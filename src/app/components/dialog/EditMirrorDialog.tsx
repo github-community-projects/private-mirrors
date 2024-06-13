@@ -74,7 +74,7 @@ export const EditMirrorDialog = ({
           <TextInput
             onChange={(e) => setNewMirrorName(e.target.value)}
             block
-            placeholder={newMirrorName}
+            placeholder={mirrorName}
             maxLength={100}
           />
           <FormControl.Caption>
