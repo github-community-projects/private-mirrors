@@ -151,6 +151,16 @@ const Fork = () => {
   const end = start + pageSize
 
   const {
+    data: getConfigData,
+    isLoading: configLoading,
+    error: configError,
+  } = trpc.getConfig.useQuery({
+    orgId: organizationId as string,
+  })
+
+  const orgName = getConfigData?.privateOrg ?? orgData?.login
+
+  const {
     data: createMirrorData,
     isLoading: createMirrorLoading,
     mutateAsync: createMirror,
@@ -267,7 +277,7 @@ const Fork = () => {
       await deleteMirror({
         mirrorName,
         orgId: String(orgData?.id),
-        orgName: orgData?.name ?? '',
+        orgName: orgName ?? '',
       }).then((res) => {
         if (!res.success) {
           openDeleteErrorFlash()
@@ -287,7 +297,7 @@ const Fork = () => {
   )
 
   // show loading table
-  if (!mirrors || mirrorsLoading) {
+  if (!mirrors || mirrorsLoading || configLoading) {
     return (
       <Box>
         <ForkHeader forkData={forkData} />
@@ -360,6 +370,9 @@ const Fork = () => {
       </Box>
       <Box sx={{ marginBottom: '10px' }}>
         {deleteMirrorLoading && <Loading message="Deleting mirror..." />}
+      </Box>
+      <Box sx={{ marginBottom: '10px' }}>
+        {configError && <ErrorFlash message={configError.message} />}
       </Box>
       <Box sx={{ marginBottom: '10px' }}>
         {listMirrorsError && <ErrorFlash message={listMirrorsError.message} />}
@@ -549,7 +562,7 @@ const Fork = () => {
         </Table.Container>
       )}
       <CreateMirrorDialog
-        orgLogin={orgData?.login as string}
+        orgLogin={orgName ?? ''}
         forkParentName={forkData?.parent?.name as string}
         forkParentOwnerLogin={forkData?.parent?.owner.login as string}
         closeDialog={closeCreateDialog}
@@ -557,7 +570,7 @@ const Fork = () => {
         createMirror={handleOnCreateMirror}
       />
       <EditMirrorDialog
-        orgLogin={orgData?.login as string}
+        orgLogin={orgName ?? ''}
         forkParentName={forkData?.parent?.name as string}
         forkParentOwnerLogin={forkData?.parent?.owner.login as string}
         orgId={organizationId as string}
@@ -567,9 +580,8 @@ const Fork = () => {
         editMirror={handleOnEditMirror}
       />
       <DeleteMirrorDialog
-        orgLogin={orgData?.login as string}
+        orgLogin={orgName ?? ''}
         orgId={organizationId as string}
-        orgName={orgData?.name as string}
         mirrorName={deleteMirrorName as string}
         closeDialog={closeDeleteDialog}
         isOpen={Boolean(deleteMirrorName)}
