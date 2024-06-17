@@ -158,7 +158,7 @@ const Fork = () => {
     orgId: organizationId as string,
   })
 
-  const orgName = getConfigData?.privateOrg ?? orgData?.login
+  const orgLogin = getConfigData?.privateOrg ?? orgData?.login
 
   const {
     data: createMirrorData,
@@ -277,7 +277,7 @@ const Fork = () => {
       await deleteMirror({
         mirrorName,
         orgId: String(orgData?.id),
-        orgName: orgName ?? '',
+        orgName: orgLogin ?? '',
       }).then((res) => {
         if (!res.success) {
           openDeleteErrorFlash()
@@ -562,7 +562,7 @@ const Fork = () => {
         </Table.Container>
       )}
       <CreateMirrorDialog
-        orgLogin={orgName ?? ''}
+        orgLogin={orgLogin ?? ''}
         forkParentName={forkData?.parent?.name as string}
         forkParentOwnerLogin={forkData?.parent?.owner.login as string}
         closeDialog={closeCreateDialog}
@@ -570,7 +570,7 @@ const Fork = () => {
         createMirror={handleOnCreateMirror}
       />
       <EditMirrorDialog
-        orgLogin={orgName ?? ''}
+        orgLogin={orgLogin ?? ''}
         forkParentName={forkData?.parent?.name as string}
         forkParentOwnerLogin={forkData?.parent?.owner.login as string}
         orgId={organizationId as string}
@@ -580,7 +580,7 @@ const Fork = () => {
         editMirror={handleOnEditMirror}
       />
       <DeleteMirrorDialog
-        orgLogin={orgName ?? ''}
+        orgLogin={orgLogin ?? ''}
         orgId={organizationId as string}
         mirrorName={deleteMirrorName as string}
         closeDialog={closeDeleteDialog}
