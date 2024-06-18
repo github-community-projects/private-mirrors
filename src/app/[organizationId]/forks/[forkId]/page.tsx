@@ -398,15 +398,23 @@ const Fork = () => {
         {deleteMirrorLoading && <Loading message="Deleting mirror..." />}
       </Box>
       <Box sx={{ marginBottom: '10px' }}>
-        {configError && <ErrorFlash message={configError.message} />}
+        {configError && (
+          <ErrorFlash
+            message={`Failed to load config: ${configError.message}`}
+          />
+        )}
       </Box>
       <Box sx={{ marginBottom: '10px' }}>
-        {listMirrorsError && <ErrorFlash message={listMirrorsError.message} />}
+        {listMirrorsError && (
+          <ErrorFlash
+            message={`Failed to fetch mirror list: ${listMirrorsError.message}`}
+          />
+        )}
       </Box>
       <Box sx={{ marginBottom: '10px' }}>
         {isCreateErrorFlashOpen && (
           <ErrorFlash
-            message={`Failed to create mirror.  ${createMirrorError?.message}`}
+            message={`Failed to create mirror: ${createMirrorError?.message}`}
             closeFlash={closeCreateErrorFlash}
           />
         )}
@@ -414,7 +422,7 @@ const Fork = () => {
       <Box sx={{ marginBottom: '10px' }}>
         {isEditErrorFlashOpen && (
           <ErrorFlash
-            message={`Failed to update mirror.  ${editMirrorError?.message}`}
+            message={`Failed to update mirror: ${editMirrorError?.message}`}
             closeFlash={closeEditErrorFlash}
           />
         )}
@@ -422,7 +430,7 @@ const Fork = () => {
       <Box sx={{ marginBottom: '10px' }}>
         {isDeleteErrorFlashOpen && (
           <ErrorFlash
-            message={`Failed to delete mirror.  ${deleteMirrorError?.message}`}
+            message={`Failed to delete mirror: ${deleteMirrorError?.message}`}
             closeFlash={closeDeleteErrorFlash}
           />
         )}
