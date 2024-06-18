@@ -293,7 +293,6 @@ const Fork = () => {
       await deleteMirror({
         mirrorName,
         orgId: String(orgData?.id),
-        orgName: orgLogin ?? '',
       })
         .then((res) => {
           if (!res.success) {
@@ -437,7 +436,7 @@ const Fork = () => {
               closeFlash={closeCreateSuccessFlash}
               mirrorName={createMirrorData.data?.name}
               mirrorUrl={createMirrorData.data?.html_url}
-              orgName={createMirrorData.data?.owner.login}
+              orgLogin={createMirrorData.data?.owner.login}
             />
           )}
       </Box>
@@ -447,8 +446,8 @@ const Fork = () => {
             message="You have successfully updated mirror"
             closeFlash={closeEditSuccessFlash}
             mirrorName={editMirrorData.data?.name}
-            orgName={editMirrorData.data?.owner.login}
             mirrorUrl={editMirrorData.data?.html_url}
+            orgLogin={editMirrorData.data?.owner.login}
           />
         )}
       </Box>

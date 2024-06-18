@@ -4,7 +4,7 @@ import { Box, Flash, IconButton, Link, Octicon } from '@primer/react'
 interface SuccessFlashProps {
   message: string
   mirrorUrl: string
-  orgName: string
+  orgLogin: string
   mirrorName: string
   closeFlash: () => void
 }
@@ -12,7 +12,7 @@ interface SuccessFlashProps {
 export const SuccessFlash = ({
   message,
   mirrorUrl,
-  orgName,
+  orgLogin,
   mirrorName,
   closeFlash,
 }: SuccessFlashProps) => {
@@ -31,7 +31,7 @@ export const SuccessFlash = ({
         <Box sx={{ marginLeft: '20px' }}>
           {message}{' '}
           <Link href={mirrorUrl} target="_blank" rel="noreferrer noopener">
-            {orgName}/{mirrorName}
+            {orgLogin}/{mirrorName}
           </Link>
           .
         </Box>
