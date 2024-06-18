@@ -1,6 +1,7 @@
 import { healthCheckerRouter } from '../../src/app/api/trpc/trpc-router'
 import { Octomock } from '../octomock'
 import { createTestContext } from '../utils/auth'
+import { t } from '../../src/utils/trpc-server'
 const om = new Octomock()
 
 jest.mock('../../src/bot/octokit', () => ({
@@ -14,7 +15,8 @@ describe('Git router', () => {
   })
 
   it('should allow users that are authenticated', async () => {
-    const caller = healthCheckerRouter.createCaller(createTestContext())
+    const caller =
+      t.createCallerFactory(healthCheckerRouter)(createTestContext())
 
     om.mockFunctions.rest.users.getAuthenticated.mockResolvedValue({
       status: 200,
@@ -33,7 +35,7 @@ describe('Git router', () => {
   })
 
   it('should throw on invalid sessions', async () => {
-    const caller = healthCheckerRouter.createCaller(
+    const caller = t.createCallerFactory(healthCheckerRouter)(
       createTestContext({
         user: {
           name: 'fake-username',

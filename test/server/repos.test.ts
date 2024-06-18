@@ -18,6 +18,7 @@ import * as auth from '../../src/utils/auth'
 import reposRouter from '../../src/server/repos/router'
 import { Octomock } from '../octomock'
 import { createTestContext } from '../utils/auth'
+import { t } from '../../src/utils/trpc-server'
 const om = new Octomock()
 
 jest.mock('../../src/bot/config')
@@ -106,7 +107,7 @@ describe('Repos router', () => {
   })
 
   it('should create a mirror when repo does not exist exist', async () => {
-    const caller = reposRouter.createCaller(createTestContext())
+    const caller = t.createCallerFactory(reposRouter)(createTestContext())
 
     const configSpy = jest.spyOn(config, 'getConfig').mockResolvedValue({
       publicOrg: 'github',
@@ -151,7 +152,7 @@ describe('Repos router', () => {
   })
 
   it('should throw an error when repo already exists', async () => {
-    const caller = reposRouter.createCaller(createTestContext())
+    const caller = t.createCallerFactory(reposRouter)(createTestContext())
 
     const configSpy = jest.spyOn(config, 'getConfig').mockResolvedValue({
       publicOrg: 'github',
@@ -185,7 +186,7 @@ describe('Repos router', () => {
   })
 
   it('should cleanup repos when there is an error', async () => {
-    const caller = reposRouter.createCaller(createTestContext())
+    const caller = t.createCallerFactory(reposRouter)(createTestContext())
 
     const configSpy = jest.spyOn(config, 'getConfig').mockResolvedValue({
       publicOrg: 'github',
@@ -225,7 +226,7 @@ describe('Repos router', () => {
   })
 
   it('dual-org: should cleanup repos when there is an error', async () => {
-    const caller = reposRouter.createCaller(createTestContext())
+    const caller = t.createCallerFactory(reposRouter)(createTestContext())
 
     const configSpy = jest.spyOn(config, 'getConfig').mockResolvedValue({
       publicOrg: 'github',
@@ -265,7 +266,7 @@ describe('Repos router', () => {
   })
 
   it('reject repository names over the character limit', async () => {
-    const caller = reposRouter.createCaller(createTestContext())
+    const caller = t.createCallerFactory(reposRouter)(createTestContext())
 
     await caller
       .createMirror({
