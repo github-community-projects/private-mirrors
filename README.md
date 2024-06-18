@@ -18,12 +18,16 @@
   <a href="#license">MIT License</a>
 </p>
 
-This is a Next.js project with an accompanying GitHub App that allows you to contribute to an upstream project using a private repository in your own organization. This is useful for organizations that want to keep their code private and perform their own checks before making any code changes public.
+Internal Contribution Forks (ICF) is GitHub App that allows you to work on contributions to an upstream open source project using a private repository in your own organization. This is useful for developing and checking contributions internally before making any commits publicly visible.
+
+For a video overview, check out [this short presentation and demo video](https://www.youtube.com/watch?v=xdiFALgHa2Y).
+
+[![ICF YouTube Video Thumbnail](https://github.com/user-attachments/assets/37eaed15-bb23-4ba2-9c0e-04b6bec8a1e7)](https://www.youtube.com/watch?v=xdiFALgHa2Y)
 
 > [!IMPORTANT]
 > 📣 EMU support is now available! Check out the [hosting - GHEC](#integrating-the-app-into-ghec) section for more information.
 >
-> This app is still a work in progress and is not considered stable just yet. We still recommend trying out the app because [we'd love to hear from you](https://github.com/github-community-projects/internal-contribution-forks/issues/new)!
+> This app is still a work in progress and is pre-1.0 _public beta_. We are actively working on improving it with beta testers, and if you're interested in using it for your organization, [we'd love to hear from you](https://github.com/github-community-projects/internal-contribution-forks/issues/new)!
 
 ## Background
 
@@ -36,9 +40,9 @@ To succeed, open source advocates and OSPOs need to address their stakeholders' 
 - PII / PHI disclosure
 - Liability and/or reputational damage resulting from bad code
 
-Solving these concerns creates opportunities for enterprise development teams to participate more deeply in open source and foster a collaborative relationship with the open source community.
+Addressing these concerns creates opportunities for enterprise development teams to participate more deeply in open source and foster a collaborative relationship with the open source community.
 
-> Internal Contribution Forks (ICF) is a GitHub app paired with a UI that manages the lifecycle of private mirrors, as well as the synchronization of code between the public fork of an upstream project and the private mirrors where the enterprise teams are working.
+> Internal Contribution Forks (ICF) is a GitHub App paired with a UI that manages the lifecycle of private mirrors, as well as the synchronization of code between the public fork of an upstream project and the private mirrors where the enterprise teams are working.
 
 ## Key Features
 
@@ -51,24 +55,7 @@ Solving these concerns creates opportunities for enterprise development teams to
 
 High Level Flow:
 
-```mermaid
-%%{init: { 'logLevel': 'debug', 'gitGraph': {'showBranches': true, 'showCommitLabel':false,'mainBranchName': 'Upstream'}} }%%
-      gitGraph
-        commit id:"init"
-        branch "Public Fork"
-        commit id:"pub0"
-        branch "Private Fork"
-        commit id:"pri1"
-        commit id:"pri2"
-        commit id:"pri3"
-        checkout "Public Fork"
-        merge "Private Fork"
-        checkout "Upstream"
-        commit id:"up1"
-        commit id:"up2"
-        merge "Public Fork"
-        commit id:"up3"
-```
+![Time-series diagram showing work starting upstream, moving into a public fork, and through the ICF app into a private mirror](https://github.com/user-attachments/assets/dfc3d0fa-14e3-4c8a-9ea3-921950cab98b)
 
 The app uses an intermediary public fork to merge the private mirror into, and then enables the normal OSS contributor workflow into the upstream repository. This allows users to keep the private repo private while still allowing us to contribute to the upstream repository. Check out this [application flow diagram](./docs/architecture.md) for a more detailed look at how the app works.
 
