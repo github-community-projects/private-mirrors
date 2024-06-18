@@ -18,7 +18,7 @@ const Home = () => {
   const [searchValue, setSearchValue] = useState('')
 
   // values for pagination
-  const pageSize = 5
+  const pageSize = 10
   const [pageIndex, setPageIndex] = useState(0)
   const start = pageIndex * pageSize
   const end = start + pageSize
@@ -41,7 +41,7 @@ const Home = () => {
                 rowHeader: true,
               },
             ]}
-            rows={5}
+            rows={pageSize}
             cellPadding="spacious"
           />
           <Table.Pagination aria-label="pagination" totalCount={0} />
@@ -94,16 +94,16 @@ const Home = () => {
     threshold: 0.2,
   })
 
-  // set up pagination
-  let orgsPaginationSet: OrgsData = []
+  // perform search if there is a search value
+  let orgsSet: OrgsData = []
   if (searchValue) {
-    orgsPaginationSet = fuse
-      .search(searchValue)
-      .map((result) => result.item)
-      .slice(start, end)
+    orgsSet = fuse.search(searchValue).map((result) => result.item)
   } else {
-    orgsPaginationSet = orgsData.data.slice(start, end)
+    orgsSet = orgsData.data
   }
+
+  // slice the data based on the pagination
+  const orgsPaginationSet = orgsSet.slice(start, end)
 
   return (
     <Box>
@@ -151,9 +151,7 @@ const Home = () => {
         />
         <Table.Pagination
           aria-label="pagination"
-          totalCount={
-            searchValue ? orgsPaginationSet.length : orgsData.data.length
-          }
+          totalCount={orgsSet.length}
           pageSize={pageSize}
           onChange={({ pageIndex }) => {
             setPageIndex(pageIndex)

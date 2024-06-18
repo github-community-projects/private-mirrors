@@ -4,13 +4,12 @@ import { Dialog } from '@primer/react/lib-esm/drafts'
 interface DeleteMirrorDialogProps {
   orgLogin: string
   orgId: string
-  orgName: string
   mirrorName: string
   isOpen: boolean
   closeDialog: () => void
   deleteMirror: (data: {
     orgId: string
-    orgName: string
+    orgLogin: string
     mirrorName: string
   }) => void
 }
@@ -18,7 +17,6 @@ interface DeleteMirrorDialogProps {
 export const DeleteMirrorDialog = ({
   orgLogin,
   orgId,
-  orgName,
   mirrorName,
   isOpen,
   closeDialog,
@@ -36,7 +34,7 @@ export const DeleteMirrorDialog = ({
         {
           content: 'Delete',
           variant: 'danger',
-          onClick: () => deleteMirror({ orgId, orgName, mirrorName }),
+          onClick: () => deleteMirror({ orgId, orgLogin, mirrorName }),
         },
       ]}
       onClose={closeDialog}

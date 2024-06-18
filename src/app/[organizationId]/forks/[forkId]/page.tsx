@@ -67,13 +67,18 @@ const Fork = () => {
   )
 
   const [deleteMirrorName, setDeleteMirrorName] = useState<string | null>(null)
+  const [numberOfMirrorsOnPage, setNumberOfMirrorsOnPage] = useState(0)
+
   const closeDeleteDialog = useCallback(
     () => setDeleteMirrorName(null),
     [setDeleteMirrorName],
   )
   const openDeleteDialog = useCallback(
-    (mirrorName: string) => setDeleteMirrorName(mirrorName),
-    [setDeleteMirrorName],
+    (mirrorName: string, numberOfMirrorsOnPage: number) => {
+      setDeleteMirrorName(mirrorName)
+      setNumberOfMirrorsOnPage(numberOfMirrorsOnPage)
+    },
+    [setDeleteMirrorName, setNumberOfMirrorsOnPage],
   )
 
   const [isCreateErrorFlashOpen, setIsCreateErrorFlashOpen] = useState(false)
@@ -145,10 +150,20 @@ const Fork = () => {
   const [searchValue, setSearchValue] = useState('')
 
   // values for pagination
-  const pageSize = 5
+  const pageSize = 10
   const [pageIndex, setPageIndex] = useState(0)
   const start = pageIndex * pageSize
   const end = start + pageSize
+
+  const {
+    data: getConfigData,
+    isLoading: configLoading,
+    error: configError,
+  } = trpc.getConfig.useQuery({
+    orgId: organizationId as string,
+  })
+
+  const orgLogin = getConfigData?.privateOrg ?? orgData?.login
 
   const {
     data: createMirrorData,
@@ -278,13 +293,24 @@ const Fork = () => {
       await deleteMirror({
         mirrorName,
         orgId: String(orgData?.id),
-        orgName: orgData?.name ?? '',
-      }).catch((error) => {
-        openDeleteErrorFlash()
-        console.error((error as Error).message)
+        orgName: orgLogin ?? '',
       })
+        .then((res) => {
+          if (!res.success) {
+            openDeleteErrorFlash()
+          }
+        })
+        .catch((error) => {
+          openDeleteErrorFlash()
+          console.error((error as Error).message)
+        })
 
       refetchMirrors()
+
+      // if the mirror being deleted is the only mirror on the page reload the page
+      if (numberOfMirrorsOnPage === 1) {
+        window.location.reload()
+      }
     },
     [
       closeAllFlashes,
@@ -292,12 +318,13 @@ const Fork = () => {
       deleteMirror,
       openDeleteErrorFlash,
       refetchMirrors,
+      numberOfMirrorsOnPage,
       orgData,
     ],
   )
 
   // show loading table
-  if (!mirrors || mirrorsLoading) {
+  if (!mirrors || mirrorsLoading || configLoading) {
     return (
       <Box>
         <ForkHeader forkData={forkData} />
@@ -328,7 +355,7 @@ const Fork = () => {
                 align: 'end',
               },
             ]}
-            rows={5}
+            rows={pageSize}
             cellPadding="spacious"
           />
           <Table.Pagination aria-label="pagination" totalCount={0} />
@@ -343,16 +370,16 @@ const Fork = () => {
     threshold: 0.2,
   })
 
-  // set up pagination
-  let mirrorPaginationSet = []
+  // perform search if there is a search value
+  let mirrorSet = []
   if (searchValue) {
-    mirrorPaginationSet = fuse
-      .search(searchValue)
-      .map((result) => result.item)
-      .slice(start, end)
+    mirrorSet = fuse.search(searchValue).map((result) => result.item)
   } else {
-    mirrorPaginationSet = mirrors.slice(start, end)
+    mirrorSet = mirrors
   }
+
+  // slice the data based on the pagination
+  const mirrorPaginationSet = mirrorSet.slice(start, end)
 
   return (
     <Box>
@@ -370,6 +397,9 @@ const Fork = () => {
       </Box>
       <Box sx={{ marginBottom: '10px' }}>
         {deleteMirrorLoading && <Loading message="Deleting mirror..." />}
+      </Box>
+      <Box sx={{ marginBottom: '10px' }}>
+        {configError && <ErrorFlash message={configError.message} />}
       </Box>
       <Box sx={{ marginBottom: '10px' }}>
         {listMirrorsError && <ErrorFlash message={listMirrorsError.message} />}
@@ -527,7 +557,10 @@ const Fork = () => {
                           <ActionList.Item
                             variant="danger"
                             onSelect={() => {
-                              openDeleteDialog(row.name)
+                              openDeleteDialog(
+                                row.name,
+                                mirrorPaginationSet.length,
+                              )
                             }}
                           >
                             <Stack align="center" direction="horizontal">
@@ -548,9 +581,7 @@ const Fork = () => {
           />
           <Table.Pagination
             aria-label="pagination"
-            totalCount={
-              searchValue ? mirrorPaginationSet.length : mirrors.length
-            }
+            totalCount={mirrorSet.length}
             pageSize={pageSize}
             onChange={({ pageIndex }) => {
               setPageIndex(pageIndex)
@@ -559,7 +590,7 @@ const Fork = () => {
         </Table.Container>
       )}
       <CreateMirrorDialog
-        orgLogin={orgData?.login as string}
+        orgLogin={orgLogin ?? ''}
         forkParentName={forkData?.parent?.name as string}
         forkParentOwnerLogin={forkData?.parent?.owner.login as string}
         closeDialog={closeCreateDialog}
@@ -567,7 +598,7 @@ const Fork = () => {
         createMirror={handleOnCreateMirror}
       />
       <EditMirrorDialog
-        orgLogin={orgData?.login as string}
+        orgLogin={orgLogin ?? ''}
         forkParentName={forkData?.parent?.name as string}
         forkParentOwnerLogin={forkData?.parent?.owner.login as string}
         orgId={organizationId as string}
@@ -577,9 +608,8 @@ const Fork = () => {
         editMirror={handleOnEditMirror}
       />
       <DeleteMirrorDialog
-        orgLogin={orgData?.login as string}
+        orgLogin={orgLogin ?? ''}
         orgId={organizationId as string}
-        orgName={orgData?.name as string}
         mirrorName={deleteMirrorName as string}
         closeDialog={closeDeleteDialog}
         isOpen={Boolean(deleteMirrorName)}

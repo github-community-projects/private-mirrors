@@ -29,6 +29,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
                         top: 0,
                         height: 64,
                         display: 'grid',
+                        zIndex: 1000,
                       }}
                     >
                       <MainHeader />
