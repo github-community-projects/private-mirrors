@@ -8,7 +8,12 @@ import {
   installationOctokit,
 } from '../../bot/octokit'
 import { logger } from '../../utils/logger'
-import { CreateMirrorSchema, ListMirrorsSchema } from './schema'
+import {
+  CreateMirrorSchema,
+  DeleteMirrorSchema,
+  EditMirrorSchema,
+  ListMirrorsSchema,
+} from './schema'
 import { TRPCError } from '@trpc/server'
 
 const reposApiLogger = logger.getSubLogger({ name: 'repos-api' })
@@ -209,7 +214,7 @@ export const listMirrorsHandler = async ({
 export const editMirrorHandler = async ({
   input,
 }: {
-  input: { orgId: string; mirrorName: string; newMirrorName: string }
+  input: EditMirrorSchema
 }) => {
   try {
     reposApiLogger.info('Editing mirror', { input })
@@ -246,11 +251,7 @@ export const editMirrorHandler = async ({
 export const deleteMirrorHandler = async ({
   input,
 }: {
-  input: {
-    orgId: string
-    orgName: string
-    mirrorName: string
-  }
+  input: DeleteMirrorSchema
 }) => {
   try {
     reposApiLogger.info('Deleting mirror', { input })
