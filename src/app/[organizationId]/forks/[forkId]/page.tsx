@@ -67,13 +67,18 @@ const Fork = () => {
   )
 
   const [deleteMirrorName, setDeleteMirrorName] = useState<string | null>(null)
+  const [numberOfMirrorsOnPage, setNumberOfMirrorsOnPage] = useState(0)
+
   const closeDeleteDialog = useCallback(
     () => setDeleteMirrorName(null),
     [setDeleteMirrorName],
   )
   const openDeleteDialog = useCallback(
-    (mirrorName: string) => setDeleteMirrorName(mirrorName),
-    [setDeleteMirrorName],
+    (mirrorName: string, numberOfMirrorsOnPage: number) => {
+      setDeleteMirrorName(mirrorName)
+      setNumberOfMirrorsOnPage(numberOfMirrorsOnPage)
+    },
+    [setDeleteMirrorName, setNumberOfMirrorsOnPage],
   )
 
   const [isCreateErrorFlashOpen, setIsCreateErrorFlashOpen] = useState(false)
@@ -145,7 +150,7 @@ const Fork = () => {
   const [searchValue, setSearchValue] = useState('')
 
   // values for pagination
-  const pageSize = 5
+  const pageSize = 10
   const [pageIndex, setPageIndex] = useState(0)
   const start = pageIndex * pageSize
   const end = start + pageSize
@@ -275,6 +280,11 @@ const Fork = () => {
       })
 
       refetchMirrors()
+
+      // if the mirror being deleted is the only mirror on the page reload the page
+      if (numberOfMirrorsOnPage === 1) {
+        window.location.reload()
+      }
     },
     [
       closeAllFlashes,
@@ -282,6 +292,7 @@ const Fork = () => {
       deleteMirror,
       openDeleteErrorFlash,
       refetchMirrors,
+      numberOfMirrorsOnPage,
       orgData,
     ],
   )
@@ -318,7 +329,7 @@ const Fork = () => {
                 align: 'end',
               },
             ]}
-            rows={5}
+            rows={pageSize}
             cellPadding="spacious"
           />
           <Table.Pagination aria-label="pagination" totalCount={0} />
@@ -333,16 +344,16 @@ const Fork = () => {
     threshold: 0.2,
   })
 
-  // set up pagination
-  let mirrorPaginationSet = []
+  // perform search if there is a search value
+  let mirrorSet = []
   if (searchValue) {
-    mirrorPaginationSet = fuse
-      .search(searchValue)
-      .map((result) => result.item)
-      .slice(start, end)
+    mirrorSet = fuse.search(searchValue).map((result) => result.item)
   } else {
-    mirrorPaginationSet = mirrors.slice(start, end)
+    mirrorSet = mirrors
   }
+
+  // slice the data based on the pagination
+  const mirrorPaginationSet = mirrorSet.slice(start, end)
 
   return (
     <Box>
@@ -517,7 +528,10 @@ const Fork = () => {
                           <ActionList.Item
                             variant="danger"
                             onSelect={() => {
-                              openDeleteDialog(row.name)
+                              openDeleteDialog(
+                                row.name,
+                                mirrorPaginationSet.length,
+                              )
                             }}
                           >
                             <Stack align="center" direction="horizontal">
@@ -538,9 +552,7 @@ const Fork = () => {
           />
           <Table.Pagination
             aria-label="pagination"
-            totalCount={
-              searchValue ? mirrorPaginationSet.length : mirrors.length
-            }
+            totalCount={mirrorSet.length}
             pageSize={pageSize}
             onChange={({ pageIndex }) => {
               setPageIndex(pageIndex)
