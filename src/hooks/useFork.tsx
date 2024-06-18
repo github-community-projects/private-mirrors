@@ -27,18 +27,34 @@ export const useForkData = () => {
   const [fork, setFork] = useState<Awaited<
     ReturnType<typeof getForkById>
   > | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
     if (!organizationId || !forkId || !accessToken) {
       return
     }
 
-    getForkById(accessToken, forkId as string).then((fork) => {
-      setFork(fork)
-    })
+    setIsLoading(true)
+    setError(null)
+
+    getForkById(accessToken, forkId as string)
+      .then((fork) => {
+        setFork(fork)
+      })
+      .catch((error: Error) => {
+        setError(error)
+      })
+      .finally(() => {
+        setIsLoading(false)
+      })
   }, [accessToken, organizationId, forkId])
 
-  return fork
+  return {
+    data: fork,
+    isLoading,
+    error,
+  }
 }
 
 export type ForkData = Awaited<ReturnType<typeof getForkById>>

@@ -28,24 +28,38 @@ export const useOrgData = () => {
   const [orgData, setOrgData] = useState<Awaited<
     ReturnType<typeof getOrganizationData>
   > | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
     if (!accessToken || !organizationId) {
       return
     }
 
-    getOrganizationData(accessToken, organizationId as string).then(
-      (orgData) => {
+    setIsLoading(true)
+    setError(null)
+
+    getOrganizationData(accessToken, organizationId as string)
+      .then((orgData) => {
         if (!orgData) {
           router.push('/_error')
         }
 
         setOrgData(orgData)
-      },
-    )
+      })
+      .catch((error: Error) => {
+        setError(error)
+      })
+      .finally(() => {
+        setIsLoading(false)
+      })
   }, [organizationId, accessToken, router])
 
-  return orgData
+  return {
+    data: orgData,
+    isLoading,
+    error,
+  }
 }
 
 export type OrgData = Awaited<ReturnType<typeof getOrganizationData>>

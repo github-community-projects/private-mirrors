@@ -24,6 +24,7 @@ import { Search } from 'app/components/search/Search'
 import Fuse from 'fuse.js'
 import { OrgHeader } from 'app/components/header/OrgHeader'
 import { OrgBreadcrumbs } from 'app/components/breadcrumbs/OrgBreadcrumbs'
+import { ErrorFlash } from 'app/components/flash/ErrorFlash'
 
 const Organization = () => {
   const { organizationId } = useParams()
@@ -32,7 +33,7 @@ const Organization = () => {
   })
 
   const orgData = useOrgData()
-  const forksData = useForksData(orgData?.login)?.organization.repositories
+  const forksData = useForksData(orgData?.data?.login)
 
   // set search value to be empty string by default
   const [searchValue, setSearchValue] = useState('')
@@ -44,11 +45,11 @@ const Organization = () => {
   const end = start + pageSize
 
   // show loading table
-  if (!forksData) {
+  if (forksData.isLoading) {
     return (
       <Box>
-        <OrgHeader orgData={orgData} />
-        <OrgBreadcrumbs orgData={orgData} />
+        <OrgHeader orgData={orgData.data} />
+        <OrgBreadcrumbs orgData={orgData.data} />
         <Search
           placeholder="Find a fork"
           searchValue={searchValue}
@@ -84,40 +85,27 @@ const Organization = () => {
     )
   }
 
-  const forks = forksData.nodes
-
-  // set up search
-  const fuse = new Fuse(forks, {
-    keys: ['name', 'owner.login', 'parent.name', 'parent.owner.login'],
-    threshold: 0.2,
-  })
-
-  // set up pagination
-  let forksPaginationSet = []
-  if (searchValue) {
-    forksPaginationSet = fuse
-      .search(searchValue)
-      .map((result) => result.item)
-      .slice(start, end)
-  } else {
-    forksPaginationSet = forks.slice(start, end)
-  }
-
-  return (
-    <Box>
-      <OrgHeader orgData={orgData} />
-      <Box sx={{ marginBottom: '10px' }}>
-        {!isLoading && !data?.installed && (
-          <AppNotInstalledFlash orgLogin={orgData?.login as string} />
-        )}
-      </Box>
-      <OrgBreadcrumbs orgData={orgData} />
-      <Search
-        placeholder="Find a fork"
-        searchValue={searchValue}
-        setSearchValue={setSearchValue}
-      />
-      {forksData.totalCount === 0 ? (
+  // show blankslate if no forks are found
+  if (
+    !forksData.data ||
+    forksData.data.organization.repositories.totalCount === 0
+  ) {
+    return (
+      <Box>
+        <OrgHeader orgData={orgData.data} />
+        <Box sx={{ marginBottom: '10px' }}>
+          {forksData.error && (
+            <ErrorFlash
+              message={`Failed to fetch forks.  ${forksData.error.message}`}
+            />
+          )}
+        </Box>
+        <OrgBreadcrumbs orgData={orgData.data} />
+        <Search
+          placeholder="Find a fork"
+          searchValue={searchValue}
+          setSearchValue={setSearchValue}
+        />
         <Box
           sx={{
             border: '1px solid',
@@ -138,138 +126,173 @@ const Organization = () => {
             </Blankslate.Description>
           </Blankslate>
         </Box>
-      ) : (
-        <Table.Container>
-          <DataTable
-            aria-describedby="forks table"
-            aria-labelledby="forks table"
-            data={forksPaginationSet}
-            columns={[
-              {
-                header: 'Repository',
-                rowHeader: true,
-                field: 'name',
-                sortBy: 'alphanumeric',
-                width: '400px',
-                renderCell: (row) => {
-                  return (
-                    <Stack direction="horizontal" align="center">
+      </Box>
+    )
+  }
+
+  const forks = forksData.data?.organization.repositories.nodes
+
+  // set up search
+  const fuse = new Fuse(forks, {
+    keys: ['name', 'owner.login', 'parent.name', 'parent.owner.login'],
+    threshold: 0.2,
+  })
+
+  // set up pagination
+  let forksPaginationSet = []
+  if (searchValue) {
+    forksPaginationSet = fuse
+      .search(searchValue)
+      .map((result) => result.item)
+      .slice(start, end)
+  } else {
+    forksPaginationSet = forks.slice(start, end)
+  }
+
+  return (
+    <Box>
+      <OrgHeader orgData={orgData.data} />
+      <Box sx={{ marginBottom: '10px' }}>
+        {!isLoading && !data?.installed && (
+          <AppNotInstalledFlash orgLogin={orgData?.data?.login as string} />
+        )}
+      </Box>
+      <OrgBreadcrumbs orgData={orgData.data} />
+      <Search
+        placeholder="Find a fork"
+        searchValue={searchValue}
+        setSearchValue={setSearchValue}
+      />
+      <Table.Container>
+        <DataTable
+          aria-describedby="forks table"
+          aria-labelledby="forks table"
+          data={forksPaginationSet}
+          columns={[
+            {
+              header: 'Repository',
+              rowHeader: true,
+              field: 'name',
+              sortBy: 'alphanumeric',
+              width: '400px',
+              renderCell: (row) => {
+                return (
+                  <Stack direction="horizontal" align="center">
+                    <Stack.Item>
+                      <Avatar
+                        src={row.parent.owner.avatarUrl ?? row.owner.avatarUrl}
+                        size={32}
+                      />
+                    </Stack.Item>
+                    <Stack.Item grow={false}>
                       <Stack.Item>
-                        <Avatar
-                          src={
-                            row.parent.owner.avatarUrl ?? row.owner.avatarUrl
-                          }
-                          size={32}
-                        />
+                        <Link
+                          sx={{
+                            paddingRight: '5px',
+                            fontWeight: 'bold',
+                            fontSize: 2,
+                          }}
+                          href={`/${orgData?.data?.id}/forks/${row.id}`}
+                        >
+                          {row.name}
+                        </Link>
+                        <Label variant="secondary">
+                          {row.isPrivate ? 'Private' : 'Public'}
+                        </Label>
                       </Stack.Item>
-                      <Stack.Item grow={false}>
-                        <Stack.Item>
+                      <Stack.Item>
+                        <Text sx={{ color: 'fg.muted' }}>
+                          Forked from{' '}
                           <Link
-                            sx={{
-                              paddingRight: '5px',
-                              fontWeight: 'bold',
-                              fontSize: 2,
-                            }}
-                            href={`/${orgData?.id}/forks/${row.id}`}
+                            href={`https://github.com/${row.parent.owner.login}/${row.parent.name}`}
+                            target="_blank"
+                            rel="noreferrer noopener"
+                            sx={{ color: 'fg.muted' }}
                           >
-                            {row.name}
+                            {row.parent.owner.login}/{row.parent.name}
                           </Link>
-                          <Label variant="secondary">
-                            {row.isPrivate ? 'Private' : 'Public'}
-                          </Label>
-                        </Stack.Item>
-                        <Stack.Item>
-                          <Text sx={{ color: 'fg.muted' }}>
-                            Forked from{' '}
-                            <Link
-                              href={`https://github.com/${row.parent.owner.login}/${row.parent.name}`}
-                              target="_blank"
-                              rel="noreferrer noopener"
-                              sx={{ color: 'fg.muted' }}
-                            >
-                              {row.parent.owner.login}/{row.parent.name}
-                            </Link>
-                          </Text>
-                        </Stack.Item>
+                        </Text>
                       </Stack.Item>
-                    </Stack>
-                  )
-                },
+                    </Stack.Item>
+                  </Stack>
+                )
               },
-              {
-                header: 'Branches',
-                field: 'refs.totalCount',
-                width: 'auto',
-                renderCell: (row) => {
-                  return (
-                    <Stack direction="horizontal">
-                      <Stack.Item>
-                        <Box>
+            },
+            {
+              header: 'Branches',
+              field: 'refs.totalCount',
+              width: 'auto',
+              renderCell: (row) => {
+                return (
+                  <Stack direction="horizontal">
+                    <Stack.Item>
+                      <Box>
+                        <Octicon
+                          icon={GitBranchIcon}
+                          color="fg.muted"
+                          size={16}
+                        ></Octicon>
+                        <Text sx={{ paddingLeft: '3px', color: 'fg.muted' }}>
+                          {row.refs.totalCount}
+                        </Text>
+                      </Box>
+                    </Stack.Item>
+                  </Stack>
+                )
+              },
+            },
+            {
+              header: 'Languages',
+              field: 'languages',
+              width: 'auto',
+              renderCell: (row) => {
+                const languages = row.languages.nodes
+
+                return (
+                  <Stack direction="horizontal">
+                    {languages.map((lang) => (
+                      <Stack.Item key={lang.name} grow={false}>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
                           <Octicon
-                            icon={GitBranchIcon}
-                            color="fg.muted"
+                            icon={DotFillIcon}
+                            color={lang.color}
                             size={16}
                           ></Octicon>
-                          <Text sx={{ paddingLeft: '3px', color: 'fg.muted' }}>
-                            {row.refs.totalCount}
-                          </Text>
+                          <Text>{lang.name}</Text>
                         </Box>
                       </Stack.Item>
-                    </Stack>
-                  )
-                },
+                    ))}
+                  </Stack>
+                )
               },
-              {
-                header: 'Languages',
-                field: 'languages',
-                width: 'auto',
-                renderCell: (row) => {
-                  const languages = row.languages.nodes
-
-                  return (
-                    <Stack direction="horizontal">
-                      {languages.map((lang) => (
-                        <Stack.Item key={lang.name} grow={false}>
-                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <Octicon
-                              icon={DotFillIcon}
-                              color={lang.color}
-                              size={16}
-                            ></Octicon>
-                            <Text>{lang.name}</Text>
-                          </Box>
-                        </Stack.Item>
-                      ))}
-                    </Stack>
-                  )
-                },
+            },
+            {
+              header: 'Updated',
+              field: 'updatedAt',
+              sortBy: 'datetime',
+              width: 'auto',
+              renderCell: (row) => {
+                return (
+                  <RelativeTime date={new Date(row.updatedAt)} tense="past" />
+                )
               },
-              {
-                header: 'Updated',
-                field: 'updatedAt',
-                sortBy: 'datetime',
-                width: 'auto',
-                renderCell: (row) => {
-                  return (
-                    <RelativeTime date={new Date(row.updatedAt)} tense="past" />
-                  )
-                },
-              },
-            ]}
-            cellPadding="spacious"
-          />
-          <Table.Pagination
-            aria-label="pagination"
-            totalCount={
-              searchValue ? forksPaginationSet.length : forksData.totalCount
-            }
-            pageSize={pageSize}
-            onChange={({ pageIndex }) => {
-              setPageIndex(pageIndex)
-            }}
-          />
-        </Table.Container>
-      )}
+            },
+          ]}
+          cellPadding="spacious"
+        />
+        <Table.Pagination
+          aria-label="pagination"
+          totalCount={
+            searchValue
+              ? forksPaginationSet.length
+              : forksData.data.organization.repositories.totalCount
+          }
+          pageSize={pageSize}
+          onChange={({ pageIndex }) => {
+            setPageIndex(pageIndex)
+          }}
+        />
+      </Table.Container>
     </Box>
   )
 }
