@@ -10,6 +10,7 @@ import Blankslate from '@primer/react/lib-esm/Blankslate/Blankslate'
 import { OrganizationIcon } from '@primer/octicons-react'
 import { Stack } from '@primer/react/lib-esm/Stack'
 import { WelcomeHeader } from './components/header/WelcomeHeader'
+import { ErrorFlash } from './components/flash/ErrorFlash'
 
 const Home = () => {
   const orgsData = useOrgsData()
@@ -50,11 +51,18 @@ const Home = () => {
     )
   }
 
-  // Show blankslate if no organizations are found
+  // show blankslate if no organizations are found
   if (!orgsData.data || orgsData.data.length === 0) {
     return (
       <Box>
         <WelcomeHeader />
+        <Box sx={{ marginBottom: '10px' }}>
+          {orgsData.error && (
+            <ErrorFlash
+              message={`Failed to fetch organizations.  ${orgsData.error.message}`}
+            />
+          )}
+        </Box>
         <Search
           placeholder="Find an organization"
           searchValue={searchValue}

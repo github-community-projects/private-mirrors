@@ -163,7 +163,7 @@ const Fork = () => {
     orgId: organizationId as string,
   })
 
-  const orgLogin = getConfigData?.privateOrg ?? orgData?.login
+  const orgLogin = getConfigData?.privateOrg ?? orgData?.data?.login
 
   const {
     data: createMirrorData,
@@ -180,10 +180,10 @@ const Fork = () => {
   } = trpc.listMirrors.useQuery(
     {
       orgId: organizationId as string,
-      forkName: forkData?.name ?? '',
+      forkName: forkData?.data?.name ?? '',
     },
     {
-      enabled: Boolean(organizationId) && Boolean(forkData?.name),
+      enabled: Boolean(organizationId) && Boolean(forkData?.data?.name),
     },
   )
 
@@ -215,10 +215,10 @@ const Fork = () => {
       await createMirror({
         newRepoName: repoName,
         newBranchName: branchName,
-        orgId: String(orgData?.id),
-        forkRepoName: forkData?.name ?? '',
-        forkRepoOwner: forkData?.owner.login ?? '',
-        forkId: String(forkData?.id),
+        orgId: String(orgData?.data?.id),
+        forkRepoName: forkData?.data?.name ?? '',
+        forkRepoOwner: forkData?.data?.owner.login ?? '',
+        forkId: String(forkData?.data?.id),
       })
         .then((res) => {
           if (res.success) {
@@ -257,7 +257,7 @@ const Fork = () => {
       closeEditDialog()
 
       await editMirror({
-        orgId: String(orgData?.id),
+        orgId: String(orgData?.data?.id),
         mirrorName,
         newMirrorName,
       })
@@ -292,17 +292,11 @@ const Fork = () => {
 
       await deleteMirror({
         mirrorName,
-        orgId: String(orgData?.id),
+        orgId: String(orgData?.data?.id),
+      }).catch((error) => {
+        openDeleteErrorFlash()
+        console.error((error as Error).message)
       })
-        .then((res) => {
-          if (!res.success) {
-            openDeleteErrorFlash()
-          }
-        })
-        .catch((error) => {
-          openDeleteErrorFlash()
-          console.error((error as Error).message)
-        })
 
       refetchMirrors()
 
@@ -323,11 +317,11 @@ const Fork = () => {
   )
 
   // show loading table
-  if (!mirrors || mirrorsLoading || configLoading) {
+  if (mirrorsLoading || configLoading) {
     return (
       <Box>
-        <ForkHeader forkData={forkData} />
-        <ForkBreadcrumbs orgData={orgData} forkData={forkData} />
+        <ForkHeader forkData={forkData.data} />
+        <ForkBreadcrumbs orgData={orgData.data} forkData={forkData.data} />
         <SearchWithCreate
           placeholder="Find a mirror"
           createButtonLabel="Create mirror"
@@ -363,6 +357,87 @@ const Fork = () => {
     )
   }
 
+  // show blankslate if no mirrors are found
+  if (!mirrors || mirrors.length === 0) {
+    return (
+      <Box>
+        <ForkHeader forkData={forkData.data} />
+        <Box sx={{ marginBottom: '10px' }}>
+          {!isLoading && !data?.installed && (
+            <AppNotInstalledFlash orgLogin={orgData?.data?.login as string} />
+          )}
+        </Box>
+        <Box sx={{ marginBottom: '10px' }}>
+          {createMirrorLoading && <Loading message="Creating new mirror..." />}
+        </Box>
+        <Box sx={{ marginBottom: '10px' }}>
+          {listMirrorsError && (
+            <ErrorFlash
+              message={`Failed to fetch mirrors.  ${listMirrorsError.message}`}
+            />
+          )}
+        </Box>
+        <Box sx={{ marginBottom: '10px' }}>
+          {isCreateErrorFlashOpen && (
+            <ErrorFlash
+              message="Failed to create mirror."
+              closeFlash={closeCreateErrorFlash}
+            />
+          )}
+        </Box>
+        <Box sx={{ marginBottom: '10px' }}>
+          {createMirrorData &&
+            createMirrorData.success &&
+            isCreateSuccessFlashOpen && (
+              <SuccessFlash
+                message="You have successfully created a new private mirror at"
+                closeFlash={closeCreateSuccessFlash}
+                mirrorName={createMirrorData.data?.name}
+                mirrorUrl={createMirrorData.data?.html_url}
+                orgLogin={createMirrorData.data?.owner.login}
+              />
+            )}
+        </Box>
+        <ForkBreadcrumbs orgData={orgData.data} forkData={forkData.data} />
+        <SearchWithCreate
+          placeholder="Find a mirror"
+          createButtonLabel="Create mirror"
+          searchValue={searchValue}
+          setSearchValue={setSearchValue}
+          openCreateDialog={openCreateDialog}
+        />
+        <Box
+          sx={{
+            border: '1px solid',
+            borderColor: 'border.default',
+            padding: '40px',
+            borderRadius: '12px',
+          }}
+        >
+          <Blankslate>
+            <Box sx={{ padding: '10px' }}>
+              <Blankslate.Visual>
+                <Octicon icon={RepoIcon} size={24} color="fg.muted"></Octicon>
+              </Blankslate.Visual>
+            </Box>
+            <Blankslate.Heading>No mirrors found</Blankslate.Heading>
+            <Blankslate.Description>
+              Please create a mirror for this fork.
+            </Blankslate.Description>
+          </Blankslate>
+        </Box>
+        <CreateMirrorDialog
+          orgLogin={orgData?.data?.login as string}
+          forkParentName={forkData?.data?.parent?.name as string}
+          forkParentOwnerLogin={forkData?.data?.parent?.owner.login as string}
+          closeDialog={closeCreateDialog}
+          isOpen={isCreateDialogOpen}
+          createMirror={handleOnCreateMirror}
+        />
+      </Box>
+    )
+  }
+
   // set up search
   const fuse = new Fuse(mirrors, {
     keys: ['name', 'owner.name', 'owner.login'],
@@ -382,10 +457,10 @@ const Fork = () => {
 
   return (
     <Box>
-      <ForkHeader forkData={forkData} />
+      <ForkHeader forkData={forkData.data} />
       <Box sx={{ marginBottom: '10px' }}>
         {!isLoading && !data?.installed && (
-          <AppNotInstalledFlash orgLogin={orgData?.login as string} />
+          <AppNotInstalledFlash orgLogin={orgData?.data?.login as string} />
         )}
       </Box>
       <Box sx={{ marginBottom: '10px' }}>
@@ -459,7 +534,7 @@ const Fork = () => {
           />
         )}
       </Box>
-      <ForkBreadcrumbs orgData={orgData} forkData={forkData} />
+      <ForkBreadcrumbs orgData={orgData.data} forkData={forkData.data} />
       <SearchWithCreate
         placeholder="Find a mirror"
         createButtonLabel="Create mirror"
@@ -467,147 +542,121 @@ const Fork = () => {
         setSearchValue={setSearchValue}
         openCreateDialog={openCreateDialog}
       />
-      {mirrors?.length === 0 ? (
-        <Box
-          sx={{
-            border: '1px solid',
-            borderColor: 'border.default',
-            padding: '40px',
-            borderRadius: '12px',
+      <Table.Container>
+        <DataTable
+          aria-describedby="mirrors table"
+          aria-labelledby="mirrors table"
+          data={mirrorPaginationSet}
+          columns={[
+            {
+              header: 'Mirror name',
+              rowHeader: true,
+              field: 'name',
+              sortBy: 'alphanumeric',
+              width: '400px',
+              renderCell: (row) => {
+                return (
+                  <Link
+                    sx={{
+                      paddingRight: '5px',
+                      fontWeight: 'bold',
+                      fontSize: 2,
+                    }}
+                    href={row.html_url}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                  >
+                    {row.name}
+                  </Link>
+                )
+              },
+            },
+            {
+              header: 'Last updated',
+              field: 'updated_at',
+              sortBy: 'datetime',
+              width: 'auto',
+              renderCell: (row) => {
+                return (
+                  <RelativeTime date={new Date(row.updated_at)} tense="past" />
+                )
+              },
+            },
+            {
+              id: 'actions',
+              header: '',
+              width: '50px',
+              align: 'end',
+              renderCell: (row) => {
+                return (
+                  <ActionMenu>
+                    <ActionMenu.Anchor>
+                      <IconButton
+                        aria-label={`Actions: ${row.name}`}
+                        icon={KebabHorizontalIcon}
+                        variant="invisible"
+                      />
+                    </ActionMenu.Anchor>
+                    <ActionMenu.Overlay>
+                      <ActionList>
+                        <ActionList.Item
+                          onSelect={() => {
+                            openEditDialog(row.name)
+                          }}
+                        >
+                          <Stack align="center" direction="horizontal">
+                            <Stack.Item>
+                              <Octicon icon={PencilIcon}></Octicon>
+                            </Stack.Item>
+                            <Stack.Item>Edit mirror</Stack.Item>
+                          </Stack>
+                        </ActionList.Item>
+                        <ActionList.Item
+                          variant="danger"
+                          onSelect={() => {
+                            openDeleteDialog(
+                              row.name,
+                              mirrorPaginationSet.length,
+                            )
+                          }}
+                        >
+                          <Stack align="center" direction="horizontal">
+                            <Stack.Item>
+                              <Octicon icon={TrashIcon}></Octicon>
+                            </Stack.Item>
+                            <Stack.Item>Delete mirror</Stack.Item>
+                          </Stack>
+                        </ActionList.Item>
+                      </ActionList>
+                    </ActionMenu.Overlay>
+                  </ActionMenu>
+                )
+              },
+            },
+          ]}
+          cellPadding="spacious"
+        />
+        <Table.Pagination
+          aria-label="pagination"
+          totalCount={searchValue ? mirrorPaginationSet.length : mirrors.length}
+          pageSize={pageSize}
+          onChange={({ pageIndex }) => {
+            setPageIndex(pageIndex)
           }}
-        >
-          <Blankslate>
-            <Box sx={{ padding: '10px' }}>
-              <Blankslate.Visual>
-                <Octicon icon={RepoIcon} size={24} color="fg.muted"></Octicon>
-              </Blankslate.Visual>
-            </Box>
-            <Blankslate.Heading>No mirrors found</Blankslate.Heading>
-            <Blankslate.Description>
-              Please create a mirror for this fork.
-            </Blankslate.Description>
-          </Blankslate>
-        </Box>
-      ) : (
-        <Table.Container>
-          <DataTable
-            aria-describedby="mirrors table"
-            aria-labelledby="mirrors table"
-            data={mirrorPaginationSet}
-            columns={[
-              {
-                header: 'Mirror name',
-                rowHeader: true,
-                field: 'name',
-                sortBy: 'alphanumeric',
-                width: '400px',
-                renderCell: (row) => {
-                  return (
-                    <Link
-                      sx={{
-                        paddingRight: '5px',
-                        fontWeight: 'bold',
-                        fontSize: 2,
-                      }}
-                      href={row.html_url}
-                      target="_blank"
-                      rel="noreferrer noopener"
-                    >
-                      {row.name}
-                    </Link>
-                  )
-                },
-              },
-              {
-                header: 'Last updated',
-                field: 'updated_at',
-                sortBy: 'datetime',
-                width: 'auto',
-                renderCell: (row) => {
-                  return (
-                    <RelativeTime
-                      date={new Date(row.updated_at)}
-                      tense="past"
-                    />
-                  )
-                },
-              },
-              {
-                id: 'actions',
-                header: '',
-                width: '50px',
-                align: 'end',
-                renderCell: (row) => {
-                  return (
-                    <ActionMenu>
-                      <ActionMenu.Anchor>
-                        <IconButton
-                          aria-label={`Actions: ${row.name}`}
-                          icon={KebabHorizontalIcon}
-                          variant="invisible"
-                        />
-                      </ActionMenu.Anchor>
-                      <ActionMenu.Overlay>
-                        <ActionList>
-                          <ActionList.Item
-                            onSelect={() => {
-                              openEditDialog(row.name)
-                            }}
-                          >
-                            <Stack align="center" direction="horizontal">
-                              <Stack.Item>
-                                <Octicon icon={PencilIcon}></Octicon>
-                              </Stack.Item>
-                              <Stack.Item>Edit mirror</Stack.Item>
-                            </Stack>
-                          </ActionList.Item>
-                          <ActionList.Item
-                            variant="danger"
-                            onSelect={() => {
-                              openDeleteDialog(
-                                row.name,
-                                mirrorPaginationSet.length,
-                              )
-                            }}
-                          >
-                            <Stack align="center" direction="horizontal">
-                              <Stack.Item>
-                                <Octicon icon={TrashIcon}></Octicon>
-                              </Stack.Item>
-                              <Stack.Item>Delete mirror</Stack.Item>
-                            </Stack>
-                          </ActionList.Item>
-                        </ActionList>
-                      </ActionMenu.Overlay>
-                    </ActionMenu>
-                  )
-                },
-              },
-            ]}
-            cellPadding="spacious"
-          />
-          <Table.Pagination
-            aria-label="pagination"
-            totalCount={mirrorSet.length}
-            pageSize={pageSize}
-            onChange={({ pageIndex }) => {
-              setPageIndex(pageIndex)
-            }}
-          />
-        </Table.Container>
-      )}
+        />
+      </Table.Container>
       <CreateMirrorDialog
-        orgLogin={orgLogin ?? ''}
-        forkParentName={forkData?.parent?.name as string}
-        forkParentOwnerLogin={forkData?.parent?.owner.login as string}
+        orgLogin={orgLogin as string}
+        forkParentName={forkData?.data?.parent?.name as string}
+        forkParentOwnerLogin={forkData?.data?.parent?.owner.login as string}
         closeDialog={closeCreateDialog}
         isOpen={isCreateDialogOpen}
         createMirror={handleOnCreateMirror}
       />
       <EditMirrorDialog
         orgLogin={orgLogin ?? ''}
-        forkParentName={forkData?.parent?.name as string}
-        forkParentOwnerLogin={forkData?.parent?.owner.login as string}
+        forkParentName={forkData?.data?.parent?.name as string}
+        forkParentOwnerLogin={forkData?.data?.parent?.owner.login as string}
         orgId={organizationId as string}
         mirrorName={editMirrorName as string}
         closeDialog={closeEditDialog}

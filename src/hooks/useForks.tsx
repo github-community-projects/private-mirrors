@@ -63,16 +63,32 @@ export const useForksData = (login: string | undefined) => {
   const [forks, setForks] = useState<Awaited<
     ReturnType<typeof getForksInOrg>
   > | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
     if (!login || !accessToken) {
       return
     }
 
-    getForksInOrg(accessToken, login).then((forks) => {
-      setForks(forks)
-    })
+    setIsLoading(true)
+    setError(null)
+
+    getForksInOrg(accessToken, login)
+      .then((forks) => {
+        setForks(forks)
+      })
+      .catch((error: Error) => {
+        setError(error)
+      })
+      .finally(() => {
+        setIsLoading(false)
+      })
   }, [login, accessToken])
 
-  return forks
+  return {
+    data: forks,
+    isLoading,
+    error,
+  }
 }
