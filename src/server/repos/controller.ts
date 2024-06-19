@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+
 import simpleGit, { SimpleGitOptions } from 'simple-git'
 import { generateAuthUrl } from 'utils/auth'
 import { temporaryDirectory } from 'utils/dir'
@@ -8,7 +12,13 @@ import {
   installationOctokit,
 } from '../../bot/octokit'
 import { logger } from '../../utils/logger'
-import { CreateMirrorSchema, ListMirrorsSchema } from './schema'
+import {
+  CreateMirrorSchema,
+  DeleteMirrorSchema,
+  EditMirrorSchema,
+  ListMirrorsSchema,
+} from './schema'
+import { TRPCError } from '@trpc/server'
 
 const reposApiLogger = logger.getSubLogger({ name: 'repos-api' })
 
@@ -39,29 +49,15 @@ export const createMirrorHandler = async ({
       org: publicOrg,
     })
 
-    try {
-      const exists = await contributionOctokit.rest.repos.get({
-        owner: orgData.data.login,
-        repo: input.newRepoName,
-      })
-      if (exists.status === 200) {
-        reposApiLogger.info(
-          `Repo ${orgData.data.login}/${input.newRepoName} already exists`,
-        )
-        throw new Error(
-          `Repo ${orgData.data.login}/${input.newRepoName} already exists`,
-        )
-      }
-    } catch (error) {
-      // We just threw this error, so we know it's safe to rethrow
-      if ((error as Error).message.includes('already exists')) {
-        throw error
-      }
+    const exists = await contributionOctokit.rest.repos.get({
+      owner: orgData.data.login,
+      repo: input.newRepoName,
+    })
 
-      if (!(error as Error).message.includes('Not Found')) {
-        reposApiLogger.error('Not found', { error })
-        throw error
-      }
+    if (exists.status === 200) {
+      throw new Error(
+        `Repo ${orgData.data.login}/${input.newRepoName} already exists`,
+      )
     }
 
     try {
@@ -147,16 +143,19 @@ export const createMirrorHandler = async ({
         repo: input.newRepoName,
       })
 
-      reposApiLogger.error('Error creating mirror', { error })
-
       throw error
     }
   } catch (error) {
     reposApiLogger.error('Error creating mirror', { error })
 
-    return {
-      success: false,
-    }
+    const message =
+      (error as any)?.response?.data?.errors[0]?.message ??
+      (error as Error).message
+
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message,
+    })
   }
 }
 
@@ -196,7 +195,14 @@ export const listMirrorsHandler = async ({
   } catch (error) {
     reposApiLogger.info('Failed to fetch mirrors', { input, error })
 
-    return false
+    const message =
+      (error as any)?.response?.data?.errors[0]?.message ??
+      (error as Error).message
+
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message,
+    })
   }
 }
 
@@ -204,7 +210,7 @@ export const listMirrorsHandler = async ({
 export const editMirrorHandler = async ({
   input,
 }: {
-  input: { orgId: string; mirrorName: string; newMirrorName: string }
+  input: EditMirrorSchema
 }) => {
   try {
     reposApiLogger.info('Editing mirror', { input })
@@ -230,9 +236,14 @@ export const editMirrorHandler = async ({
   } catch (error) {
     reposApiLogger.error('Failed to edit mirror', { input, error })
 
-    return {
-      success: false,
-    }
+    const message =
+      (error as any)?.response?.data?.errors[0]?.message ??
+      (error as Error).message
+
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message,
+    })
   }
 }
 
@@ -240,11 +251,7 @@ export const editMirrorHandler = async ({
 export const deleteMirrorHandler = async ({
   input,
 }: {
-  input: {
-    orgId: string
-    orgName: string
-    mirrorName: string
-  }
+  input: DeleteMirrorSchema
 }) => {
   try {
     reposApiLogger.info('Deleting mirror', { input })
@@ -268,8 +275,13 @@ export const deleteMirrorHandler = async ({
   } catch (error) {
     reposApiLogger.error('Failed to delete mirror', { input, error })
 
-    return {
-      success: false,
-    }
+    const message =
+      (error as any)?.response?.data?.errors[0]?.message ??
+      (error as Error).message
+
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message,
+    })
   }
 }

@@ -22,7 +22,6 @@ export const EditMirrorSchema = z.object({
 
 export const DeleteMirrorSchema = z.object({
   orgId: z.string(),
-  orgName: z.string(),
   mirrorName: z.string(),
 })
 
