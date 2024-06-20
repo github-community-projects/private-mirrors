@@ -49,16 +49,35 @@ export const createMirrorHandler = async ({
       org: publicOrg,
     })
 
-    const exists = await contributionOctokit.rest.repos.get({
-      owner: orgData.data.login,
-      repo: input.newRepoName,
-    })
+    await contributionOctokit.rest.repos
+      .get({
+        owner: orgData.data.login,
+        repo: input.newRepoName,
+      })
+      .then((res) => {
+        // if we get a response, then we know the repo exists so we throw an error
+        if (res.status === 200) {
+          reposApiLogger.info(
+            `Repo ${orgData.data.login}/${input.newRepoName} already exists`,
+          )
 
-    if (exists.status === 200) {
-      throw new Error(
-        `Repo ${orgData.data.login}/${input.newRepoName} already exists`,
-      )
-    }
+          throw new Error(
+            `Repo ${orgData.data.login}/${input.newRepoName} already exists`,
+          )
+        }
+      })
+      .catch((error) => {
+        // catch and rethrow the error if the repo already exists
+        if ((error as Error).message.includes('already exists')) {
+          throw error
+        }
+
+        // if there is a real error, then we log it and throw it
+        if (!(error as Error).message.includes('Not Found')) {
+          reposApiLogger.error('Not found', { error })
+          throw error
+        }
+      })
 
     try {
       const forkData = await contributionOctokit.rest.repos.get({
@@ -149,8 +168,10 @@ export const createMirrorHandler = async ({
     reposApiLogger.error('Error creating mirror', { error })
 
     const message =
-      (error as any)?.response?.data?.errors[0]?.message ??
-      (error as Error).message
+      (error as any)?.response?.data?.errors?.[0]?.message ??
+      (error as any)?.response?.data?.message ??
+      (error as Error)?.message ??
+      'An error occurred'
 
     throw new TRPCError({
       code: 'INTERNAL_SERVER_ERROR',
@@ -196,8 +217,10 @@ export const listMirrorsHandler = async ({
     reposApiLogger.info('Failed to fetch mirrors', { input, error })
 
     const message =
-      (error as any)?.response?.data?.errors[0]?.message ??
-      (error as Error).message
+      (error as any)?.response?.data?.errors?.[0]?.message ??
+      (error as any)?.response?.data?.message ??
+      (error as Error)?.message ??
+      'An error occurred'
 
     throw new TRPCError({
       code: 'INTERNAL_SERVER_ERROR',
@@ -237,8 +260,10 @@ export const editMirrorHandler = async ({
     reposApiLogger.error('Failed to edit mirror', { input, error })
 
     const message =
-      (error as any)?.response?.data?.errors[0]?.message ??
-      (error as Error).message
+      (error as any)?.response?.data?.errors?.[0]?.message ??
+      (error as any)?.response?.data?.message ??
+      (error as Error)?.message ??
+      'An error occurred'
 
     throw new TRPCError({
       code: 'INTERNAL_SERVER_ERROR',
@@ -276,8 +301,10 @@ export const deleteMirrorHandler = async ({
     reposApiLogger.error('Failed to delete mirror', { input, error })
 
     const message =
-      (error as any)?.response?.data?.errors[0]?.message ??
-      (error as Error).message
+      (error as any)?.response?.data?.errors?.[0]?.message ??
+      (error as any)?.response?.data?.message ??
+      (error as Error)?.message ??
+      'An error occurred'
 
     throw new TRPCError({
       code: 'INTERNAL_SERVER_ERROR',
