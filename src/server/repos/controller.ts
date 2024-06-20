@@ -168,8 +168,10 @@ export const createMirrorHandler = async ({
     reposApiLogger.error('Error creating mirror', { error })
 
     const message =
-      (error as any)?.response?.data?.errors[0]?.message ??
-      (error as Error).message
+      (error as any)?.response?.data?.errors?.[0]?.message ??
+      (error as any)?.response?.data?.message ??
+      (error as Error)?.message ??
+      'An error occurred'
 
     throw new TRPCError({
       code: 'INTERNAL_SERVER_ERROR',
@@ -215,8 +217,10 @@ export const listMirrorsHandler = async ({
     reposApiLogger.info('Failed to fetch mirrors', { input, error })
 
     const message =
-      (error as any)?.response?.data?.errors[0]?.message ??
-      (error as Error).message
+      (error as any)?.response?.data?.errors?.[0]?.message ??
+      (error as any)?.response?.data?.message ??
+      (error as Error)?.message ??
+      'An error occurred'
 
     throw new TRPCError({
       code: 'INTERNAL_SERVER_ERROR',
@@ -256,8 +260,10 @@ export const editMirrorHandler = async ({
     reposApiLogger.error('Failed to edit mirror', { input, error })
 
     const message =
-      (error as any)?.response?.data?.errors[0]?.message ??
-      (error as Error).message
+      (error as any)?.response?.data?.errors?.[0]?.message ??
+      (error as any)?.response?.data?.message ??
+      (error as Error)?.message ??
+      'An error occurred'
 
     throw new TRPCError({
       code: 'INTERNAL_SERVER_ERROR',
@@ -295,8 +301,10 @@ export const deleteMirrorHandler = async ({
     reposApiLogger.error('Failed to delete mirror', { input, error })
 
     const message =
-      (error as any)?.response?.data?.errors[0]?.message ??
-      (error as Error).message
+      (error as any)?.response?.data?.errors?.[0]?.message ??
+      (error as any)?.response?.data?.message ??
+      (error as Error)?.message ??
+      'An error occurred'
 
     throw new TRPCError({
       code: 'INTERNAL_SERVER_ERROR',
