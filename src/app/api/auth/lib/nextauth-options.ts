@@ -131,34 +131,70 @@ export const nextAuthOptions: AuthOptions = {
     },
   },
   callbacks: {
-    signIn: (params) => {
+    signIn: async (params) => {
       authLogger.debug('Sign in callback')
 
       const profile = params.profile as Profile & { login?: string }
-      const allowedHandles = (
-        process.env.ALLOWED_HANDLES?.split(',') ?? []
-      ).filter((handle) => handle !== '')
 
-      if (allowedHandles.length === 0) {
-        authLogger.info(
-          'No allowed handles specified via ALLOWED_HANDLES, allowing all users.',
-        )
-        return true
-      }
-
+      // If there is no login, prevent sign in
       if (!profile?.login) {
         return false
       }
 
+      // Get the allowed handles list
+      const allowedHandles = (
+        process.env.ALLOWED_HANDLES?.split(',') ?? []
+      ).filter((handle) => handle !== '')
+
+      // Get the allowed orgs list
+      const allowedOrgs = (process.env.ALLOWED_ORGS?.split(',') ?? []).filter(
+        (org) => org !== '',
+      )
+
+      // If there are no allowed handles and no allowed orgs specified, allow all users
+      if (allowedHandles.length === 0 && allowedOrgs.length === 0) {
+        authLogger.info(
+          'No allowed handles or orgs specified, allowing all users.',
+        )
+
+        return true
+      }
+
       authLogger.debug('Trying to sign in with handle:', profile.login)
 
+      // If the user is in the allowed handles list, allow sign in
       if (allowedHandles.includes(profile.login)) {
         return true
       }
 
-      authLogger.warn(
+      authLogger.debug(
         `User "${profile.login}" is not in the allowed handles list`,
       )
+
+      authLogger.debug(
+        "Checking if any of user's orgs are in allowed orgs list",
+      )
+
+      const octokit = personalOctokit(params.account?.access_token as string)
+
+      // Get the user's organizations
+      const orgs = await octokit
+        .paginate(octokit.rest.orgs.listForAuthenticatedUser)
+        .catch((error: Error) => {
+          authLogger.error('Failed to fetch organizations', { error })
+          return []
+        })
+
+      // Check if any of the user's organizations are in the allowed orgs list
+      if (orgs.some((org) => allowedOrgs.includes(org.login))) {
+        authLogger.info(
+          `User "${profile.login}" has an org in the allowed orgs list`,
+        )
+
+        return true
+      }
+
+      authLogger.warn(`User "${profile.login}" is not allowed to sign in`)
 
       return false
     },

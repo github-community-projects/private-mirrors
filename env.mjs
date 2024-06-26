@@ -31,6 +31,14 @@ export const env = createEnv({
         if (val === '') return true
         return val.split(',').every((handle) => handle.trim().length > 0)
       }, 'Invalid comma separated list of GitHub handles'),
+    ALLOWED_ORGS: z
+      .string()
+      .optional()
+      .default('')
+      .refine((val) => {
+        if (val === '') return true
+        return val.split(',').every((org) => org.trim().length > 0)
+      }, 'Invalid comma separated list of GitHub orgs'),
   },
   /*
    * Environment variables available on the client (and server).
@@ -57,6 +65,7 @@ export const env = createEnv({
     PUBLIC_ORG: process.env.PUBLIC_ORG,
     PRIVATE_ORG: process.env.PRIVATE_ORG,
     ALLOWED_HANDLES: process.env.ALLOWED_HANDLES,
+    ALLOWED_ORGS: process.env.ALLOWED_ORGS,
   },
   skipValidation: process.env.SKIP_ENV_VALIDATIONS === 'true',
 })
