@@ -4,6 +4,8 @@ import { serverTrpc } from '../utils/trpc'
 import { appOctokit, generateAppAccessToken } from './octokit'
 import { createAllPushProtection, createDefaultBranchProtection } from './rules'
 
+import '../utils/proxy'
+
 type CustomProperties = Record<string, string>
 
 const botLogger = logger.getSubLogger({ name: 'bot' })
