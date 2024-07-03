@@ -151,6 +151,11 @@ export const createMirrorHandler = async ({
       await git.checkoutBranch(input.newBranchName, defaultBranch)
       await git.push('origin', input.newBranchName)
 
+      reposApiLogger.info('Mirror created', {
+        org: newRepo.data.owner.login,
+        name: newRepo.data.name,
+      })
+
       return {
         success: true,
         data: newRepo.data,
