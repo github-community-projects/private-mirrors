@@ -22,7 +22,7 @@ The Private Mirrors App (PMA) is GitHub App that allows you to work on contribut
 
 For a video overview, check out [this short presentation and demo video](https://www.youtube.com/watch?v=xdiFALgHa2Y).
 
-[![PMA YouTube Video Thumbnail](https://github.com/user-attachments/assets/37eaed15-bb23-4ba2-9c0e-04b6bec8a1e7)](https://www.youtube.com/watch?v=xdiFALgHa2Y)
+[![PMA YouTube Video Thumbnail](https://github.com/user-attachments/assets/183344dd-f04e-4dd0-bf1d-fcb6a8dc1fd5)](https://www.youtube.com/watch?v=xdiFALgHa2Y)
 
 > [!IMPORTANT]
 > 📣 EMU support is now available! Check out the [hosting - GHEC](#integrating-the-app-into-ghec) section for more information.
