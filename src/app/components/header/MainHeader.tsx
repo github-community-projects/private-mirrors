@@ -22,7 +22,7 @@ export const MainHeader = () => {
       </Header.Item>
       <Header.Item full>
         <Text sx={{ color: 'fg.default', fontSize: '2', fontWeight: 'bold' }}>
-          Internal Contribution Forks
+          Private Mirrors
         </Text>
       </Header.Item>
       {session && session.data?.user && (

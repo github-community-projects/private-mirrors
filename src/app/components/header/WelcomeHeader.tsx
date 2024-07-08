@@ -11,7 +11,7 @@ export const WelcomeHeader = () => {
         </Stack.Item>
         <Stack.Item>
           <Text sx={{ color: 'fg.default', fontSize: '3', fontWeight: 'bold' }}>
-            Welcome to Internal Contribution Forks!
+            Welcome to Private Mirrors App!
           </Text>
         </Stack.Item>
       </Stack>

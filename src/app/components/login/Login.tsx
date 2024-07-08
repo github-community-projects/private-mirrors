@@ -41,7 +41,7 @@ export const Login = () => {
           </Box>
           <Box sx={{ textAlign: 'center' }}>
             <Text sx={{ fontSize: '1', color: 'fg.muted' }}>
-              Internal Contribution Forks
+              Private Mirrors
             </Text>
           </Box>
         </Box>

@@ -35,7 +35,7 @@ export const createAllPushProtection = async (
     await createBranchProtectionRuleset(
       context,
       actorNodeId,
-      'all-branch-protections-icf',
+      'all-branch-protections-pma',
       ['~ALL'],
     )
   } catch (error) {
@@ -96,7 +96,7 @@ export const createDefaultBranchProtection = async (
     await createBranchProtectionRuleset(
       context,
       actorNodeId,
-      'default-branch-protection-icf',
+      'default-branch-protection-pma',
       ['~DEFAULT_BRANCH'],
       true,
     )

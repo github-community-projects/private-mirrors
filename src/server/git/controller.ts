@@ -60,8 +60,8 @@ export const syncReposHandler = async ({
 
     const options: Partial<SimpleGitOptions> = {
       config: [
-        `user.name=internal-contribution-forks[bot]`,
-        `user.email=${privateInstallationId}+internal-contribution-forks[bot]@users.noreply.github.com`,
+        `user.name=pma[bot]`,
+        `user.email=${privateInstallationId}+pma[bot]@users.noreply.github.com`,
         // Disable any global git hooks to prevent potential interference when running the app locally
         'core.hooksPath=/dev/null',
       ],

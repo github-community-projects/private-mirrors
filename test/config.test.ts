@@ -8,7 +8,7 @@ jest.mock('../src/bot/octokit', () => ({
   installationOctokit: () => om.getOctokitImplementation(),
 }))
 
-describe('ICF Config', () => {
+describe('PMA Config', () => {
   beforeEach(() => {
     jest.resetAllMocks()
     delete process.env.PUBLIC_ORG
