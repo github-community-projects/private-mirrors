@@ -25,8 +25,21 @@ const getLoggerType = () => {
   return 'json'
 }
 
+// Map logger level name to number for tsLog
+const mapLevelToMethod: { [key: string]: number } = {
+  silly: 0,
+  trace: 1,
+  debug: 2,
+  info: 3,
+  warn: 4,
+  error: 5,
+  fatal: 6,
+}
+
 export const logger = new Logger({
   type: getLoggerType(),
+  minLevel:
+    mapLevelToMethod[process.env.LOGGING_LEVEL?.toLowerCase() || 'info'],
   maskValuesRegEx: [
     /"access[-._]?token":"[^"]+"/g,
     /"api[-._]?key":"[^"]+"/g,

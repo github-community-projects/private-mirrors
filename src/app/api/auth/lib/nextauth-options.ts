@@ -157,6 +157,8 @@ export const nextAuthOptions: AuthOptions = {
           'No allowed handles or orgs specified, allowing all users.',
         )
 
+        authLogger.info('User is allowed to sign in:', profile.login)
+
         return true
       }
 
@@ -164,11 +166,14 @@ export const nextAuthOptions: AuthOptions = {
 
       // If the user is in the allowed handles list, allow sign in
       if (allowedHandles.includes(profile.login)) {
+        authLogger.info('User is allowed to sign in:', profile.login)
+
         return true
       }
 
       authLogger.debug(
-        `User "${profile.login}" is not in the allowed handles list`,
+        'User is not in the allowed handles list:',
+        profile.login,
       )
 
       authLogger.debug(
@@ -188,13 +193,16 @@ export const nextAuthOptions: AuthOptions = {
       // Check if any of the user's organizations are in the allowed orgs list
       if (orgs.some((org) => allowedOrgs.includes(org.login))) {
         authLogger.info(
-          `User "${profile.login}" has an org in the allowed orgs list`,
+          'User has an org in the allowed orgs list:',
+          profile.login,
         )
+
+        authLogger.info('User is allowed to sign in:', profile.login)
 
         return true
       }
 
-      authLogger.warn(`User "${profile.login}" is not allowed to sign in`)
+      authLogger.warn('User is not allowed to sign in:', profile.login)
 
       return false
     },
