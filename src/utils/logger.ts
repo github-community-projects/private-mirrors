@@ -13,33 +13,33 @@ const stringify = (obj: any) => {
 }
 
 // If you need logs during tests you can set the env var TEST_LOGGING=true
-const getLoggerConfig = (): {
-  type: 'pretty' | 'json'
-  minLevel: number
-} => {
+const getLoggerType = () => {
   if (process.env.NODE_ENV === 'development') {
-    return {
-      type: 'pretty',
-      minLevel: 0,
-    }
+    return 'pretty'
   }
 
   if (process.env.NODE_ENV === 'test' || process.env.TEST_LOGGING === '1') {
-    return {
-      type: 'pretty',
-      minLevel: 0,
-    }
+    return 'pretty'
   }
 
-  return {
-    type: 'json',
-    minLevel: 3,
-  }
+  return 'json'
+}
+
+// Map logger level name to number for tsLog
+const mapLevelToMethod: { [key: string]: number } = {
+  silly: 0,
+  trace: 1,
+  debug: 2,
+  info: 3,
+  warn: 4,
+  error: 5,
+  fatal: 6,
 }
 
 export const logger = new Logger({
-  type: getLoggerConfig().type,
-  minLevel: getLoggerConfig().minLevel,
+  type: getLoggerType(),
+  minLevel:
+    mapLevelToMethod[process.env.LOGGING_LEVEL?.toLowerCase() || 'info'],
   maskValuesRegEx: [
     /"access[-._]?token":"[^"]+"/g,
     /"api[-._]?key":"[^"]+"/g,
