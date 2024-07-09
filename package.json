@@ -1,11 +1,11 @@
 {
-  "name": "internal-contribution-forks",
+  "name": "private-mirrors",
   "version": "0.1.0",
   "private": true,
   "description": "A GitHub App that allows you to contribute upstream using a 'private fork'",
   "author": "Andrew Henry <ajhenry@github.com>",
   "license": "MIT",
-  "homepage": "https://github.com/github-community-projects/internal-contribution-forks",
+  "homepage": "https://github.com/github-community-projects/private-mirrors",
   "scripts": {
     "dev": "concurrently -c \"auto\" -n webhooks,app  \"dotenv-load node scripts/webhook-relay.mjs\" \"next dev\"",
     "webhook": "dotenv-load node scripts/webhook-relay.mjs",

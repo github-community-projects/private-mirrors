@@ -5,15 +5,12 @@ import { appOctokit, installationOctokit } from './octokit'
 
 const configLogger = logger.getSubLogger({ name: 'config' })
 
-const internalContributionForksConfig = z.object({
+const pmaConfig = z.object({
   publicOrg: z.string(),
   privateOrg: z.string(),
 })
 
-type InternalContributionForksConfig = z.infer<
-  typeof internalContributionForksConfig
-> &
-  Configuration
+type pmaConfig = z.infer<typeof pmaConfig> & Configuration
 
 export const getGitHubConfig = async (orgId: string) => {
   const installationId = await appOctokit().rest.apps.getOrgInstallation({
@@ -44,7 +41,7 @@ export const getEnvConfig = () => {
   const config = {
     publicOrg: process.env.PUBLIC_ORG,
     privateOrg: process.env.PUBLIC_ORG,
-  } as InternalContributionForksConfig
+  } as pmaConfig
 
   if (process.env.PRIVATE_ORG) {
     config.privateOrg = process.env.PRIVATE_ORG
@@ -52,9 +49,9 @@ export const getEnvConfig = () => {
   return config
 }
 
-export const validateConfig = (config: InternalContributionForksConfig) => {
+export const validateConfig = (config: pmaConfig) => {
   try {
-    internalContributionForksConfig.parse(config)
+    pmaConfig.parse(config)
   } catch (error) {
     configLogger.error('Invalid config found!', { error })
     throw new Error(
@@ -71,7 +68,7 @@ export const validateConfig = (config: InternalContributionForksConfig) => {
  * @returns Configuration file
  */
 export const getConfig = async (orgId?: string) => {
-  let config: InternalContributionForksConfig | null = null
+  let config: pmaConfig | null = null
 
   // First check for environment variables
   config = getEnvConfig()

@@ -90,7 +90,7 @@ describe('Webhooks events', () => {
           query: forkBranchProtectionRulesetGQL,
           variables: {
             repositoryId: forkCreatedPayload.repository.node_id,
-            ruleName: 'all-branch-protections-icf',
+            ruleName: 'all-branch-protections-pma',
           },
         })
         return body
@@ -155,7 +155,7 @@ describe('Webhooks events', () => {
           query: mirrorBranchProtectionRulesetGQL,
           variables: {
             repositoryId: mirrorCreatedPayload.repository.node_id,
-            ruleName: 'default-branch-protection-icf',
+            ruleName: 'default-branch-protection-pma',
           },
         })
         return body
