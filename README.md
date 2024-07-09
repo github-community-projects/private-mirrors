@@ -55,7 +55,7 @@ Addressing these concerns creates opportunities for enterprise development teams
 
 High Level Flow:
 
-![Time-series diagram showing work starting upstream, moving into a public fork, and through PMA into a private mirror](https://github.com/user-attachments/assets/dfc3d0fa-14e3-4c8a-9ea3-921950cab98b)
+![Time-series diagram showing work starting upstream, moving into a public fork, and through PMA into a private mirror](https://github.com/user-attachments/assets/3bb12563-dd32-46cc-b5cb-e983e9edd089)
 
 The app uses an intermediary public fork to merge the private mirror into, and then enables the normal OSS contributor workflow into the upstream repository. This allows users to keep the private repo private while still allowing us to contribute to the upstream repository. Check out this [application flow diagram](./docs/architecture.md) for a more detailed look at how the app works.
 
