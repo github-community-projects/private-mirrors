@@ -24,8 +24,22 @@ The mirror should now be ready for PRs!
 
 1. Create a pull request against the private mirror repo
 
-2. Review and merge the PR - at this step, if issues come up that require the deletion of code in the PR, you should "squash history" in the PR so the merge commit does not contain traces of the unwanted code.
+2. Review and merge the PR - at this step, if issues come up that require the deletion of code in the PR, you should "squash history" in the PR so the merge commit does not contain traces of the unwanted code. Alternatively, you should rewrite any commits that include sensitive data with the sensitive data removed. Review the [security implications for contributions synced to public forks](#security-implications-for-contributions-synced-to-public-forks) for more information.
 
 3. Once it's merged, the app will automatically sync the private mirror to your public fork, updating a branch whose name matches the name of the private mirror (`silverteam-website`, in this example).
 
 4. You can then use that branch of the public fork as the base to open a PR to the upstream repository.
+
+## Security implications for contributions synced to public forks
+
+Private Mirrors App is designed to help you manage your open source contributions in a way that addresses stakeholder concerns and conforms to your organization's security and compliance requirements. Contributions using PMA are first made to a private mirror, which is detached from the repository and forks (i.e. the [repository network](https://docs.github.com/en/repositories/viewing-activity-and-data-for-your-repository/understanding-connections-between-repositories)) on GitHub. This allows sensitive data or credentials to be caught in a private mirror before any commits are synced back to a public fork. Any sensitive data or credentials should be removed from history before syncing the contribution back to a public fork.
+
+Once a contribution is synced back to a fork, there are security implications to keep in mind.
+
+- Forks are [visible to anyone who can access the upstream repository](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/about-permissions-and-visibility-of-forks#about-visibility-of-forks).
+- Commits to a fork are visible to anyone who can access the upstream repository, [even if the fork is deleted](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/about-permissions-and-visibility-of-forks#important-security-considerations).
+- If a private repository is made public, [all commits in the repository and any commits previously pushed to private forks of that repository will become publicly visible](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/what-happens-to-forks-when-a-repository-is-deleted-or-changes-visibility#changing-a-private-repository-to-a-public-repository).
+
+For these reasons, for any commits synced to a public fork that accidentally include sensitive data or credentials, the sensitive data or credentials should be considered compromised. **Deleting the fork or removing the commits from the fork's history will not remove the data from the upstream repository.**
+
+It is highly recommended to have security procedures prepared and in place in case of any accidental leaks. For example, any credentials that are exposed should be rotated immediately. Consult with your security team to determine the necessary security procedures for your organization.
