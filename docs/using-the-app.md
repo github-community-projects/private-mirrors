@@ -8,11 +8,11 @@
 
 4. Go the app's URL and authenticate to it. If your account is in the list of allowed usernames, you'll see a list of your organizations that the app is managing. Click on your org's name and you'll see a list of all the public forks in the organization.
 
-![List of public forks inside the organization](images/public-forks-inside-org.png)
+   ![List of public forks inside the organization](images/public-forks-inside-org.png)
 
 5. Click on the name of the public fork you just created. Click **Create mirror** and give it an unambiguous name, then click **Confirm**. This will create a **private mirror** of the repo. The app syncs commits on the private mirror's default branch to a new branch on the public fork. For example, the default branch of a private mirror named `silverteam-website` will be synced to a branch named `silverteam-website` on the public fork. So it's a good idea to be verbose in your name and describe how this fork will be used. PMA's workflow supports multiple private mirrors per public fork, to enable different individuals or teams to work on the default branches of their respective mirrors without interefering with each other.
 
-![Dialog showing creation of new private mriror](images/create-new-mirror.png)
+   ![Dialog showing creation of new private mriror](images/create-new-mirror.png)
 
 6. As the app creates the private mirror, it also adds some basic branch protection rules to require approvals before merge, but you'll likely want to customize these with additional checks to meet your internal requirements for compliance or IP review. Go to the newly-created mirror's **Settings** page and add or modify the rules under **Branches**.
 
