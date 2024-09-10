@@ -37,9 +37,9 @@ The mirror should now be ready for PRs!
 
 ## Security implications for contributions synced to public forks
 
-Private Mirrors App is designed to help you manage your open source contributions in a way that addresses stakeholder concerns and conforms to your organization's security and compliance requirements. Contributions using PMA are first made to a private mirror, which is detached from the repository and forks (i.e. the [repository network](https://docs.github.com/en/repositories/viewing-activity-and-data-for-your-repository/understanding-connections-between-repositories)) on GitHub. This allows sensitive data or credentials to be caught in a private mirror before any commits are synced back to a public fork. Any sensitive data or credentials should be removed from history before syncing the contribution back to a public fork.
+Private Mirrors App is designed to help you manage your open source contributions in a way that addresses stakeholder concerns and conforms to your organization's security and compliance requirements. Contributions using PMA are first made to a private mirror, which is detached from the repository and forks (i.e. the [repository network](https://docs.github.com/en/repositories/viewing-activity-and-data-for-your-repository/understanding-connections-between-repositories)) on GitHub. This allows sensitive data or credentials to be caught in a private mirror before any commits are synced back to a public fork. Be sure to remove any sensitive data or credentials  from the commit history before syncing the contribution back to a public fork.
 
-Once a contribution is synced back to a fork, there are security implications to keep in mind.
+Once a contribution is synced back to a fork, keep these security implications in mind.
 
 - Forks are [visible to anyone who can access the upstream repository](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/about-permissions-and-visibility-of-forks#about-visibility-of-forks).
 - Commits to a fork are visible to anyone who can access the upstream repository, [even if the fork is deleted](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/about-permissions-and-visibility-of-forks#important-security-considerations).
@@ -47,4 +47,4 @@ Once a contribution is synced back to a fork, there are security implications to
 
 For these reasons, for any commits synced to a public fork that accidentally include sensitive data or credentials, the sensitive data or credentials should be considered compromised. **Deleting the fork or removing the commits from the fork's history will not remove the data from the upstream repository.**
 
-It is highly recommended to have security procedures prepared and in place in case of any accidental leaks. For example, any credentials that are exposed should be rotated immediately. Consult with your security team to determine the necessary security procedures for your organization.
+We strongly recommend having security procedures prepared and in place in case of any accidental leaks. For example, immediately rotate any cloud API credentials that are exposed. Consult with your security team to determine the necessary security procedures for your organization.
