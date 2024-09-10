@@ -24,7 +24,12 @@ The mirror should now be ready for PRs!
 
 1. Create a pull request against the private mirror repo
 
-2. Review and merge the PR - at this step, if issues come up that require the deletion of code in the PR, you should "squash history" in the PR so the merge commit does not contain traces of the unwanted code. Alternatively, you should rewrite any commits that include sensitive data with the sensitive data removed. Review the [security implications for contributions synced to public forks](#security-implications-for-contributions-synced-to-public-forks) for more information.
+2. Review and merge the PR – at this step, if issues come up that require the deletion of code in the PR, you should either
+
+   1. [Squash and merge the pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#squash-and-merge-your-commits) to "squash history" so the merge commit does not contain traces of the sensitive data
+   1. [Rewrite any commits on the pull request](https://git-scm.com/book/en/v2/Git-Tools-Rewriting-History) to remove any sensitive data from the PR entirely
+
+   Review the [security implications for contributions synced to public forks](#security-implications-for-contributions-synced-to-public-forks) for more information.
 
 3. Once it's merged, the app will automatically sync the private mirror to your public fork, updating a branch whose name matches the name of the private mirror (`silverteam-website`, in this example).
 
