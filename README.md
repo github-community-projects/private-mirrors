@@ -101,6 +101,20 @@ The authentication of the UI will still need to be a user's github.com user, but
 
 Once the app is installed, follow this document on [Using the Private Mirrors App](docs/using-the-app.md) to get the repository fork and mirrors set up for work.
 
+## Pulling the Docker Container from GitHub Container Registry
+
+You can pull the Docker container for this project from GitHub Container Registry and use it on a containerized PaaS like Azure. The Docker container is available at the following URL:
+
+```
+ghcr.io/github-community-projects/private-mirrors:latest
+```
+
+Tagged versions are available as well, for example:
+
+```
+ghcr.io/github-community-projects/private-mirrors:0.20.0
+```
+
 ## Developing
 
 ### Environment

@@ -1,0 +1,22 @@
+name: Push Docker Image
+
+on:
+  push:
+    branches:
+      - main
+  release:
+    types: [ published ]
+
+jobs:
+  push-docker-image:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Push to GHCR
+        uses: macbr/push-to-ghcr@v14
+        with:
+          image_name: ${{ github.repository }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
