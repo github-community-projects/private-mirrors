@@ -1,0 +1,4 @@
+# .syncignore
+node_modules/
+dist/
+*.log

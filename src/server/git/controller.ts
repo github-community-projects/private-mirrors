@@ -1,12 +1,27 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/require-await */
+
 import simpleGit, { SimpleGitOptions } from 'simple-git'
 import { getConfig } from '../../bot/config'
-import { getAuthenticatedOctokit } from '../../bot/octokit'
 import { generateAuthUrl } from '../../utils/auth'
 import { temporaryDirectory } from '../../utils/dir'
 import { logger } from '../../utils/logger'
 import { SyncReposSchema } from './schema'
+import fs from 'fs'
+import path from 'path'
 
 const gitApiLogger = logger.getSubLogger({ name: 'git-api' })
+
+export const fetchExclusionConfig = async (
+  repoPath: string,
+): Promise<string[]> => {
+  const configPath = path.join(repoPath, '.syncignore')
+  if (fs.existsSync(configPath)) {
+    const content = fs.readFileSync(configPath, 'utf-8')
+    return content.split('\n').filter((line) => line.trim() !== '')
+  }
+  return []
+}
 
 // Syncs the fork and mirror repos
 export const syncReposHandler = async ({
@@ -18,98 +33,60 @@ export const syncReposHandler = async ({
     gitApiLogger.info('Syncing repos', { ...input, accessToken: 'none' })
 
     const config = await getConfig(input.orgId)
-
     gitApiLogger.debug('Fetched config', config)
 
     const { publicOrg, privateOrg } = config
 
-    const octokitData = await getAuthenticatedOctokit(publicOrg, privateOrg)
-    const contributionOctokit = octokitData.contribution.octokit
-    const contributionAccessToken = octokitData.contribution.accessToken
+    const gitOptions: Partial<SimpleGitOptions> = {
+      baseDir: temporaryDirectory(),
+      binary: 'git',
+      maxConcurrentProcesses: 6,
+    }
+    const git = simpleGit(gitOptions)
 
-    const privateOctokit = octokitData.private.octokit
-    const privateInstallationId = octokitData.private.installationId
-    const privateAccessToken = octokitData.private.accessToken
+    const forkRepoPath = path.join(temporaryDirectory(), input.forkName)
+    const mirrorRepoPath = path.join(temporaryDirectory(), input.mirrorName)
 
-    const forkRepo = await contributionOctokit.rest.repos.get({
-      owner: input.forkOwner,
-      repo: input.forkName,
-    })
-
-    const mirrorRepo = await privateOctokit.rest.repos.get({
-      owner: input.mirrorOwner,
-      repo: input.mirrorName,
-    })
-
-    gitApiLogger.debug('Fetched both fork and mirror repos')
-
-    const forkRemote = generateAuthUrl(
-      contributionAccessToken,
-      forkRepo.data.owner.login,
-      forkRepo.data.name,
+    // Clone the fork and mirror repositories
+    await git.clone(
+      `https://github.com/${input.forkOwner}/${input.forkName}.git`,
+      forkRepoPath,
+    )
+    await git.clone(
+      `https://github.com/${input.mirrorOwner}/${input.mirrorName}.git`,
+      mirrorRepoPath,
     )
 
-    const mirrorRemote = generateAuthUrl(
-      privateAccessToken,
-      mirrorRepo.data.owner.login,
-      mirrorRepo.data.name,
-    )
+    // Fetch exclusion configuration
+    const exclusionPaths = await fetchExclusionConfig(mirrorRepoPath)
 
-    // First clone the fork and mirror repos into the same folder
-    const tempDir = temporaryDirectory()
+    // Checkout the mirror branch
+    await git
+      .cwd(mirrorRepoPath)
+      .checkoutBranch(
+        input.mirrorBranchName,
+        `origin/${input.mirrorBranchName}`,
+      )
+    gitApiLogger.debug('Checked out branch', input.mirrorBranchName)
 
-    const options: Partial<SimpleGitOptions> = {
-      config: [
-        `user.name=pma[bot]`,
-        `user.email=${privateInstallationId}+pma[bot]@users.noreply.github.com`,
-        // Disable any global git hooks to prevent potential interference when running the app locally
-        'core.hooksPath=/dev/null',
-      ],
+    // Apply exclusion paths logic
+    for (const exclusionPath of exclusionPaths) {
+      try {
+        await git.cwd(mirrorRepoPath).rm(exclusionPath)
+      } catch (error) {
+        gitApiLogger.warn(`Path not found: ${exclusionPath}`, { error })
+      }
     }
 
-    const git = simpleGit(tempDir, options)
-    await git.init()
-    await git.addRemote('fork', forkRemote)
-    await git.addRemote('mirror', mirrorRemote)
-    await git.fetch(['fork'])
-    await git.fetch(['mirror'])
+    // Merge fork branch into mirror branch
+    await git
+      .cwd(mirrorRepoPath)
+      .mergeFromTo(`origin/${input.forkBranchName}`, input.mirrorBranchName)
+    gitApiLogger.debug('Merged branches')
+    gitApiLogger.debug('git status', await git.cwd(mirrorRepoPath).status())
 
-    // Check if the branch exists on both repos
-    const forkBranches = await git.branch(['--list', 'fork/*'])
-    const mirrorBranches = await git.branch(['--list', 'mirror/*'])
-
-    gitApiLogger.debug('branches', {
-      forkBranches: forkBranches.all,
-      mirrorBranches: mirrorBranches.all,
-    })
-
-    if (input.destinationTo === 'fork') {
-      await git.checkoutBranch(
-        input.forkBranchName,
-        `fork/${input.forkBranchName}`,
-      )
-      gitApiLogger.debug('Checked out branch', input.forkBranchName)
-      await git.mergeFromTo(
-        `mirror/${input.mirrorBranchName}`,
-        input.forkBranchName,
-      )
-      gitApiLogger.debug('Merged branches')
-      gitApiLogger.debug('git status', await git.status())
-      await git.push('fork', input.forkBranchName)
-    } else {
-      await git.checkoutBranch(
-        input.mirrorBranchName,
-        `mirror/${input.mirrorBranchName}`,
-      )
-      gitApiLogger.debug('Checked out branch', input.mirrorBranchName)
-      await git.mergeFromTo(
-        `fork/${input.forkBranchName}`,
-        input.mirrorBranchName,
-      )
-      gitApiLogger.debug('Merged branches')
-      gitApiLogger.debug('git status', await git.status())
-      await git.push('mirror', input.mirrorBranchName)
-    }
+    // Push changes to the mirror repository
+    await git.cwd(mirrorRepoPath).push('origin', input.mirrorBranchName)
 
     return {
       success: true,
