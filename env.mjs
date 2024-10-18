@@ -19,6 +19,7 @@ export const env = createEnv({
     // Optional environment variables
     LOGGING_LEVEL: z.string().optional().default('debug'),
     NODE_ENV: z.string().optional().default('development'),
+    FORKS_ONLY: z.string().optional().default('true'),
     PUBLIC_ORG: z.string().optional(),
     PRIVATE_ORG: z.string().optional(),
     // Custom validation for a comma separated list of strings
@@ -62,6 +63,7 @@ export const env = createEnv({
     PRIVATE_KEY: process.env.PRIVATE_KEY,
     LOGGING_LEVEL: process.env.LOGGING_LEVEL,
     NODE_ENV: process.env.NODE_ENV,
+    FORKS_ONLY: process.env.FORKS_ONLY,
     PUBLIC_ORG: process.env.PUBLIC_ORG,
     PRIVATE_ORG: process.env.PRIVATE_ORG,
     ALLOWED_HANDLES: process.env.ALLOWED_HANDLES,

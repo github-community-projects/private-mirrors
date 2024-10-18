@@ -8,12 +8,18 @@ import { logger } from '../utils/logger'
 
 const forksLogger = logger.getSubLogger({ name: 'useForks' })
 
+interface QueryVariables {
+  login: string
+  isFork?: boolean
+}
+
 const getForksInOrg = async (accessToken: string, login: string) => {
+  const queryVariables: QueryVariables = { login }
+  if (process.env.FORKS_ONLY === 'true') {
+    queryVariables.isFork = true
+  }
   const res = await personalOctokit(accessToken)
-    .graphql.paginate<ForksObject>(getReposInOrgGQL, {
-      login,
-      isFork: true,
-    })
+    .graphql.paginate<ForksObject>(getReposInOrgGQL, queryVariables)
     .catch((error: Error & { data: ForksObject }) => {
       forksLogger.error('Error fetching forks', { error })
       return error.data
