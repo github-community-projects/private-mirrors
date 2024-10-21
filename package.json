@@ -21,7 +21,7 @@
   "dependencies": {
     "@octokit/auth-app": "6.1.1",
     "@octokit/graphql-schema": "15.25.0",
-    "@primer/octicons-react": "19.11.0",
+    "@primer/octicons-react": "19.12.0",
     "@primer/react": "36.27.0",
     "@t3-oss/env-nextjs": "0.11.1",
     "@tanstack/react-query": "4.36.1",
