@@ -21,7 +21,7 @@
   "dependencies": {
     "@octokit/auth-app": "6.1.1",
     "@octokit/graphql-schema": "15.25.0",
-    "@primer/octicons-react": "19.11.0",
+    "@primer/octicons-react": "19.12.0",
     "@primer/react": "36.27.0",
     "@t3-oss/env-nextjs": "0.11.1",
     "@tanstack/react-query": "4.36.1",
@@ -31,7 +31,7 @@
     "fast-safe-stringify": "2.1.1",
     "fuse.js": "7.0.0",
     "next": "14.2.15",
-    "next-auth": "4.24.8",
+    "next-auth": "4.24.10",
     "octokit": "3.2.1",
     "probot": "13.3.8",
     "proxy-agent": "6.4.0",
@@ -46,12 +46,12 @@
     "zod": "3.23.8"
   },
   "devDependencies": {
-    "@babel/preset-env": "7.25.8",
+    "@babel/preset-env": "7.26.0",
     "@tanstack/eslint-plugin-query": "5.59.7",
-    "@types/jest": "29.5.13",
+    "@types/jest": "29.5.14",
     "@types/node": "20.14.10",
     "@types/node-fetch": "2.6.11",
-    "@types/react": "18.3.11",
+    "@types/react": "18.3.12",
     "@typescript-eslint/eslint-plugin": "7.16.1",
     "@typescript-eslint/parser": "7.16.1",
     "babel-jest": "29.7.0",
