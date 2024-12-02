@@ -58,7 +58,7 @@
     "concurrently": "8.2.2",
     "dotenv-load": "3.0.0",
     "eslint": "8.57.0",
-    "eslint-config-next": "14.2.15",
+    "eslint-config-next": "15.0.3",
     "github-app-webhook-relay-polling": "2.0.0",
     "husky": "9.1.7",
     "jest": "29.7.0",
