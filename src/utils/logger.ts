@@ -7,7 +7,7 @@ import { Logger } from 'tslog'
 const stringify = (obj: any) => {
   try {
     return JSON.stringify(obj)
-  } catch (e) {
+  } catch {
     return safeStringify(obj)
   }
 }
@@ -26,7 +26,7 @@ const getLoggerType = () => {
 }
 
 // Map logger level name to number for tsLog
-const mapLevelToMethod: { [key: string]: number } = {
+const mapLevelToMethod: Record<string, number> = {
   silly: 0,
   trace: 1,
   debug: 2,
@@ -39,7 +39,7 @@ const mapLevelToMethod: { [key: string]: number } = {
 export const logger = new Logger({
   type: getLoggerType(),
   minLevel:
-    mapLevelToMethod[process.env.LOGGING_LEVEL?.toLowerCase() || 'info'],
+    mapLevelToMethod[process.env.LOGGING_LEVEL?.toLowerCase() ?? 'info'],
   maskValuesRegEx: [
     /"access[-._]?token":"[^"]+"/g,
     /"api[-._]?key":"[^"]+"/g,
@@ -70,7 +70,7 @@ export const logger = new Logger({
 
       // set message if it's a string or set it as info
       if (
-        Object.prototype.hasOwnProperty.call(logObjWithMeta, '0') &&
+        Object.hasOwn(logObjWithMeta, '0') &&
         typeof logObjWithMeta['0'] === 'string'
       ) {
         output.message = logObjWithMeta['0']
@@ -79,7 +79,7 @@ export const logger = new Logger({
       }
 
       // set data
-      if (Object.prototype.hasOwnProperty.call(logObjWithMeta, '1')) {
+      if (Object.hasOwn(logObjWithMeta, '1')) {
         output.data = logObjWithMeta['1']
       }
 

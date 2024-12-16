@@ -29,7 +29,7 @@ export const getMetadata = (
 
   try {
     return JSON.parse(description) as Record<string, string>
-  } catch (error) {
+  } catch {
     botLogger.warn('Failed to parse repository description', { description })
     return {}
   }

@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 // this type is generated from the graphql query to support
 // the requirements of the primer datatable component
-const forksObject = z.object({
+const ForksObject = z.object({
   organization: z.object({
     repositories: z.object({
       totalCount: z.number(),
@@ -40,4 +40,4 @@ const forksObject = z.object({
   }),
 })
 
-export type ForksObject = z.infer<typeof forksObject>
+export type ForksObject = z.infer<typeof ForksObject>
