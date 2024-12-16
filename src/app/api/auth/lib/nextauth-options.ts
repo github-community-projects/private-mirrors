@@ -29,7 +29,7 @@ export const verifySession = async (token: string | undefined) => {
   try {
     await octokit.rest.users.getAuthenticated()
     return true
-  } catch (error) {
+  } catch {
     return false
   }
 }
