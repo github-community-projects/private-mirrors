@@ -28,6 +28,10 @@ export const createMirrorHandler = async ({
 }: {
   input: CreateMirrorSchema
 }) => {
+  // Use to track mirror creation for cleanup in case of errors
+  let privateOctokit
+  let newRepo
+
   try {
     reposApiLogger.info('createMirror', { input: input })
 
@@ -41,7 +45,7 @@ export const createMirrorHandler = async ({
     const contributionOctokit = octokitData.contribution.octokit
     const contributionAccessToken = octokitData.contribution.accessToken
 
-    const privateOctokit = octokitData.private.octokit
+    privateOctokit = octokitData.private.octokit
     const privateInstallationId = octokitData.private.installationId
     const privateAccessToken = octokitData.private.accessToken
 
@@ -79,95 +83,85 @@ export const createMirrorHandler = async ({
         }
       })
 
-    try {
-      const forkData = await contributionOctokit.rest.repos.get({
-        owner: input.forkRepoOwner,
-        repo: input.forkRepoName,
-      })
+    const forkData = await contributionOctokit.rest.repos.get({
+      owner: input.forkRepoOwner,
+      repo: input.forkRepoName,
+    })
 
-      // Now create a temporary directory to clone the repo into
-      const tempDir = temporaryDirectory()
+    // Now create a temporary directory to clone the repo into
+    const tempDir = temporaryDirectory()
 
-      const options: Partial<SimpleGitOptions> = {
-        config: [
-          `user.name=pma[bot]`,
-          // We want to use the private installation ID as the email so that we can push to the private repo
-          `user.email=${privateInstallationId}+pma[bot]@users.noreply.github.com`,
-          // Disable any global git hooks to prevent potential interference when running the app locally
-          'core.hooksPath=/dev/null',
-        ],
-      }
-      const git = simpleGit(tempDir, options)
-      const remote = generateAuthUrl(
-        contributionAccessToken,
-        input.forkRepoOwner,
-        input.forkRepoName,
-      )
+    const options: Partial<SimpleGitOptions> = {
+      config: [
+        `user.name=pma[bot]`,
+        // We want to use the private installation ID as the email so that we can push to the private repo
+        `user.email=${privateInstallationId}+pma[bot]@users.noreply.github.com`,
+        // Disable any global git hooks to prevent potential interference when running the app locally
+        'core.hooksPath=/dev/null',
+      ],
+    }
+    const git = simpleGit(tempDir, options)
+    const remote = generateAuthUrl(
+      contributionAccessToken,
+      input.forkRepoOwner,
+      input.forkRepoName,
+    )
 
-      await git.clone(remote, tempDir)
+    await git.clone(remote, tempDir)
 
-      // Get the organization custom properties
-      const orgCustomProps =
-        await privateOctokit.rest.orgs.getAllCustomProperties({
-          org: privateOrg,
-        })
-
-      // Creates custom property fork in the org if it doesn't exist
-      if (
-        !orgCustomProps.data.some(
-          (prop: { property_name: string }) => prop.property_name === 'fork',
-        )
-      ) {
-        await privateOctokit.rest.orgs.createOrUpdateCustomProperty({
-          org: privateOrg,
-          custom_property_name: 'fork',
-          value_type: 'string',
-        })
-      }
-
-      // This repo needs to be created in the private org
-      const newRepo = await privateOctokit.rest.repos.createInOrg({
-        name: input.newRepoName,
+    // Get the organization custom properties
+    const orgCustomProps =
+      await privateOctokit.rest.orgs.getAllCustomProperties({
         org: privateOrg,
-        private: true,
-        description: `Mirror of ${input.forkRepoOwner}/${input.forkRepoName}`,
-        custom_properties: {
-          fork: `${input.forkRepoOwner}/${input.forkRepoName}`,
-        },
       })
 
-      const defaultBranch = forkData.data.default_branch
-
-      // Add the mirror remote
-      const upstreamRemote = generateAuthUrl(
-        privateAccessToken,
-        newRepo.data.owner.login,
-        newRepo.data.name,
+    // Creates custom property fork in the org if it doesn't exist
+    if (
+      !orgCustomProps.data.some(
+        (prop: { property_name: string }) => prop.property_name === 'fork',
       )
-      await git.addRemote('upstream', upstreamRemote)
-      await git.push('upstream', defaultBranch)
-
-      // Create a new branch on both
-      await git.checkoutBranch(input.newBranchName, defaultBranch)
-      await git.push('origin', input.newBranchName)
-
-      reposApiLogger.info('Mirror created', {
-        org: newRepo.data.owner.login,
-        name: newRepo.data.name,
+    ) {
+      await privateOctokit.rest.orgs.createOrUpdateCustomProperty({
+        org: privateOrg,
+        custom_property_name: 'fork',
+        value_type: 'string',
       })
+    }
 
-      return {
-        success: true,
-        data: newRepo.data,
-      }
-    } catch (error) {
-      // Clean up the private mirror repo made
-      await privateOctokit.rest.repos.delete({
-        owner: privateOrg,
-        repo: input.newRepoName,
-      })
+    // This repo needs to be created in the private org
+    newRepo = await privateOctokit.rest.repos.createInOrg({
+      name: input.newRepoName,
+      org: privateOrg,
+      private: true,
+      description: `Mirror of ${input.forkRepoOwner}/${input.forkRepoName}`,
+      custom_properties: {
+        fork: `${input.forkRepoOwner}/${input.forkRepoName}`,
+      },
+    })
 
-      throw error
+    const defaultBranch = forkData.data.default_branch
+
+    // Add the mirror remote
+    const upstreamRemote = generateAuthUrl(
+      privateAccessToken,
+      newRepo.data.owner.login,
+      newRepo.data.name,
+    )
+    await git.addRemote('upstream', upstreamRemote)
+    await git.push('upstream', defaultBranch)
+
+    // Create a new branch on both
+    await git.checkoutBranch(input.newBranchName, defaultBranch)
+    await git.push('origin', input.newBranchName)
+
+    reposApiLogger.info('Mirror created', {
+      org: newRepo.data.owner.login,
+      name: newRepo.data.name,
+    })
+
+    return {
+      success: true,
+      data: newRepo.data,
     }
   } catch (error) {
     reposApiLogger.error('Error creating mirror', { error })
@@ -177,6 +171,18 @@ export const createMirrorHandler = async ({
       (error as any)?.response?.data?.message ??
       (error as Error)?.message ??
       'An error occurred'
+
+    if (privateOctokit && newRepo) {
+      try {
+        // Clean up the private mirror repo made
+        await privateOctokit.rest.repos.delete({
+          owner: newRepo.data.owner.login,
+          repo: input.newRepoName,
+        })
+      } catch (deleteError) {
+        reposApiLogger.error('Failed to delete mirror', { deleteError })
+      }
+    }
 
     throw new TRPCError({
       code: 'INTERNAL_SERVER_ERROR',

@@ -199,9 +199,18 @@ describe('Repos router', () => {
     om.mockFunctions.rest.orgs.get.mockResolvedValue(fakeOrg)
     om.mockFunctions.rest.repos.get.mockResolvedValueOnce(repoNotFound)
     om.mockFunctions.rest.repos.get.mockResolvedValueOnce(fakeMirrorRepo)
-    om.mockFunctions.rest.repos.delete.mockResolvedValue({})
+    stubbedGit.clone.mockResolvedValue({})
+    om.mockFunctions.rest.orgs.getAllCustomProperties.mockResolvedValue({
+      data: [{ fork: 'test' }],
+    })
+    om.mockFunctions.rest.repos.createInOrg.mockResolvedValue({
+      data: { owner: { login: 'github' } },
+    })
 
-    stubbedGit.clone.mockRejectedValue(new Error('clone error'))
+    // error after repo creation so that cleanup can be tested
+    stubbedGit.addRemote.mockRejectedValue(new Error('error adding remote'))
+
+    om.mockFunctions.rest.repos.delete.mockResolvedValue({})
 
     await caller
       .createMirror({
@@ -213,7 +222,7 @@ describe('Repos router', () => {
         newRepoName: 'test',
       })
       .catch((error) => {
-        expect(error.message).toEqual('clone error')
+        expect(error.message).toEqual('error adding remote')
       })
 
     expect(configSpy).toHaveBeenCalledTimes(1)
@@ -239,9 +248,19 @@ describe('Repos router', () => {
     om.mockFunctions.rest.orgs.get.mockResolvedValue(fakeOrg)
     om.mockFunctions.rest.repos.get.mockResolvedValueOnce(repoNotFound)
     om.mockFunctions.rest.repos.get.mockResolvedValueOnce(fakeMirrorRepo)
+    stubbedGit.clone.mockResolvedValue({})
+    om.mockFunctions.rest.orgs.getAllCustomProperties.mockResolvedValue({
+      data: [{ fork: 'test' }],
+    })
+    om.mockFunctions.rest.repos.createInOrg.mockResolvedValue({
+      data: { owner: { login: 'github-test' } },
+    })
     om.mockFunctions.rest.repos.delete.mockResolvedValue({})
 
-    stubbedGit.clone.mockRejectedValue(new Error('clone error'))
+    // error after repo creation so that cleanup can be tested
+    stubbedGit.addRemote.mockRejectedValue(new Error('error adding remote'))
+
+    om.mockFunctions.rest.repos.delete.mockResolvedValue({})
 
     await caller
       .createMirror({
@@ -253,7 +272,7 @@ describe('Repos router', () => {
         newRepoName: 'test',
       })
       .catch((error) => {
-        expect(error.message).toEqual('clone error')
+        expect(error.message).toEqual('error adding remote')
       })
 
     expect(configSpy).toHaveBeenCalledTimes(1)
