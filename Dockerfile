@@ -15,6 +15,13 @@ ENV NEXT_TELEMETRY_DISABLED 1
 RUN npm run build
 
 FROM node:22-alpine@sha256:c06bea602e410a3321622c7782eb35b0afb7899d9e28300937ebf2e521902555 AS runner
+LABEL maintainer="@github" \
+    org.opencontainers.image.url="https://github.com/github-community-projects/private-mirrors" \
+    org.opencontainers.image.source="https://github.com/github-community-projects/private-mirrors" \
+    org.opencontainers.image.documentation="https://github.com/github-community-projects/private-mirrors" \
+    org.opencontainers.image.vendor="GitHub" \
+    org.opencontainers.image.description="A GitHub App that allows you to contribute upstream using private mirrors of public projects."
+
 RUN apk add --no-cache git
 WORKDIR /app
 
