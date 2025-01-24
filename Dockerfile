@@ -19,7 +19,7 @@ LABEL maintainer="@github" \
     org.opencontainers.image.url="https://github.com/github-community-projects/private-mirrors" \
     org.opencontainers.image.source="https://github.com/github-community-projects/private-mirrors" \
     org.opencontainers.image.documentation="https://github.com/github-community-projects/private-mirrors" \
-    org.opencontainers.image.vendor="GitHub" \
+    org.opencontainers.image.vendor="GitHub Community Projects" \
     org.opencontainers.image.description="A GitHub App that allows you to contribute upstream using private mirrors of public projects."
 
 RUN apk add --no-cache git
