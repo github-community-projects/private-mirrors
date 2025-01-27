@@ -30,11 +30,12 @@ jobs:
       discussions: write
       packages: write
       pull-requests: read
-    uses: github/ospo-reusable-workflows/.github/workflows/release-image.yaml@53a9c808122ffaae9af948f72139fb4bd44ab74c
+    uses: github/ospo-reusable-workflows/.github/workflows/release-image.yaml@2ea6be0aa6c1c8f6d3765e0d6108fe0345fc4372
     with:
       image-name: ${{ github.repository }}
       full-tag: ${{ needs.release.outputs.full-tag }}
       short-tag: ${{ needs.release.outputs.short-tag }}
+      create-attestation: true
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
       image-registry: ghcr.io
