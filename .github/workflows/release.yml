@@ -17,7 +17,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: read
-    uses: github/ospo-reusable-workflows/.github/workflows/release.yaml@53a9c808122ffaae9af948f72139fb4bd44ab74c
+    uses: github/ospo-reusable-workflows/.github/workflows/release.yaml@6a0a6d0de2227f9d5d11af90a87b2e2fd6b5463d
     with:
       publish: true
       release-config-name: release-drafter.yml
@@ -26,15 +26,16 @@ jobs:
   release_image:
     needs: release
     permissions:
-      contents: write
-      discussions: write
+      contents: read
       packages: write
-      pull-requests: read
-    uses: github/ospo-reusable-workflows/.github/workflows/release-image.yaml@53a9c808122ffaae9af948f72139fb4bd44ab74c
+      id-token: write
+      attestations: write
+    uses: github/ospo-reusable-workflows/.github/workflows/release-image.yaml@6a0a6d0de2227f9d5d11af90a87b2e2fd6b5463d
     with:
       image-name: ${{ github.repository }}
       full-tag: ${{ needs.release.outputs.full-tag }}
       short-tag: ${{ needs.release.outputs.short-tag }}
+      create-attestation: true
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
       image-registry: ghcr.io
