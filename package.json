@@ -30,7 +30,7 @@
     "@trpc/server": "10.45.2",
     "fast-safe-stringify": "2.1.1",
     "fuse.js": "7.0.0",
-    "next": "14.2.15",
+    "next": "14.2.23",
     "next-auth": "4.24.11",
     "octokit": "3.2.1",
     "probot": "13.4.1",
@@ -42,7 +42,7 @@
     "superjson": "2.2.2",
     "tempy": "1.0.1",
     "tslog": "4.9.3",
-    "undici": "6.21.0",
+    "undici": "6.21.1",
     "zod": "3.23.8"
   },
   "devDependencies": {

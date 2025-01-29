@@ -13,26 +13,31 @@ permissions:
   contents: read
 
 jobs:
-  create_release:
-    # release if
-    # manual deployment OR
-    # merged to main and labelled with release labels
-    if: |
-      (github.event_name == 'workflow_dispatch') ||
-      (github.event.pull_request.merged == true &&
-      (contains(github.event.pull_request.labels.*.name, 'breaking') ||
-      contains(github.event.pull_request.labels.*.name, 'feature') ||
-      contains(github.event.pull_request.labels.*.name, 'vuln') ||
-      contains(github.event.pull_request.labels.*.name, 'release')))
-    runs-on: ubuntu-latest
+  release:
     permissions:
       contents: write
       pull-requests: read
-    steps:
-      - uses: release-drafter/release-drafter@3f0f87098bd6b5c5b9a36d49c41d998ea58f9348 # pin@v6
-        id: release-drafter
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          config-name: release-drafter.yml
-          publish: true
+    uses: github/ospo-reusable-workflows/.github/workflows/release.yaml@6a0a6d0de2227f9d5d11af90a87b2e2fd6b5463d
+    with:
+      publish: true
+      release-config-name: release-drafter.yml
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+  release_image:
+    needs: release
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+    uses: github/ospo-reusable-workflows/.github/workflows/release-image.yaml@6a0a6d0de2227f9d5d11af90a87b2e2fd6b5463d
+    with:
+      image-name: ${{ github.repository }}
+      full-tag: ${{ needs.release.outputs.full-tag }}
+      short-tag: ${{ needs.release.outputs.short-tag }}
+      create-attestation: true
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+      image-registry: ghcr.io
+      image-registry-username: ${{ github.actor }}
+      image-registry-password: ${{ secrets.GITHUB_TOKEN }}
