@@ -1,6 +1,6 @@
 import { Probot } from 'probot'
 import { logger } from '../utils/logger'
-import { serverTrpc } from '../utils/trpc'
+import { syncReposHandler } from '../server/git/controller'
 import { appOctokit, generateAppAccessToken } from './octokit'
 import { createAllPushProtection, createDefaultBranchProtection } from './rules'
 
@@ -216,23 +216,24 @@ function bot(app: Probot) {
       String(privateInstallationId.data.id),
     )
 
-    const res = await serverTrpc.syncRepos
-      .mutate({
-        accessToken: privateAccessToken,
-        forkBranchName: mirrorName,
-        mirrorBranchName: branch,
-        destinationTo: 'fork',
-        forkName,
-        forkOwner,
-        mirrorName,
-        mirrorOwner,
-        orgId,
+    try {
+      const res = await syncReposHandler({
+        input: {
+          accessToken: privateAccessToken,
+          forkBranchName: mirrorName,
+          mirrorBranchName: branch,
+          destinationTo: 'fork',
+          forkName,
+          forkOwner,
+          mirrorName,
+          mirrorOwner,
+          orgId,
+        },
       })
-      .catch((error: Error) => {
-        botLogger.error('Failed to sync repository', { error })
-      })
-
-    botLogger.info('Synced repository', { res })
+      botLogger.info('Synced repository', { res })
+    } catch (error) {
+      botLogger.error('Failed to sync repository', { error })
+    }
 
     try {
       // Get the default branch
