@@ -42,7 +42,7 @@ An `upstream` repository can be any public repository in an organization where t
 
 ### Creating a `downstream` repository
 
-To designate a repository as a `downstream` repository, set its `upstream-repository` custom repository property to the (HTTP) clone URL of the repository you want to use as the `upstream`. For GitHub `upstream` repositories, a short-form of `<owner>/<repository>` may be used.
+To designate a repository as a `downstream` repository, set its `upstream-repository` custom repository property to the (HTTP) clone URL of the repository you want to use as the `upstream`. For GitHub `upstream` repositories, a short-form of `<owner>/<repository>` may be used. Currently, only GitHub repositories are supported as upstreams.
 
 > Beware, setting the `upstream-repository` custom property will overwrite branches to configure the repository as a `downstream` repository, and may incur data loss.
 
@@ -56,8 +56,34 @@ This may not always be the intended `root` repository. The `root-repository` cus
 
 The process below uses the following assumptions:
 
-- The feature name is 'foo'. In reality, this would be more descriptive.
-- The downstream repository is `my-mirror`. This would likely be the same as the name of the upstream.
+- The feature name is `foo`. In reality, this would be more descriptive.
+- The downstream repository is `corp-internal-mirrors/repo`.
+- The upstream repository is `corp/repo`.
+- If there is an upstream fork, it is `third-party/repo`.
+
+### High Level Diagram
+
+```mermaid
+flowchart
+    subgraph corp-internal-mirrors/repo
+        corp-internal-mirrors/repo:feature/foo[feature/foo branch]
+        corp-internal-mirrors/repo:upstream/foo[upstream/foo branch]
+    end
+
+    subgraph corp/repo
+        corp/repo:repo/foo[repository/foo branch]
+        corp/repo:default[default branch]
+    end
+
+    subgraph third-party/repo
+        third-party/repo:main[default branch]
+    end
+
+    corp-internal-mirrors/repo:feature/foo -- Internal Pull Request --> corp-internal-mirrors/repo:upstream/foo
+    corp-internal-mirrors/repo:upstream/foo -- Private Mirrors App syncs to upstream --> corp/repo:repo/foo
+    corp/repo:repo/foo -- Pull Request --> corp/repo:default
+    corp/repo:repo/foo -. Pull Request (if fork) .-> third-party/repo:main
+```
 
 ### Create the feature branch
 
@@ -70,7 +96,7 @@ The process below uses the following assumptions:
 Observe that pushing the `feature/` branch caused:
 
 - An `upstream/foo` branch to be created in the `downstream` repository.
-- A `my-mirror/foo` branch to be created in the `upstream` repository.
+- A `repo/foo` branch to be created in the `upstream` repository.
 
 Also note that your feature is not on either of the branches above.
 
@@ -82,7 +108,7 @@ Also note that your feature is not on either of the branches above.
 Observe that your feature is now present on:
 
 - The `upstream/foo` branch in the `downstream` repository
-- The `my-mirror/foo` branch in the `upstream` repository.
+- The `repo/foo` branch in the `upstream` repository.
 
 ### Contributing the feature to the root repository.
 
@@ -93,12 +119,12 @@ However, the steps below are mentioned for completeness.
 These operations will need to be performed as a github.com (not EMU) user.
 They do NOT require you to be a member of the organization containing the `upstream` repository though.
 
-1. Create a Pull Request from the `my-mirror/foo` branch of the `upstream` repository to the default branch of the `root` repository (`root` and `upstream` repositories may be the same).
+1. Create a Pull Request from the `repo/foo` branch of the `upstream` repository to the default branch of the `root` repository (`root` and `upstream` repositories may be the same).
 2. Get the Pull Request approved and merged.
 
 ### Cleaning up
 
-Once the contribution is accepted, it is common to remove the `my-mirror/foo` branch from the `upstream` repository.
+Once the contribution is accepted, it is common to remove the `repo/foo` branch from the `upstream` repository.
 After that, it is recommended to remove the `feature/foo` and `upstream/foo` branches from the `downstream` repository.
 
 ## Exceptions
@@ -131,3 +157,7 @@ You may find that the feature requires some modification before it is accepted a
 5. Get the Pull Request approved and merged.
 
 Observe that merging the Pull Request applies the change to the `my-mirror/foo` branch.
+
+### Combining changes in the fork
+
+If you have multiple changes being contributed to an upstream repository, it may be convenient to merge them into the `upstream` repository's default branch, to give you a place to reference a (completely) patched repository.
