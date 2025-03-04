@@ -54,6 +54,11 @@ function bot(app: Probot) {
     })
 
     const authenticatedApp = await context.octokit.apps.getAuthenticated()
+    if (!authenticatedApp?.data) {
+      botLogger.error('Failed to get authenticated app')
+      return
+    }
+    const actorNodeId = authenticatedApp.data.node_id
 
     // Create branch protection rules on forks
     // if the repository is a fork, change branch protection rules to only allow the bot to push to it
@@ -61,7 +66,7 @@ function bot(app: Probot) {
       await createAllPushProtection(
         context,
         context.payload.repository.node_id,
-        authenticatedApp.data.node_id,
+        actorNodeId,
       )
     }
 
@@ -99,7 +104,7 @@ function bot(app: Probot) {
       await createDefaultBranchProtection(
         context,
         context.payload.repository.node_id,
-        authenticatedApp.data.node_id,
+        actorNodeId,
         defaultBranch,
       )
     } catch (error) {
@@ -112,12 +117,17 @@ function bot(app: Probot) {
   // We listen for repository edited events in case someone plays with branch protections
   app.on('repository.edited', async (context) => {
     const authenticatedApp = await context.octokit.apps.getAuthenticated()
+    if (!authenticatedApp?.data) {
+      botLogger.error('Failed to get authenticated app')
+      return
+    }
+    const actorNodeId: string = authenticatedApp.data?.node_id
 
     if (context.payload.repository.fork) {
       await createAllPushProtection(
         context,
         context.payload.repository.node_id,
-        authenticatedApp.data.node_id,
+        actorNodeId,
       )
     }
 
@@ -150,7 +160,7 @@ function bot(app: Probot) {
       await createDefaultBranchProtection(
         context,
         context.payload.repository.node_id,
-        authenticatedApp.data.node_id,
+        actorNodeId,
         defaultBranch,
       )
     } catch (error) {
@@ -173,6 +183,11 @@ function bot(app: Probot) {
     )
 
     const authenticatedApp = await context.octokit.apps.getAuthenticated()
+    if (!authenticatedApp?.data) {
+      botLogger.error('Failed to get authenticated app')
+      return
+    }
+    const actorNodeId: string = authenticatedApp.data?.node_id
 
     // Check repo description to see if this is a mirror
     const metadata = getMetadata(context.payload.repository.description)
@@ -249,7 +264,7 @@ function bot(app: Probot) {
       await createDefaultBranchProtection(
         context,
         context.payload.repository.node_id,
-        authenticatedApp.data.node_id,
+        actorNodeId,
         defaultBranch,
       )
     } catch (error) {
