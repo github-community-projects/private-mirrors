@@ -12,13 +12,10 @@ permissions:
 jobs:
   main:
     permissions:
-      contents: write
+      contents: read
       pull-requests: write
-    name: Auto label pull requests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: release-drafter/release-drafter@3f0f87098bd6b5c5b9a36d49c41d998ea58f9348 # pin@v6
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          config-name: release-drafter.yml
+    uses: github/ospo-reusable-workflows/.github/workflows/auto-labeler.yaml@ecdd405ebb379e0713e348440e6e26e85fc06773
+    with:
+      config-name: release-drafter.yml
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
