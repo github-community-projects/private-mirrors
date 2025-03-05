@@ -1,6 +1,6 @@
 import { Probot } from 'probot'
 import { logger } from '../utils/logger'
-import { serverTrpc } from '../utils/trpc'
+import { syncReposHandler } from '../server/git/controller'
 import { appOctokit, generateAppAccessToken } from './octokit'
 import { createAllPushProtection, createDefaultBranchProtection } from './rules'
 
@@ -54,6 +54,11 @@ function bot(app: Probot) {
     })
 
     const authenticatedApp = await context.octokit.apps.getAuthenticated()
+    if (!authenticatedApp?.data) {
+      botLogger.error('Failed to get authenticated app')
+      return
+    }
+    const actorNodeId = authenticatedApp.data.node_id
 
     // Create branch protection rules on forks
     // if the repository is a fork, change branch protection rules to only allow the bot to push to it
@@ -61,7 +66,7 @@ function bot(app: Probot) {
       await createAllPushProtection(
         context,
         context.payload.repository.node_id,
-        authenticatedApp.data.node_id,
+        actorNodeId,
       )
     }
 
@@ -99,7 +104,7 @@ function bot(app: Probot) {
       await createDefaultBranchProtection(
         context,
         context.payload.repository.node_id,
-        authenticatedApp.data.node_id,
+        actorNodeId,
         defaultBranch,
       )
     } catch (error) {
@@ -112,12 +117,17 @@ function bot(app: Probot) {
   // We listen for repository edited events in case someone plays with branch protections
   app.on('repository.edited', async (context) => {
     const authenticatedApp = await context.octokit.apps.getAuthenticated()
+    if (!authenticatedApp?.data) {
+      botLogger.error('Failed to get authenticated app')
+      return
+    }
+    const actorNodeId: string = authenticatedApp.data?.node_id
 
     if (context.payload.repository.fork) {
       await createAllPushProtection(
         context,
         context.payload.repository.node_id,
-        authenticatedApp.data.node_id,
+        actorNodeId,
       )
     }
 
@@ -150,7 +160,7 @@ function bot(app: Probot) {
       await createDefaultBranchProtection(
         context,
         context.payload.repository.node_id,
-        authenticatedApp.data.node_id,
+        actorNodeId,
         defaultBranch,
       )
     } catch (error) {
@@ -173,6 +183,11 @@ function bot(app: Probot) {
     )
 
     const authenticatedApp = await context.octokit.apps.getAuthenticated()
+    if (!authenticatedApp?.data) {
+      botLogger.error('Failed to get authenticated app')
+      return
+    }
+    const actorNodeId: string = authenticatedApp.data?.node_id
 
     // Check repo description to see if this is a mirror
     const metadata = getMetadata(context.payload.repository.description)
@@ -216,23 +231,24 @@ function bot(app: Probot) {
       String(privateInstallationId.data.id),
     )
 
-    const res = await serverTrpc.syncRepos
-      .mutate({
-        accessToken: privateAccessToken,
-        forkBranchName: mirrorName,
-        mirrorBranchName: branch,
-        destinationTo: 'fork',
-        forkName,
-        forkOwner,
-        mirrorName,
-        mirrorOwner,
-        orgId,
+    try {
+      const res = await syncReposHandler({
+        input: {
+          accessToken: privateAccessToken,
+          forkBranchName: mirrorName,
+          mirrorBranchName: branch,
+          destinationTo: 'fork',
+          forkName,
+          forkOwner,
+          mirrorName,
+          mirrorOwner,
+          orgId,
+        },
       })
-      .catch((error: Error) => {
-        botLogger.error('Failed to sync repository', { error })
-      })
-
-    botLogger.info('Synced repository', { res })
+      botLogger.info('Synced repository', { res })
+    } catch (error) {
+      botLogger.error('Failed to sync repository', { error })
+    }
 
     try {
       // Get the default branch
@@ -248,7 +264,7 @@ function bot(app: Probot) {
       await createDefaultBranchProtection(
         context,
         context.payload.repository.node_id,
-        authenticatedApp.data.node_id,
+        actorNodeId,
         defaultBranch,
       )
     } catch (error) {
