@@ -51,9 +51,11 @@ To use the app, you'll need to create a GitHub App and configure it to point to 
    - **Custom properties**: Admin
    - **Members**: Read and write
 5. Under **Account permissions**, set the following permissions:
+
    - **Email addresses**: Read-only
 
-5. Under **Subscribe to events**, select the following events:
+6. Under **Subscribe to events**, select the following events:
+
    - **Installation target**
    - **Meta**
    - **Branch protection rule**
@@ -66,10 +68,10 @@ To use the app, you'll need to create a GitHub App and configure it to point to 
    - **Workflow job**
    - **Workflow run**
 
-6. Click **Create GitHub App**.
-7. Generate a private key for the app and add it to your `.env` file as `PRIVATE_KEY`.
-8. Note the **App ID** and **Client ID** and add them to your `.env` file as `APP_ID` and `GITHUB_CLIENT_ID`, respectively.
-9. Generate a new **Client Secret** and add it to your `.env` file as `GITHUB_CLIENT_SECRET`.
+7. Click **Create GitHub App**.
+8. Generate a private key for the app and add it to your `.env` file as `PRIVATE_KEY`.
+9. Note the **App ID** and **Client ID** and add them to your `.env` file as `APP_ID` and `GITHUB_CLIENT_ID`, respectively.
+10. Generate a new **Client Secret** and add it to your `.env` file as `GITHUB_CLIENT_SECRET`.
 
 ## Running the App with Docker
 
@@ -80,7 +82,6 @@ If you prefer to run the app in a Docker container, follow these steps:
    ```sh
    docker pull ghcr.io/github-community-projects/private-mirrors:latest
    ```
-
 
    Or, if you prefer to make your own, build the Docker image:
 
@@ -95,7 +96,6 @@ If you prefer to run the app in a Docker container, follow these steps:
    ```
 
    The app should now be running on `http://localhost:3000`.
-
 
 ## Testing
 
@@ -130,4 +130,3 @@ This will create an optimized production build of the app in the `out` directory
 ## Deployment
 
 To deploy the app, follow the instructions for your preferred hosting provider. The app can be deployed to any hosting provider that supports Next.js/Docker.
-

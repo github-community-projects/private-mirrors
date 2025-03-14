@@ -103,7 +103,7 @@ Once the app is installed, follow this document on [Using the Private Mirrors Ap
 
 ## Further Reading
 
-- [Contributing with Confidence: Capital One's open source contribution workflows](https://www.youtube.com/watch?v=boWJs4lASfY) - Talk about PMA by @ahpook and @riley-kohler at GitHub Universe 2024 
+- [Contributing with Confidence: Capital One's open source contribution workflows](https://www.youtube.com/watch?v=boWJs4lASfY) - Talk about PMA by @ahpook and @riley-kohler at GitHub Universe 2024
 - [Developing](docs/developing.md)
 - [Using the App](docs/using-the-app.md)
 - [Architecture](docs/architecture.md)
