@@ -29,7 +29,7 @@ For a video overview, check out [this short presentation and demo video](https:/
 >
 > This app is still a work in progress and is pre-1.0 _public beta_. We are actively working on improving it with beta testers, and if you're interested in using it for your organization, [we'd love to hear from you](https://github.com/github-community-projects/private-mirrors/issues/new)!
 
-## Background
+## Problem Statement
 
 Enterprises struggle with how to let their developers contribute to open source projects. Most are not opposed, in principle, to contributing back to the projects they rely upon. Many are enthusiastic about becoming better open source citizens, and understand the reputational and technical benefits that working in open source can accrue to the business. However, real and perceived security concerns make this process difficult at best and impossible at worst for companies.
 
@@ -61,7 +61,7 @@ The app uses an intermediary public fork to merge the private mirror into, and t
 
 ## Hosting
 
-You'll need to self-host the app. See the section on [Developing](#developing) for more information.
+You'll need to self-host the app. See the section on [Developing](docs/developing.md) for more information.
 
 This app was created with the idea of self-hosting in mind and can be deployed to any hosting provider that supports Next.js/Docker.
 
@@ -80,7 +80,7 @@ docker compose up
 
 We recommend using Node 20.x or higher, though any Node LTS version >18 should work.
 
-Once it's running, you'll need to create a GitHub App and configure it to point to your deployment. See the [Developing — GitHub App](#github-app) section for more information.
+Once it's running, you'll need to create a GitHub App and configure it to point to your deployment. See the [Developing — GitHub App](docs/developing.md#github-app) section for more information.
 
 ## Integrating the App into GHEC
 
@@ -101,56 +101,13 @@ The authentication of the UI will still need to be a user's github.com user, but
 
 Once the app is installed, follow this document on [Using the Private Mirrors App](docs/using-the-app.md) to get the repository fork and mirrors set up for work.
 
-## Developing
+## Further Reading
 
-### Environment
-
-Create a new `.env` file from the `.env.example` file
-
-```sh
-cp .env.example .env
-```
-
-### GitHub App
-
-1. Create a new GitHub App [here](https://github.com/settings/apps/new)
-2. There's an App manifest in the repo that lays out all the permissions and webhook events needed and can be found [here](./app.yml).
-3. Copy all the secrets, credentials, and IDs into the `.env` file
-
-### Webapp
-
-This is a webapp built with Next.js. You can find the Next.js documentation [here](https://nextjs.org/docs).
-
-#### Install dependencies
-
-```sh
-npm i
-```
-
-#### Start the application
-
-```sh
-npm run dev
-```
-
-You should be up and running on [http://localhost:3000](http://localhost:3000)!
-
-#### Testing Webhooks
-
-Webhooks are an important part of this application, they listen for events that happen to your organization and trigger the app to do things like create branch protections or sync code between forks.
-
-We have our own webhook proxy that you can use to test webhooks locally. You will need to set `PUBLIC_ORG` (and `PRIVATE_ORG` if you want to test with a different organization) in your `.env` file to your GitHub organization name.
-
-### GitHub Requirements
-
-We recommend that you have a dedicated GitHub organization for your contributions. This will allow you to keep your contributions separate from your organization's daily operations.
-
-> We have added support for GitHub Enterprise Managed Users (EMUs) and GitHub Enterprise Cloud (GHEC) in the app. If you are using GitHub Enterprise, you will need to make sure that the app is installed on your GitHub Enterprise instance.
-
-Permissions:
-
-- The GitHub App must be installed on the organization(s) you plan on contributing from
-- Currently, any member of the organization can access the app and create additional private mirror repositories
+- [Contributing with Confidence: Capital One's open source contribution workflows](https://www.youtube.com/watch?v=boWJs4lASfY) - Talk about PMA by @ahpook and @riley-kohler at GitHub Universe 2024 
+- [Developing](docs/developing.md)
+- [Using the App](docs/using-the-app.md)
+- [Architecture](docs/architecture.md)
+- [Attribution Flow](docs/attribution-flow.md)
 
 ## License
 
