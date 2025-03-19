@@ -16,7 +16,7 @@
     "bot:build": "tsc ./src/bot/index.ts --noEmit false --esModuleInterop --outDir ./build",
     "bot:start": "probot run ./build/index.js",
     "test": "TEST_LOGGING=1 ts-node -O '{\"module\":\"commonjs\"}' node_modules/jest/bin/jest.js",
-    "prepare": "test -d node_modules/husky && husky || echo \"husky is not installed\""
+    "prepare": "husky"
   },
   "dependencies": {
     "@octokit/auth-app": "6.1.1",
@@ -60,7 +60,7 @@
     "eslint": "8.57.0",
     "eslint-config-next": "15.2.0",
     "github-app-webhook-relay-polling": "2.0.0",
-    "husky": "9.1.7",
+    "husky": "^9.1.7",
     "jest": "29.7.0",
     "lint-staged": "15.4.3",
     "nock": "14.0.1",
