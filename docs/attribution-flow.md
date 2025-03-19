@@ -2,7 +2,7 @@
 
 ## Overview
 
-Enteprise Managed Users (EMU) are a [feature of GitHub Enterprise Cloud](https://docs.github.com/en/enterprise-cloud@latest/admin/managing-iam/understanding-iam-for-enterprises/about-enterprise-managed-users) which provides a "walled garden" user account that cannot interact with public repositories on github.com, including filing issues, commenting on discussions, and raising pull requests. Large organizations use EMUs to provide a tighter degree of control over their user accounts, but this control can come at the cost of participation in open source communities.
+Enterprise Managed Users (EMU) are a [feature of GitHub Enterprise Cloud](https://docs.github.com/en/enterprise-cloud@latest/admin/managing-iam/understanding-iam-for-enterprises/about-enterprise-managed-users) which provides a "walled garden" user account that cannot interact with public repositories on github.com, including filing issues, commenting on discussions, and raising pull requests. Large organizations use EMUs to provide a tighter degree of control over their user accounts, but this control can come at the cost of participation in open source communities.
 
 One of the goals of the Private Mirrors App is to enable contributions from EMUs, and this doc explains how to do it.
 
