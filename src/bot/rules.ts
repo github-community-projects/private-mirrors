@@ -25,6 +25,8 @@ export const createAllPushProtection = async (
   repositoryNodeId: string,
   actorNodeId: string,
 ) => {
+  if (process.env.SKIP_BRANCH_PROTECTION_CREATION) return // don't add branch protections if the env is set to skip
+
   rulesLogger.info('Creating branch protection for all branches', {
     repositoryOwner: context.payload.repository.owner.login,
     repositoryName: context.payload.repository.name,
@@ -86,6 +88,8 @@ export const createDefaultBranchProtection = async (
   actorNodeId: string,
   defaultBranch: string,
 ) => {
+  if (process.env.SKIP_BRANCH_PROTECTION_CREATION) return // fallback protection in case the env is not checked before calling this function
+
   rulesLogger.info('Creating branch protection for default branch', {
     repositoryOwner: context.payload.repository.owner.login,
     repositoryName: context.payload.repository.name,
