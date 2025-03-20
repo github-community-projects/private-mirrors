@@ -1,31 +1,43 @@
-- name: Fetch Infisical Secrets
-  # You may pin to the exact commit or the version.
-  # uses: Infisical/secrets-action@8a06c1bdcd5b8635d510c52d4b57a92c1ccef785
-  uses: Infisical/secrets-action@v1.0.9
-  with:
-    # The authentication method to use
-    # method: # optional, default is universal
-    # Machine Identity client ID
-    client-id: ${{ secrets.client_id }}
-    # Machine Identity secret key
-    client-secret: ${{ secrets.client_secret }}
-    # Machine Identity ID
-    # identity-id: # optional
-    # Custom aud claim for the signed Github ID token
-    # oidc-audience: # optional
-    # Source project slug
-    # project-slug: 
-    # Source environment slug
-    # env-slug: 
-    # Infisical URL (defaults to https://app.infisical.com )
-    # domain: # optional, default is https://app.infisical.com
-    # If set to `env`, it will set the fetched secrets as environment variables for subsequent steps of a workflow. If set to `file`, it will export the secrets in a .env file in the defined file-output-path
-    # export-type: # optional, default is env
-    # The path to save the file when export-type is set to `file`
-    # file-output-path: # optional, default is /.env
-    # Source path
-    # secret-path: # optional, default is /
-    # If set to `true`, it will include imported secrets
-    # include-imports: # optional, default is true
-    # If set to `true`, it will fetch all secrets from the specified base path and all of its subdirectories
-    # recursive: # optional
+name: Infisical
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Fetch Infisical Secrets
+        # You may pin to the exact commit or the version.
+        # uses: Infisical/secrets-action@8a06c1bdcd5b8635d510c52d4b57a92c1ccef785
+        uses: Infisical/secrets-action@v1.0.9
+        with:
+          # The authentication method to use
+          # method: # optional, default is universal
+          # Machine Identity client ID
+          client-id: ${{ secrets.client_id }}
+          # Machine Identity secret key
+          client-secret: ${{ secrets.client_secret }}
+          # Machine Identity ID
+          # identity-id: # optional
+          # Custom aud claim for the signed Github ID token
+          # oidc-audience: # optional
+          # Source project slug
+          # project-slug: 
+          # Source environment slug
+          # env-slug: 
+          # Infisical URL (defaults to https://app.infisical.com )
+          # domain: # optional, default is https://app.infisical.com
+          # If set to `env`, it will set the fetched secrets as environment variables for subsequent steps of a workflow. If set to `file`, it will export the secrets in a .env file in the defined file-output-path
+          # export-type: # optional, default is env
+          # The path to save the file when export-type is set to `file`
+          # file-output-path: # optional, default is /.env
+          # Source path
+          # secret-path: # optional, default is /
+          # If set to `true`, it will include imported secrets
+          # include-imports: # optional, default is true
+          # If set to `true`, it will fetch all secrets from the specified base path and all of its subdirectories
+          # recursive: # optional
