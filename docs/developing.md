@@ -2,8 +2,8 @@
 
 ## Prerequisites
 
-- Node.js (version 18 or higher)
-- npm (version 6 or higher)
+- Node.js (LTS versions, 18 or higher with 22 preferred)
+- npm (version 10 or higher)
 - Docker (optional, for running the app in a container)
 
 ## Getting Started
