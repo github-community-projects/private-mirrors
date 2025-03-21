@@ -3,7 +3,9 @@
 ## Prerequisites
 
 - Node.js (LTS versions, 18 or higher with 22 preferred)
+  - Use your preferred version manager to install Node.js
 - npm (version 10 or higher)
+  - npm comes bundled with Node.js
 - Docker (optional, for running the app in a container)
 
 ## Getting Started
