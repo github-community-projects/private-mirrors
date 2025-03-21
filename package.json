@@ -76,7 +76,7 @@
     }
   },
   "engines": {
-    "node": ">= 18"
+    "node": "18 || 20 || 22"
   },
   "lint-staged": {
     "*": "npm run lint:fix"
