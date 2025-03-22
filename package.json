@@ -76,7 +76,19 @@
     }
   },
   "engines": {
-    "node": ">= 18"
+    "node": "18 || 20 || 22"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "18 || 20 || 22",
+      "onFail": "warn"
+    },
+    "packageManager": {
+      "name": "npm",
+      "version": "10 || 11",
+      "onFail": "warn"
+    }
   },
   "lint-staged": {
     "*": "npm run lint:fix"
