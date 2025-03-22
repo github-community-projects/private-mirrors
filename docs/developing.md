@@ -2,8 +2,10 @@
 
 ## Prerequisites
 
-- Node.js (version 18 or higher)
-- npm (version 6 or higher)
+- Node.js (LTS versions, 18 or higher with 22 preferred)
+  - Use your preferred version manager to install Node.js
+- npm (version 10 or higher)
+  - npm comes bundled with Node.js
 - Docker (optional, for running the app in a container)
 
 ## Getting Started
@@ -15,15 +17,27 @@
    cd private-mirrors
    ```
 
-2. Install the dependencies:
+2. Install the Node.js version used by the project using your preferred version manager. For example, using `nvm` or `fnm`:
+
+   ```sh
+   nvm install
+   ```
+
+   ```sh
+   fnm install
+   ```
+
+   This will install the Node.js version specified in the `.nvmrc` file.
+
+3. Install the dependencies:
 
    ```sh
    npm install
    ```
 
-3. Create a `.env` file in the root of the repository and add the necessary environment variables. Use the `.env.example` file as a reference.
+4. Create a `.env` file in the root of the repository and add the necessary environment variables. Use the `.env.example` file as a reference.
 
-4. Run the development server:
+5. Run the development server:
 
    ```sh
    npm run dev
