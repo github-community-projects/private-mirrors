@@ -91,6 +91,8 @@ function bot(app: Probot) {
       return
     }
 
+    if (process.env.SKIP_BRANCH_PROTECTION_CREATION) return
+
     try {
       // Get the default branch
       const defaultBranch = context.payload.repository.default_branch
@@ -148,6 +150,8 @@ function bot(app: Probot) {
       botLogger.info('Not a mirror repo, skipping')
       return
     }
+
+    if (process.env.SKIP_BRANCH_PROTECTION_CREATION) return
 
     try {
       // Get the default branch
@@ -249,6 +253,8 @@ function bot(app: Probot) {
     } catch (error) {
       botLogger.error('Failed to sync repository', { error })
     }
+
+    if (process.env.SKIP_BRANCH_PROTECTION_CREATION) return
 
     try {
       // Get the default branch

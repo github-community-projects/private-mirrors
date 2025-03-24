@@ -39,6 +39,11 @@ export const env = createEnv({
         if (val === '') return true
         return val.split(',').every((org) => org.trim().length > 0)
       }, 'Invalid comma separated list of GitHub orgs'),
+    SKIP_BRANCH_PROTECTION_CREATION: z
+      .enum(['true', 'false', ''])
+      .optional()
+      .default('false')
+      .transform((value) => value === 'true'),
   },
   /*
    * Environment variables available on the client (and server).
@@ -66,6 +71,8 @@ export const env = createEnv({
     PRIVATE_ORG: process.env.PRIVATE_ORG,
     ALLOWED_HANDLES: process.env.ALLOWED_HANDLES,
     ALLOWED_ORGS: process.env.ALLOWED_ORGS,
+    SKIP_BRANCH_PROTECTION_CREATION:
+      process.env.SKIP_BRANCH_PROTECTION_CREATION,
   },
   skipValidation: process.env.SKIP_ENV_VALIDATIONS === 'true',
 })
