@@ -20,7 +20,7 @@ examples: "feat: add new logger" or "fix: remove unused imports"
 - [ ] If documentation is needed for this change, has that been included in this pull request
 - [ ] run `npm run lint` and fix any linting issues that have been introduced
 - [ ] run `npm run test` and run tests
-- [ ] If publishing new data to the public (scorecards, security scan results, code quality results, live dashboards, etc.), please request review from `@jeffrey-luszcz`
+- [ ] If publishing new data to the public (security scan results, code quality results, live dashboards, etc.), please request review from `@jeffrey-luszcz`
 
 ### Reviewer
 
