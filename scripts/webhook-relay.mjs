@@ -14,12 +14,13 @@ if (!process.env.PUBLIC_ORG) {
 
 const url = `${process.env.NEXTAUTH_URL}/api/webhooks`
 
-// Support optional base64 decoding of the private key to prevent issues with complicated environment variable passing scenarios
-const privateKey = process.env.PRIVATE_KEY?.includes(
-  '-----BEGIN RSA PRIVATE KEY-----',
-)
-  ? process.env.PRIVATE_KEY.replace(/\\n/g, '\n') // this is necessary due to a bug with multiline envs in docker - See https://github.com/moby/moby/issues/46773
-  : Buffer.from(process.env.PRIVATE_KEY, 'base64').toString('utf8')
+const privateKey =
+  process.env.PRIVATE_KEY &&
+  !process.env.PRIVATE_KEY.includes('-----BEGIN RSA PRIVATE KEY-----')
+    ? // Support optional base64 decoding of the private key to prevent issues with complicated environment variable passing scenarios
+      Buffer.from(process.env.PRIVATE_KEY, 'base64').toString('utf8')
+    : // Handle a bug with multiline envs in docker - See https://github.com/moby/moby/issues/46773
+      (process.env.PRIVATE_KEY?.replace(/\\n/g, '\n') ?? '')
 
 const privateKeyPkcs8 = crypto.createPrivateKey(privateKey).export({
   type: 'pkcs8',
