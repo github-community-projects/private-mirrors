@@ -2,7 +2,6 @@ import nock from 'nock'
 
 // Requiring our app implementation
 import { Probot, ProbotOctokit } from 'probot'
-import * as app from '../src/bot'
 import { Octomock } from './octomock'
 
 // Requiring our fixtures
@@ -22,6 +21,10 @@ const privateKey = fs.readFileSync(
   path.join(__dirname, 'fixtures/mock-cert.pem'),
   'utf-8',
 )
+
+process.env.PRIVATE_KEY = privateKey
+
+import * as app from '../src/bot' // import app after setting up the environment variable
 
 describe('Webhooks events', () => {
   let probot: Probot

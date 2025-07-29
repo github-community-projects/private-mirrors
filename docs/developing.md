@@ -83,7 +83,7 @@ To use the app, you'll need to create a GitHub App and configure it to point to 
    - **Workflow run**
 
 7. Click **Create GitHub App**.
-8. Generate a private key for the app and add it to your `.env` file as `PRIVATE_KEY`.
+8. Generate a private key for the app and add it to your `.env` file as `PRIVATE_KEY`, a base64 encoded version can be used if desired.
 9. Note the **App ID** and **Client ID** and add them to your `.env` file as `APP_ID` and `GITHUB_CLIENT_ID`, respectively.
 10. Generate a new **Client Secret** and add it to your `.env` file as `GITHUB_CLIENT_SECRET`.
 
