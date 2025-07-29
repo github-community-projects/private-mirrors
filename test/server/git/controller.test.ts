@@ -1,0 +1,141 @@
+import { syncReposHandler } from '../../../src/server/git/controller'
+import * as config from '../../../src/bot/config'
+import * as auth from '../../../src/utils/auth'
+import * as dir from '../../../src/utils/dir'
+import simpleGit from 'simple-git'
+
+const fakeOctokitData = {
+  accessToken: 'fake-token',
+  octokit: {
+    rest: {
+      repos: {
+        get: jest.fn().mockResolvedValue({
+          data: {
+            owner: {
+              login: 'login',
+            },
+            name: 'name',
+          },
+        }),
+      },
+    },
+  },
+  installationId: 'fake-installation-id',
+}
+jest.mock('../../../src/bot/octokit', () => ({
+  getAuthenticatedOctokit: () => ({
+    contribution: fakeOctokitData,
+    private: fakeOctokitData,
+  }),
+}))
+
+jest.mock('simple-git')
+const simpleGitMock = simpleGit as jest.Mock
+const gitMock = {
+  addRemote: jest.fn(),
+  branch: jest.fn().mockResolvedValue({
+    all: [],
+  }),
+  checkoutBranch: jest.fn(),
+  fetch: jest.fn().mockResolvedValueOnce({}),
+  init: jest.fn(),
+  pull: jest.fn().mockResolvedValueOnce({}),
+  push: jest.fn().mockResolvedValueOnce({}),
+  raw: jest.fn(),
+  rebase: jest.fn().mockResolvedValue(''),
+  status: jest.fn(),
+}
+simpleGitMock.mockReturnValue(gitMock)
+
+describe('Git controller', () => {
+  beforeEach(() => {
+    gitMock.checkoutBranch.mockReset()
+    gitMock.push.mockReset()
+    gitMock.rebase.mockReset()
+  })
+
+  it('should call checkout, rebase, and push once for sync to fork', async () => {
+    jest.spyOn(config, 'getConfig').mockResolvedValue({
+      publicOrg: 'github',
+      privateOrg: 'github-test',
+    })
+
+    jest
+      .spyOn(auth, 'generateAuthUrl')
+      .mockReturnValueOnce(
+        'https://x-access-token:contributionAccessToken@github.com/forkOwner/forkRepo',
+      )
+      .mockReturnValueOnce(
+        'https://x-access-token:privateAccessToken@github.com/mirrorOwner/mirrorRepo',
+      )
+    jest.spyOn(dir, 'temporaryDirectory').mockReturnValue('directory')
+
+    await syncReposHandler({
+      input: {
+        accessToken: '123',
+        orgId: 'test-org',
+        destinationTo: 'fork',
+        forkOwner: 'github',
+        forkName: 'fork-repo',
+        mirrorOwner: 'github-test',
+        mirrorName: 'mirror-repo',
+        mirrorBranchName: 'mirror-branch',
+        forkBranchName: 'fork-branch',
+      },
+    })
+
+    expect(gitMock.checkoutBranch).toHaveBeenCalledTimes(1)
+    expect(gitMock.checkoutBranch).toHaveBeenCalledWith(
+      'mirror-branch',
+      'mirror/mirror-branch',
+    )
+    expect(gitMock.rebase).toHaveBeenCalledTimes(1)
+    expect(gitMock.rebase).toHaveBeenCalledWith(['fork/fork-branch'])
+    expect(gitMock.push).toHaveBeenCalledTimes(1)
+    expect(gitMock.push).toHaveBeenCalledWith(
+      'fork',
+      'mirror-branch:fork-branch',
+    )
+  })
+
+  it('should call checkout, rebase, and push once for sync to mirror', async () => {
+    jest.spyOn(config, 'getConfig').mockResolvedValue({
+      publicOrg: 'github',
+      privateOrg: 'github-test',
+    })
+
+    jest
+      .spyOn(auth, 'generateAuthUrl')
+      .mockReturnValueOnce(
+        'https://x-access-token:contributionAccessToken@github.com/forkOwner/forkRepo',
+      )
+      .mockReturnValueOnce(
+        'https://x-access-token:privateAccessToken@github.com/mirrorOwner/mirrorRepo',
+      )
+    jest.spyOn(dir, 'temporaryDirectory').mockReturnValue('directory')
+
+    await syncReposHandler({
+      input: {
+        accessToken: '123',
+        orgId: 'test-org',
+        destinationTo: 'mirror',
+        forkOwner: 'github',
+        forkName: 'fork-repo',
+        mirrorOwner: 'github-test',
+        mirrorName: 'mirror-repo',
+        mirrorBranchName: 'mirror-branch',
+        forkBranchName: 'fork-branch',
+      },
+    })
+
+    expect(gitMock.checkoutBranch).toHaveBeenCalledTimes(1)
+    expect(gitMock.checkoutBranch).toHaveBeenCalledWith(
+      'mirror-branch',
+      'mirror/mirror-branch',
+    )
+    expect(gitMock.rebase).toHaveBeenCalledTimes(1)
+    expect(gitMock.rebase).toHaveBeenCalledWith(['fork/fork-branch'])
+    expect(gitMock.push).toHaveBeenCalledTimes(1)
+    expect(gitMock.push).toHaveBeenCalledWith(['--force'])
+  })
+})
