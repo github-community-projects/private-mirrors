@@ -1,3 +1,13 @@
+import fs from 'fs'
+import path from 'path'
+
+// load private key before importing the code that uses it
+
+process.env.PRIVATE_KEY = fs.readFileSync(
+  path.join(__dirname, '../fixtures/mock-cert.pem'),
+  'utf-8',
+)
+
 import * as config from '../../src/bot/config'
 import * as auth from '../../src/utils/auth'
 import configRouter from '../../src/server/config/router'
