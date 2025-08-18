@@ -85,30 +85,29 @@ export const syncReposHandler = async ({
 
     if (input.destinationTo === 'fork') {
       await git.checkoutBranch(
-        input.forkBranchName,
-        `fork/${input.forkBranchName}`,
-      )
-      gitApiLogger.debug('Checked out branch', input.forkBranchName)
-      await git.mergeFromTo(
+        input.mirrorBranchName,
         `mirror/${input.mirrorBranchName}`,
-        input.forkBranchName,
       )
-      gitApiLogger.debug('Merged branches')
+      gitApiLogger.debug('Checked out branch', input.mirrorBranchName)
+      await git.rebase([`fork/${input.forkBranchName}`])
+      gitApiLogger.debug('Rebased mirror branch onto fork branch')
       gitApiLogger.debug('git status', await git.status())
-      await git.push('fork', input.forkBranchName)
+      await git.push(
+        'fork',
+        `${input.mirrorBranchName}:${input.forkBranchName}`,
+      )
+      gitApiLogger.debug(`Pushed to fork/${input.forkBranchName} remote`)
     } else {
       await git.checkoutBranch(
         input.mirrorBranchName,
         `mirror/${input.mirrorBranchName}`,
       )
       gitApiLogger.debug('Checked out branch', input.mirrorBranchName)
-      await git.mergeFromTo(
-        `fork/${input.forkBranchName}`,
-        input.mirrorBranchName,
-      )
-      gitApiLogger.debug('Merged branches')
+      await git.rebase([`fork/${input.forkBranchName}`])
+      gitApiLogger.debug('Rebased mirror branch onto fork branch')
       gitApiLogger.debug('git status', await git.status())
-      await git.push('mirror', input.mirrorBranchName)
+      await git.push(['--force'])
+      gitApiLogger.debug(`Pushed to mirror/${input.mirrorBranchName} remote`)
     }
 
     return {

@@ -6,11 +6,13 @@ import { Octokit } from './rest'
 const personalOctokitLogger = logger.getSubLogger({ name: 'personal-octokit' })
 const appOctokitLogger = logger.getSubLogger({ name: 'app-octokit' })
 
-// This is a bug with the way the private key is stored in the docker env
-// See https://github.com/moby/moby/issues/46773
-const privateKey = process.env.PRIVATE_KEY?.includes('\\n')
-  ? process.env.PRIVATE_KEY.replace(/\\n/g, '\n')
-  : process.env.PRIVATE_KEY!
+const privateKey =
+  process.env.PRIVATE_KEY &&
+  !process.env.PRIVATE_KEY.includes('-----BEGIN RSA PRIVATE KEY-----')
+    ? // Support optional base64 decoding of the private key to prevent issues with complicated environment variable passing scenarios
+      Buffer.from(process.env.PRIVATE_KEY, 'base64').toString('utf8')
+    : // Handle a bug with multiline envs in docker - See https://github.com/moby/moby/issues/46773
+      (process.env.PRIVATE_KEY?.replace(/\\n/g, '\n') ?? '')
 
 /**
  * Generates an app access token for the app or an installation (if installationId is provided)
