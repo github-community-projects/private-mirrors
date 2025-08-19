@@ -102,7 +102,7 @@ describe('Bot index', () => {
 
     await syncPushToMirror(payload as unknown as PushEvent)
 
-    //expect(gitController).toHaveBeenCalledTimes(1)
+    expect(gitController).toHaveBeenCalledTimes(1)
     expect(gitController).toHaveBeenCalledWith({
       input: {
         accessToken: 'token',
