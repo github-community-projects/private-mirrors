@@ -1,6 +1,4 @@
 import simpleGit, { SimpleGitOptions } from 'simple-git'
-import { getConfig } from '../../bot/config'
-import { getAuthenticatedOctokit } from '../../bot/octokit'
 import { generateAuthUrl } from '../../utils/auth'
 import { temporaryDirectory } from '../../utils/dir'
 import { logger } from '../../utils/logger'
@@ -8,79 +6,59 @@ import { SyncReposSchema } from './schema'
 
 const gitApiLogger = logger.getSubLogger({ name: 'git-api' })
 
-// Syncs the fork and mirror repos
+// Syncs a branch from one repo to another
 export const syncReposHandler = async ({
   input,
 }: {
-  input: SyncReposSchema
+  input: SyncReposSchema // owner, name, branch, accessToken
 }) => {
   try {
-    gitApiLogger.info('Syncing repos', { ...input, accessToken: 'none' })
+    gitApiLogger.info(
+      'Syncing source repo: ',
+      { ...input.source, octokit: {} },
+      'to destination repo: ',
+      { ...input.destination, octokit: {} },
+    )
 
-    const config = await getConfig(input.orgId)
-
-    gitApiLogger.debug('Fetched config', config)
-
-    const { publicOrg, privateOrg } = config
-
-    const octokitData = await getAuthenticatedOctokit(publicOrg, privateOrg)
-    const contributionOctokit = octokitData.contribution.octokit
-    const contributionAccessToken = octokitData.contribution.accessToken
-
-    const privateOctokit = octokitData.private.octokit
-    const privateInstallationId = octokitData.private.installationId
-    const privateAccessToken = octokitData.private.accessToken
-
-    const forkRef = await contributionOctokit.rest.git.getRef({
-      owner: input.forkOwner,
-      repo: input.forkName,
-      ref: `heads/${input.forkBranchName}`,
+    const sourceRef = await input.source.octokit.octokit.rest.git.getRef({
+      owner: input.source.org,
+      repo: input.source.repo,
+      ref: `heads/${input.source.branch}`,
     })
 
-    const mirrorRef = await privateOctokit.rest.git.getRef({
-      owner: input.mirrorOwner,
-      repo: input.mirrorName,
-      ref: `heads/${input.mirrorBranchName}`,
-    })
+    const destinationRef =
+      await input.destination.octokit.octokit.rest.git.getRef({
+        owner: input.destination.org,
+        repo: input.destination.repo,
+        ref: `heads/${input.destination.branch}`,
+      })
 
-    if (forkRef.data.object.sha === mirrorRef.data.object.sha) {
-      gitApiLogger.debug('Fork and mirror are already in sync')
+    if (sourceRef.data.object.sha === destinationRef.data.object.sha) {
+      gitApiLogger.debug('Source and destination are already in sync')
       return {
         success: true,
       }
     }
 
-    const forkRepo = await contributionOctokit.rest.repos.get({
-      owner: input.forkOwner,
-      repo: input.forkName,
-    })
-
-    const mirrorRepo = await privateOctokit.rest.repos.get({
-      owner: input.mirrorOwner,
-      repo: input.mirrorName,
-    })
-
-    gitApiLogger.debug('Fetched both fork and mirror repos')
-
-    const forkRemote = generateAuthUrl(
-      contributionAccessToken,
-      forkRepo.data.owner.login,
-      forkRepo.data.name,
+    const sourceRemote = generateAuthUrl(
+      input.source.octokit.accessToken,
+      input.source.org,
+      input.source.repo,
     )
 
-    const mirrorRemote = generateAuthUrl(
-      privateAccessToken,
-      mirrorRepo.data.owner.login,
-      mirrorRepo.data.name,
+    const destinationRemote = generateAuthUrl(
+      input.destination.octokit.accessToken,
+      input.destination.org,
+      input.destination.repo,
     )
 
-    // First clone the fork and mirror repos into the same folder
+    // First clone the source and destination repos into the same folder
     const tempDir = temporaryDirectory()
 
     const options: Partial<SimpleGitOptions> = {
       config: [
         `user.name=pma[bot]`,
-        `user.email=${privateInstallationId}+pma[bot]@users.noreply.github.com`,
+        `user.email=${input.source.octokit.installationId}+pma[bot]@users.noreply.github.com`,
         // Disable any global git hooks to prevent potential interference when running the app locally
         'core.hooksPath=/dev/null',
       ],
@@ -88,55 +66,40 @@ export const syncReposHandler = async ({
 
     const git = simpleGit(tempDir, options)
     await git.init()
-    await git.addRemote('fork', forkRemote)
-    await git.addRemote('mirror', mirrorRemote)
-    await git.fetch(['fork'])
-    await git.fetch(['mirror'])
+    await git.addRemote('source', sourceRemote)
+    await git.addRemote('destination', destinationRemote)
+    await git.fetch(['source'])
+    await git.fetch(['destination'])
 
     // Check if the branch exists on both repos
-    const forkBranches = await git.branch(['--list', 'fork/*'])
-    const mirrorBranches = await git.branch(['--list', 'mirror/*'])
+    const sourceBranches = await git.branch(['--list', 'source/*'])
+    const destinationBranches = await git.branch(['--list', 'destination/*'])
 
     gitApiLogger.debug('branches', {
-      forkBranches: forkBranches.all,
-      mirrorBranches: mirrorBranches.all,
+      sourceBranches: sourceBranches.all,
+      destinationBranches: destinationBranches.all,
     })
 
-    if (input.destinationTo === 'fork') {
-      await git.checkoutBranch(
-        input.mirrorBranchName,
-        `mirror/${input.mirrorBranchName}`,
-      )
-      gitApiLogger.debug('Checked out branch', input.mirrorBranchName)
-      if (process.env.TRIM_INTERNAL_MERGE_COMMITS) {
-        await git.reset(['--hard', 'HEAD^2'])
-        gitApiLogger.debug(
-          'Reset branch back one commit, removing merge commit from PR',
-        )
-        await git.rebase([`fork/${input.forkBranchName}`, '-r'])
-        gitApiLogger.debug('Rebased mirror branch onto fork branch')
-      } else {
-        await git.rebase([`fork/${input.forkBranchName}`])
-        gitApiLogger.debug('Rebased mirror branch onto fork branch')
-      }
-      gitApiLogger.debug('git status', await git.status())
-      await git.push(
-        'fork',
-        `${input.mirrorBranchName}:${input.forkBranchName}`,
-      )
-      gitApiLogger.debug(`Pushed to fork/${input.forkBranchName} remote`)
-    } else {
-      await git.checkoutBranch(
-        input.mirrorBranchName,
-        `mirror/${input.mirrorBranchName}`,
-      )
-      gitApiLogger.debug('Checked out branch', input.mirrorBranchName)
-      await git.rebase([`fork/${input.forkBranchName}`])
-      gitApiLogger.debug('Rebased mirror branch onto fork branch')
-      gitApiLogger.debug('git status', await git.status())
-      await git.push(['--force'])
-      gitApiLogger.debug(`Pushed to mirror/${input.mirrorBranchName} remote`)
-    }
+    // Checkout the source branch so that we can rebase any changes from it on top of the destination branch
+    await git.checkoutBranch(
+      input.source.branch,
+      `source/${input.source.branch}`,
+    )
+
+    gitApiLogger.debug('Checked out branch', input.source.branch)
+
+    // Rebase to fast forward the new source commits on top of the destination branch in case they differ
+    await git.rebase([`destination/${input.destination.branch}`]) // may need to add more complex handling in the future for failed rebases
+
+    gitApiLogger.debug(
+      `Rebased source branch: ${input.source.branch} onto destination branch: ${input.destination.branch}`,
+    )
+
+    await git.push('destination', input.destination.branch, ['--force'])
+
+    gitApiLogger.debug(
+      `Pushed to ${input.destination.org}/${input.destination.repo}/${input.destination.branch}`,
+    )
 
     return {
       success: true,
