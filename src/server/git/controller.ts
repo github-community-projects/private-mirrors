@@ -31,6 +31,25 @@ export const syncReposHandler = async ({
     const privateInstallationId = octokitData.private.installationId
     const privateAccessToken = octokitData.private.accessToken
 
+    const forkRef = await contributionOctokit.rest.git.getRef({
+      owner: input.forkOwner,
+      repo: input.forkName,
+      ref: `heads/${input.forkBranchName}`,
+    })
+
+    const mirrorRef = await privateOctokit.rest.git.getRef({
+      owner: input.mirrorOwner,
+      repo: input.mirrorName,
+      ref: `heads/${input.mirrorBranchName}`,
+    })
+
+    if (forkRef.data.object.sha === mirrorRef.data.object.sha) {
+      gitApiLogger.debug('Fork and mirror are already in sync')
+      return {
+        success: true,
+      }
+    }
+
     const forkRepo = await contributionOctokit.rest.repos.get({
       owner: input.forkOwner,
       repo: input.forkName,
