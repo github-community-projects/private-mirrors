@@ -4,10 +4,15 @@ import * as auth from '../../../src/utils/auth'
 import * as dir from '../../../src/utils/dir'
 import simpleGit from 'simple-git'
 
+const getRefSpy = jest.fn()
+
 const fakeOctokitData = {
   accessToken: 'fake-token',
   octokit: {
     rest: {
+      git: {
+        getRef: getRefSpy,
+      },
       repos: {
         get: jest.fn().mockResolvedValue({
           data: {
@@ -60,6 +65,22 @@ describe('Git controller', () => {
       privateOrg: 'github-test',
     })
 
+    getRefSpy.mockResolvedValueOnce({
+      data: {
+        object: {
+          sha: 'fork-sha',
+        },
+      },
+    })
+
+    getRefSpy.mockResolvedValueOnce({
+      data: {
+        object: {
+          sha: 'mirror-sha',
+        },
+      },
+    })
+
     jest
       .spyOn(auth, 'generateAuthUrl')
       .mockReturnValueOnce(
@@ -104,6 +125,22 @@ describe('Git controller', () => {
       privateOrg: 'github-test',
     })
 
+    getRefSpy.mockResolvedValueOnce({
+      data: {
+        object: {
+          sha: 'fork-sha',
+        },
+      },
+    })
+
+    getRefSpy.mockResolvedValueOnce({
+      data: {
+        object: {
+          sha: 'mirror-sha',
+        },
+      },
+    })
+
     jest
       .spyOn(auth, 'generateAuthUrl')
       .mockReturnValueOnce(
@@ -137,5 +174,47 @@ describe('Git controller', () => {
     expect(gitMock.rebase).toHaveBeenCalledWith(['fork/fork-branch'])
     expect(gitMock.push).toHaveBeenCalledTimes(1)
     expect(gitMock.push).toHaveBeenCalledWith(['--force'])
+  })
+
+  it('should return success early if the fork and mirror are already in sync', async () => {
+    jest.spyOn(config, 'getConfig').mockResolvedValue({
+      publicOrg: 'github',
+      privateOrg: 'github-test',
+    })
+
+    getRefSpy.mockResolvedValueOnce({
+      data: {
+        object: {
+          sha: 'sha',
+        },
+      },
+    })
+
+    getRefSpy.mockResolvedValueOnce({
+      data: {
+        object: {
+          sha: 'sha',
+        },
+      },
+    })
+
+    const result = await syncReposHandler({
+      input: {
+        accessToken: '123',
+        orgId: 'test-org',
+        destinationTo: 'mirror',
+        forkOwner: 'github',
+        forkName: 'fork-repo',
+        mirrorOwner: 'github-test',
+        mirrorName: 'mirror-repo',
+        mirrorBranchName: 'mirror-branch',
+        forkBranchName: 'fork-branch',
+      },
+    })
+
+    expect(result).toEqual({ success: true })
+    expect(gitMock.checkoutBranch).toHaveBeenCalledTimes(0)
+    expect(gitMock.rebase).toHaveBeenCalledTimes(0)
+    expect(gitMock.push).toHaveBeenCalledTimes(0)
   })
 })
