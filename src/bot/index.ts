@@ -293,12 +293,6 @@ function bot(app: Probot) {
     const metadata = getMetadata(context.payload.repository.description)
     botLogger.info('Metadata: ', metadata)
 
-    // Ignore if it was the bot
-    if (context.payload.sender.type === 'Bot') {
-      botLogger.info('Push was from bot, skipping')
-      return
-    }
-
     // Call sync logic for either (1) fork branch change or (2) mirror default change
     if (!isMirror && !metadata.mirror) {
       await syncPushToMirror(context.payload)
