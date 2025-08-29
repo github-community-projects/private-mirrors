@@ -108,7 +108,6 @@ export const syncPushToMirror = async (payload: PushEvent) => {
   const mirrorBranchName = mirrorRepo.data.default_branch
 
   try {
-    console.log('syncing to mirror')
     const res = await syncReposHandler({
       input: {
         accessToken: privateAccessToken,
@@ -269,7 +268,6 @@ function bot(app: Probot) {
 
   app.on('push', async (context) => {
     botLogger.info('Push event')
-    botLogger.info('Context: ', context.payload)
 
     // Check repo properties to see if this is a mirror
     const forkNameWithOwner = getForkName(
@@ -291,7 +289,6 @@ function bot(app: Probot) {
 
     // Check repo description to see if this is a mirror
     const metadata = getMetadata(context.payload.repository.description)
-    botLogger.info('Metadata: ', metadata)
 
     // Call sync logic for either (1) fork branch change or (2) mirror default change
     if (!isMirror && !metadata.mirror) {
