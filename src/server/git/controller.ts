@@ -108,8 +108,17 @@ export const syncReposHandler = async ({
         `mirror/${input.mirrorBranchName}`,
       )
       gitApiLogger.debug('Checked out branch', input.mirrorBranchName)
-      await git.rebase([`fork/${input.forkBranchName}`])
-      gitApiLogger.debug('Rebased mirror branch onto fork branch')
+      if (process.env.PULL_REQUEST_ALWAYS_MERGE) {
+        await git.reset(['--hard', 'HEAD^2'])
+        gitApiLogger.debug(
+          'Reset branch back one commit, removing merge commit from PR',
+        )
+        await git.rebase([`fork/${input.forkBranchName}`, '-r'])
+        gitApiLogger.debug('Rebased mirror branch onto fork branch')
+      } else {
+        await git.rebase([`fork/${input.forkBranchName}`])
+        gitApiLogger.debug('Rebased mirror branch onto fork branch')
+      }
       gitApiLogger.debug('git status', await git.status())
       await git.push(
         'fork',
