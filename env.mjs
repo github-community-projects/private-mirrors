@@ -44,6 +44,11 @@ export const env = createEnv({
       .optional()
       .default('false')
       .transform((value) => value === 'true'),
+    CREATE_MIRRORS_WITH_INTERNAL_VISIBILITY: z
+      .enum(['true', 'false', ''])
+      .optional()
+      .default('false')
+      .transform((value) => value === 'true'),
   },
   /*
    * Environment variables available on the client (and server).
@@ -73,6 +78,8 @@ export const env = createEnv({
     ALLOWED_ORGS: process.env.ALLOWED_ORGS,
     SKIP_BRANCH_PROTECTION_CREATION:
       process.env.SKIP_BRANCH_PROTECTION_CREATION,
+    CREATE_MIRRORS_WITH_INTERNAL_VISIBILITY:
+      process.env.CREATE_MIRRORS_WITH_INTERNAL_VISIBILITY,
   },
   skipValidation: process.env.SKIP_ENV_VALIDATIONS === 'true',
 })
