@@ -49,7 +49,7 @@ export const env = createEnv({
       .optional()
       .default('false')
       .transform((value) => value === 'true'),
-    PULL_REQUEST_ALWAYS_MERGE: z
+    TRIM_INTERNAL_MERGE_COMMITS: z
       .enum(['true', 'false', ''])
       .optional()
       .default('false')
@@ -85,7 +85,7 @@ export const env = createEnv({
       process.env.SKIP_BRANCH_PROTECTION_CREATION,
     CREATE_MIRRORS_WITH_INTERNAL_VISIBILITY:
       process.env.CREATE_MIRRORS_WITH_INTERNAL_VISIBILITY,
-    PULL_REQUEST_ALWAYS_MERGE: process.env.PULL_REQUEST_ALWAYS_MERGE,
+    TRIM_INTERNAL_MERGE_COMMITS: process.env.TRIM_INTERNAL_MERGE_COMMITS,
   },
   skipValidation: process.env.SKIP_ENV_VALIDATIONS === 'true',
 })

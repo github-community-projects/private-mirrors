@@ -108,7 +108,7 @@ export const syncReposHandler = async ({
         `mirror/${input.mirrorBranchName}`,
       )
       gitApiLogger.debug('Checked out branch', input.mirrorBranchName)
-      if (process.env.PULL_REQUEST_ALWAYS_MERGE) {
+      if (process.env.TRIM_INTERNAL_MERGE_COMMITS) {
         await git.reset(['--hard', 'HEAD^2'])
         gitApiLogger.debug(
           'Reset branch back one commit, removing merge commit from PR',

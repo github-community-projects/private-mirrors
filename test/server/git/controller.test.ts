@@ -61,7 +61,13 @@ describe('Git controller', () => {
     gitMock.push.mockReset()
     gitMock.rebase.mockReset()
     gitMock.reset.mockReset()
-    delete process.env.PULL_REQUEST_ALWAYS_MERGE
+    jest.resetModules()
+    process.env = { ...OLD_ENV }
+    process.env = OLD_ENV
+  })
+
+  afterAll(() => {
+    process.env = OLD_ENV
   })
 
   it('should call checkout, rebase, and push once for sync to fork if the PR is merged with rebase', async () => {
@@ -96,7 +102,7 @@ describe('Git controller', () => {
       )
     jest.spyOn(dir, 'temporaryDirectory').mockReturnValue('directory')
 
-    //process.env.PULL_REQUEST_ALWAYS_MERGE = 'false'
+    process.env.TRIM_INTERNAL_MERGE_COMMITS = '' // Empty string is falsy
 
     await syncReposHandler({
       input: {
@@ -159,7 +165,7 @@ describe('Git controller', () => {
       )
     jest.spyOn(dir, 'temporaryDirectory').mockReturnValue('directory')
 
-    process.env.PULL_REQUEST_ALWAYS_MERGE = 'true'
+    process.env.TRIM_INTERNAL_MERGE_COMMITS = 'true' // Any string is truthy
 
     await syncReposHandler({
       input: {
