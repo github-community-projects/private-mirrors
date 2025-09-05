@@ -80,19 +80,66 @@ export const syncReposHandler = async ({
       destinationBranches: destinationBranches.all,
     })
 
-    // Checkout the source branch so that we can rebase any changes from it on top of the destination branch
+    // Checkout the source branch so that we can perform some checks before attempting to merge into destination branch
     await git.checkoutBranch(
       input.source.branch,
       `source/${input.source.branch}`,
     )
-
     gitApiLogger.debug('Checked out branch', input.source.branch)
 
-    // Rebase to fast forward the new source commits on top of the destination branch in case they differ
-    await git.rebase([`destination/${input.destination.branch}`]) // may need to add more complex handling in the future for failed rebases
+    const syncIsFastForward = await git.raw([
+      'merge-base',
+      '--is-ancestor',
+      destinationRef.data.object.sha,
+      'HEAD',
+    ])
+    if (!syncIsFastForward) {
+      gitApiLogger.debug(
+        'Sync Failed: Destination branch has commits not present on source branch. Fast forward not possible.',
+      )
+      return {
+        success: false,
+      }
+    }
 
+    if (input.removeHeadMergeCommit) {
+      const parentShas = await git.show([
+        '--no-patch',
+        '--format=%p',
+        sourceRef.data.object.sha,
+      ])
+      const parentsList = parentShas.split(' ')
+      if (parentsList.length === 1) {
+        gitApiLogger.debug('Not a merge commit')
+      } else {
+        const mergeWasFastForwardable = await git.raw([
+          'merge-base',
+          '--is-ancestor',
+          'HEAD^1',
+          'HEAD^2',
+        ])
+        if (!mergeWasFastForwardable) {
+          gitApiLogger.debug('Need to keep merge commit')
+        } else {
+          await git.reset(['--hard', 'HEAD^2'])
+          gitApiLogger.info(
+            'Reset branch back one commit, removing merge commit from PR',
+          )
+        }
+      }
+    }
+
+    // Checkout the destination branch so that we can merge in source branch
+    await git.checkoutBranch(
+      input.destination.branch,
+      `destination/${input.destination.branch}`,
+    )
+    gitApiLogger.debug('Checked out branch', input.source.branch)
+
+    // Fast Forward merge the source branch on top of the destination branch
+    await git.merge(['--ff-only', input.source.branch]) // shouldn't fail because of check above, but nothing done to handle a failure
     gitApiLogger.debug(
-      `Rebased source branch: ${input.source.branch} onto destination branch: ${input.destination.branch}`,
+      `Merged source branch: ${input.source.branch} into destination branch: ${input.destination.branch} using fast forward`,
     )
 
     await git.push('destination', input.destination.branch, ['--force'])

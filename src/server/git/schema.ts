@@ -22,6 +22,7 @@ export const SyncReposSchema = z.object({
       installationId: z.string(),
     }),
   }),
+  removeHeadMergeCommit: z.boolean(),
 })
 
 export type SyncReposSchema = z.TypeOf<typeof SyncReposSchema>

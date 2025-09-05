@@ -4,7 +4,6 @@ import { syncReposHandler } from '../server/git/controller'
 import { getAuthenticatedOctokit } from './octokit'
 import { createAllPushProtection, createDefaultBranchProtection } from './rules'
 import { getConfig } from './config'
-import { PushEvent } from '@octokit/webhooks-types'
 import '../utils/proxy'
 
 type CustomProperties = Record<string, string>
@@ -33,88 +32,6 @@ export const getMetadata = (
   } catch {
     botLogger.warn('Failed to parse repository description', { description })
     return {}
-  }
-}
-
-// Helper function to sync changes to mirror default branch back to fork branch
-export const syncPushToFork = async (
-  payload: PushEvent,
-  forkNameWithOwner: string,
-  branch: string,
-) => {
-  const orgId = String(payload.organization!.id)
-  const config = await getConfig(orgId)
-  const { publicOrg, privateOrg } = config
-
-  const octokitData = await getAuthenticatedOctokit(publicOrg, privateOrg)
-
-  const [forkOwner, forkName] = forkNameWithOwner.split('/')
-  const mirrorOwner = payload.repository.owner.login
-  const mirrorName = payload.repository.name
-
-  try {
-    const res = await syncReposHandler({
-      input: {
-        source: {
-          org: mirrorOwner,
-          repo: mirrorName,
-          branch,
-          octokit: octokitData.private,
-        },
-        destination: {
-          org: forkOwner,
-          repo: forkName,
-          branch: mirrorName,
-          octokit: octokitData.contribution,
-        },
-      },
-    })
-    botLogger.info('Synced repository', { res })
-  } catch (error) {
-    botLogger.error('Failed to sync repository', { error })
-  }
-}
-
-// Helper function to sync changes to fork branch back to mirror default branch
-export const syncPushToMirror = async (payload: PushEvent) => {
-  // Get the branch this was pushed to
-  const branch = payload.ref.replace('refs/heads/', '')
-
-  const orgId = String(payload.organization!.id)
-  const config = await getConfig(orgId)
-  const { publicOrg, privateOrg } = config
-
-  const forkOwner = payload.repository.owner.login
-  const forkName = payload.repository.name
-
-  const octokitData = await getAuthenticatedOctokit(publicOrg, privateOrg)
-  const privateOctokit = octokitData.private.octokit
-  const mirrorRepo = await privateOctokit.rest.repos.get({
-    owner: privateOrg,
-    repo: branch,
-  })
-  const mirrorBranchName = mirrorRepo.data.default_branch
-
-  try {
-    const res = await syncReposHandler({
-      input: {
-        source: {
-          org: forkOwner,
-          repo: forkName,
-          branch: branch,
-          octokit: octokitData.contribution,
-        },
-        destination: {
-          org: privateOrg,
-          repo: branch,
-          branch: mirrorBranchName,
-          octokit: octokitData.private,
-        },
-      },
-    })
-    botLogger.info('Synced repository', { res })
-  } catch (error) {
-    botLogger.error('Failed to sync repository', { error })
   }
 }
 
@@ -317,6 +234,7 @@ function bot(app: Probot) {
               branch: mirrorRepo.data.default_branch,
               octokit: octokitData.private,
             },
+            removeHeadMergeCommit: false, // this feature is only used to mask EMU on mirror changes
           },
         })
         botLogger.info('Synced repository', { res })
@@ -341,6 +259,8 @@ function bot(app: Probot) {
               branch: context.payload.repository.name, // fork branch matches the mirror repo
               octokit: octokitData.contribution,
             },
+            removeHeadMergeCommit:
+              process.env.REMOVE_PR_MERGE_BY_EMU === 'true',
           },
         })
         botLogger.info('Synced repository', { res })
