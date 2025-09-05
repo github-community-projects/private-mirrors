@@ -87,13 +87,16 @@ export const syncReposHandler = async ({
     )
     gitApiLogger.debug('Checked out branch', input.source.branch)
 
-    const syncIsFastForward = await git.raw([
-      'merge-base',
-      '--is-ancestor',
-      destinationRef.data.object.sha,
-      'HEAD',
-    ])
-    if (!syncIsFastForward) {
+    const syncIsFastForwardable = await git
+      .raw([
+        'merge-base',
+        '--is-ancestor',
+        destinationRef.data.object.sha,
+        'HEAD',
+      ])
+      .then(() => true)
+      .catch(() => false)
+    if (!syncIsFastForwardable) {
       gitApiLogger.debug(
         'Sync Failed: Destination branch has commits not present on source branch. Fast forward not possible.',
       )
@@ -112,19 +115,26 @@ export const syncReposHandler = async ({
       if (parentsList.length === 1) {
         gitApiLogger.debug('Not a merge commit')
       } else {
-        const mergeWasFastForwardable = await git.raw([
-          'merge-base',
-          '--is-ancestor',
-          'HEAD^1',
-          'HEAD^2',
-        ])
-        if (!mergeWasFastForwardable) {
+        const mergedBranchesCommonAncestor = (
+          await git.raw(['merge-base', 'HEAD^1', 'HEAD^2'])
+        ).trim()
+
+        if (mergedBranchesCommonAncestor !== destinationRef.data.object.sha) {
           gitApiLogger.debug('Need to keep merge commit')
         } else {
+          // NOTE: If the most recent commit after PR merge commit is also a merge commit where parent 1 is the pre-push HEAD commit (non-FF merge), this will also recreate it as a fast-forward
           await git.reset(['--hard', 'HEAD^2'])
           gitApiLogger.info(
             'Reset branch back one commit, removing merge commit from PR',
           )
+
+          // Push this back to the source branch to retrigger the sync
+          await git.push(['--force'])
+
+          // Return to end function call
+          return {
+            success: null,
+          }
         }
       }
     }
@@ -134,7 +144,7 @@ export const syncReposHandler = async ({
       input.destination.branch,
       `destination/${input.destination.branch}`,
     )
-    gitApiLogger.debug('Checked out branch', input.source.branch)
+    gitApiLogger.debug('Checked out branch', input.destination.branch)
 
     // Fast Forward merge the source branch on top of the destination branch
     await git.merge(['--ff-only', input.source.branch]) // shouldn't fail because of check above, but nothing done to handle a failure
@@ -142,7 +152,7 @@ export const syncReposHandler = async ({
       `Merged source branch: ${input.source.branch} into destination branch: ${input.destination.branch} using fast forward`,
     )
 
-    await git.push('destination', input.destination.branch, ['--force'])
+    await git.push(['--force'])
 
     gitApiLogger.debug(
       `Pushed to ${input.destination.org}/${input.destination.repo}/${input.destination.branch}`,
