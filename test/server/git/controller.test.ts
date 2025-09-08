@@ -75,10 +75,10 @@ describe('Git controller', () => {
     jest
       .spyOn(auth, 'generateAuthUrl')
       .mockReturnValueOnce(
-        'https://x-access-token:contributionAccessToken@github.com/forkOwner/forkRepo',
+        'https://x-access-token:contributionAccessToken@github.com/sourceOwner/sourceRepo',
       )
       .mockReturnValueOnce(
-        'https://x-access-token:privateAccessToken@github.com/mirrorOwner/mirrorRepo',
+        'https://x-access-token:privateAccessToken@github.com/destinationOwner/destinationRepo',
       )
     jest.spyOn(dir, 'temporaryDirectory').mockReturnValue('directory')
 
