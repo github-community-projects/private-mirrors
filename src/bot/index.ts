@@ -260,7 +260,7 @@ function bot(app: Probot) {
               octokit: octokitData.contribution,
             },
             removeHeadMergeCommit:
-              process.env.REMOVE_PR_MERGE_BY_EMU === 'true',
+              process.env.DELETE_INTERNAL_MERGE_COMMITS_ON_SYNC === 'true',
           },
         })
         botLogger.info('Synced repository', { res })
