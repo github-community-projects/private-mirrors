@@ -49,6 +49,11 @@ export const env = createEnv({
       .optional()
       .default('false')
       .transform((value) => value === 'true'),
+    DELETE_INTERNAL_MERGE_COMMITS_ON_SYNC: z
+      .enum(['true', 'false', ''])
+      .optional()
+      .default('false')
+      .transform((value) => value === 'true'),
   },
   /*
    * Environment variables available on the client (and server).
@@ -80,6 +85,8 @@ export const env = createEnv({
       process.env.SKIP_BRANCH_PROTECTION_CREATION,
     CREATE_MIRRORS_WITH_INTERNAL_VISIBILITY:
       process.env.CREATE_MIRRORS_WITH_INTERNAL_VISIBILITY,
+    DELETE_INTERNAL_MERGE_COMMITS_ON_SYNC:
+      process.env.DELETE_INTERNAL_MERGE_COMMITS_ON_SYNC,
   },
   skipValidation: process.env.SKIP_ENV_VALIDATIONS === 'true',
 })
