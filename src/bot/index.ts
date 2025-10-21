@@ -1,9 +1,9 @@
 import { Probot } from 'probot'
 import { logger } from '../utils/logger'
 import { syncReposHandler } from '../server/git/controller'
-import { appOctokit, generateAppAccessToken } from './octokit'
+import { getAuthenticatedOctokit } from './octokit'
 import { createAllPushProtection, createDefaultBranchProtection } from './rules'
-
+import { getConfig } from './config'
 import '../utils/proxy'
 
 type CustomProperties = Record<string, string>
@@ -185,96 +185,115 @@ function bot(app: Probot) {
         }
       ).custom_properties,
     )
+    botLogger.info('Fork name with owner: ', forkNameWithOwner)
 
-    const authenticatedApp = await context.octokit.apps.getAuthenticated()
-    if (!authenticatedApp?.data) {
-      botLogger.error('Failed to get authenticated app')
-      return
-    }
-    const actorNodeId: string = authenticatedApp.data?.node_id
+    const isMirror = !!forkNameWithOwner
 
     // Check repo description to see if this is a mirror
     const metadata = getMetadata(context.payload.repository.description)
 
-    // Skip if not a mirror
-    if (!forkNameWithOwner && !metadata.mirror) {
-      botLogger.info('Not a mirror repo, skipping')
-      return
-    }
-
-    // Ignore if it was the bot
-    if (context.payload.sender.name === 'ospo-repo-sync-test[bot]') {
-      botLogger.info('Push was from bot, skipping')
-      return
-    }
-
-    // Get the branch this was pushed to
+    // Get the branch that was pushed to
     const branch = context.payload.ref.replace('refs/heads/', '')
 
-    // Skip if not the default branch
-    if (branch !== context.payload.repository.default_branch) {
+    // Skip if the push was to a mirror but not the default branch
+    const defaultBranch = context.payload.repository.default_branch
+    if ((isMirror || metadata.mirror) && branch !== defaultBranch) {
       botLogger.info('Not the default branch, skipping', {
         branch,
-        defaultBranch: context.payload.repository.default_branch,
+        defaultBranch: defaultBranch,
       })
       return
     }
 
-    const [forkOwner, forkName] = forkNameWithOwner.split('/')
-    const mirrorOwner = context.payload.repository.owner.login
-    const mirrorName = context.payload.repository.name
+    // Get the public and private orgs from the config
     const orgId = String(context.payload.organization!.id)
+    const config = await getConfig(orgId)
+    const { publicOrg, privateOrg } = config
 
-    // Need to validate that the bot itself is the one making this request
-    const privateInstallationId =
-      await appOctokit().rest.apps.getOrgInstallation({
-        org: orgId,
+    const octokitData = await getAuthenticatedOctokit(publicOrg, privateOrg)
+
+    // Call sync logic for either (1) fork branch change or (2) mirror default change
+    if (!isMirror && !metadata.mirror) {
+      const mirrorRepo = await octokitData.private.octokit.rest.repos.get({
+        owner: privateOrg,
+        repo: branch,
       })
 
-    const privateAccessToken = await generateAppAccessToken(
-      String(privateInstallationId.data.id),
-    )
+      try {
+        const res = await syncReposHandler({
+          input: {
+            source: {
+              org: context.payload.repository.owner.login, // fork org
+              repo: context.payload.repository.name, // fork repo
+              branch: branch, // fork branch
+              octokit: octokitData.contribution,
+            },
+            destination: {
+              org: privateOrg,
+              repo: branch, // mirror repo matches the fork branch
+              branch: mirrorRepo.data.default_branch,
+              octokit: octokitData.private,
+            },
+            removeHeadMergeCommit: false, // this feature is only used to mask EMU on mirror changes
+          },
+        })
+        botLogger.info('Synced repository', { res })
+      } catch (error) {
+        botLogger.error('Failed to sync repository', { error })
+      }
+    } else {
+      const [forkOwner, forkName] = forkNameWithOwner.split('/')
 
-    try {
-      const res = await syncReposHandler({
-        input: {
-          accessToken: privateAccessToken,
-          forkBranchName: mirrorName,
-          mirrorBranchName: branch,
-          destinationTo: 'fork',
-          forkName,
-          forkOwner,
-          mirrorName,
-          mirrorOwner,
-          orgId,
-        },
-      })
-      botLogger.info('Synced repository', { res })
-    } catch (error) {
-      botLogger.error('Failed to sync repository', { error })
-    }
+      try {
+        const res = await syncReposHandler({
+          input: {
+            source: {
+              org: context.payload.repository.owner.login, // mirror org
+              repo: context.payload.repository.name, // mirror repo
+              branch,
+              octokit: octokitData.private,
+            },
+            destination: {
+              org: forkOwner,
+              repo: forkName,
+              branch: context.payload.repository.name, // fork branch matches the mirror repo
+              octokit: octokitData.contribution,
+            },
+            removeHeadMergeCommit:
+              process.env.DELETE_INTERNAL_MERGE_COMMITS_ON_SYNC === 'true',
+          },
+        })
+        botLogger.info('Synced repository', { res })
+      } catch (error) {
+        botLogger.error('Failed to sync repository', { error })
+      }
 
-    if (process.env.SKIP_BRANCH_PROTECTION_CREATION) return
+      if (process.env.SKIP_BRANCH_PROTECTION_CREATION) return
 
-    try {
-      // Get the default branch
-      const defaultBranch = context.payload.repository.default_branch
+      try {
+        botLogger.debug(
+          'Adding branch protections to default branch in case repo.edited did not fire',
+          {
+            defaultBranch,
+          },
+        )
 
-      botLogger.debug(
-        'Adding branch protections to default branch in case repo.edited did not fire',
-        {
+        const authenticatedApp = await context.octokit.apps.getAuthenticated()
+        if (!authenticatedApp?.data) {
+          botLogger.error('Failed to get authenticated app')
+          return
+        }
+        const actorNodeId: string = authenticatedApp.data?.node_id
+
+        await createDefaultBranchProtection(
+          context,
+          context.payload.repository.node_id,
+          actorNodeId,
           defaultBranch,
-        },
-      )
-
-      await createDefaultBranchProtection(
-        context,
-        context.payload.repository.node_id,
-        actorNodeId,
-        defaultBranch,
-      )
-    } catch (error) {
-      botLogger.error('Failed to add branch protections', { error })
+        )
+      } catch (error) {
+        botLogger.error('Failed to add branch protections', { error })
+      }
     }
   })
 }

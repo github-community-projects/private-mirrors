@@ -132,7 +132,10 @@ export const createMirrorHandler = async ({
     newRepo = await privateOctokit.rest.repos.createInOrg({
       name: input.newRepoName,
       org: privateOrg,
-      private: true,
+      // @ts-expect-error because the rest API accepts internal as an option but the types aren't up to date
+      visibility: process.env.CREATE_MIRRORS_WITH_INTERNAL_VISIBILITY
+        ? 'internal'
+        : 'private',
       description: `Mirror of ${input.forkRepoOwner}/${input.forkRepoName}`,
       custom_properties: {
         fork: `${input.forkRepoOwner}/${input.forkRepoName}`,

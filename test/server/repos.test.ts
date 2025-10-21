@@ -20,6 +20,7 @@ import { Octomock } from '../octomock'
 import { createTestContext } from '../utils/auth'
 import { t } from '../../src/utils/trpc-server'
 const om = new Octomock()
+const UNMODIFIED_ENV = process.env
 
 jest.mock('../../src/bot/config')
 jest.mock('../../src/bot/octokit', () => ({
@@ -104,9 +105,10 @@ describe('Repos router', () => {
   beforeEach(() => {
     om.resetMocks()
     jest.resetAllMocks()
+    process.env = { ...UNMODIFIED_ENV }
   })
 
-  it('should create a mirror when repo does not exist exist', async () => {
+  it('should create a mirror when repo does not exist', async () => {
     const caller = t.createCallerFactory(reposRouter)(createTestContext())
 
     const configSpy = jest.spyOn(config, 'getConfig').mockResolvedValue({
@@ -282,6 +284,60 @@ describe('Repos router', () => {
       repo: 'test',
     })
     expect(stubbedGit.clone).toHaveBeenCalledTimes(1)
+  })
+
+  it('should create an internal repo when the CREATE_MIRRORS_WITH_INTERNAL_VISIBILITY flag is used', async () => {
+    const caller = t.createCallerFactory(reposRouter)(createTestContext())
+
+    const configSpy = jest.spyOn(config, 'getConfig').mockResolvedValue({
+      publicOrg: 'github',
+      privateOrg: 'github-test',
+    })
+
+    om.mockFunctions.rest.apps.getOrgInstallation.mockResolvedValue(
+      fakeOrgInstallation,
+    )
+    om.mockFunctions.rest.orgs.get.mockResolvedValue(fakeOrg)
+    om.mockFunctions.rest.repos.get.mockResolvedValueOnce(repoNotFound)
+    om.mockFunctions.rest.repos.get.mockResolvedValueOnce(fakeForkRepo)
+    om.mockFunctions.rest.orgs.getAllCustomProperties.mockResolvedValue(
+      fakeOrgCustomProperties,
+    )
+    om.mockFunctions.rest.orgs.createOrUpdateCustomProperty.mockResolvedValue(
+      fakeOrgCustomProperties,
+    )
+    om.mockFunctions.rest.repos.createInOrg.mockResolvedValue(fakeMirrorRepo)
+
+    // set the environment variable to trigger mirrors being created with internal visibility
+    process.env.CREATE_MIRRORS_WITH_INTERNAL_VISIBILITY = 'true'
+
+    const res = await caller.createMirror({
+      forkId: 'test',
+      orgId: 'test',
+      forkRepoName: 'fork-test',
+      forkRepoOwner: 'github',
+      newBranchName: 'test',
+      newRepoName: 'test',
+    })
+
+    // TODO: use real git operations and verify fs state after
+    expect(configSpy).toHaveBeenCalledTimes(1)
+    expect(om.mockFunctions.rest.repos.get).toHaveBeenCalledTimes(2)
+    expect(stubbedGit.clone).toHaveBeenCalledTimes(1)
+    expect(om.mockFunctions.rest.repos.createInOrg).toHaveBeenCalledTimes(1)
+    expect(om.mockFunctions.rest.repos.createInOrg).toHaveBeenCalledWith(
+      expect.objectContaining({
+        visibility: 'internal',
+      }),
+    )
+    expect(stubbedGit.addRemote).toHaveBeenCalledTimes(1)
+    expect(stubbedGit.push).toHaveBeenCalledTimes(2)
+    expect(stubbedGit.checkoutBranch).toHaveBeenCalledTimes(1)
+
+    expect(res).toEqual({
+      success: true,
+      data: fakeMirrorRepo.data,
+    })
   })
 
   it('reject repository names over the character limit', async () => {
