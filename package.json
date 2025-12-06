@@ -52,6 +52,7 @@
     "@types/node": "20.14.10",
     "@types/node-fetch": "2.6.12",
     "@types/react": "18.3.12",
+    "@types/styled-components": "5.1.36",
     "@typescript-eslint/eslint-plugin": "7.16.1",
     "@typescript-eslint/parser": "7.16.1",
     "babel-jest": "29.7.0",
