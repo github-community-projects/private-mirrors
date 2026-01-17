@@ -42,7 +42,7 @@
     "superjson": "2.2.2",
     "tempy": "1.0.1",
     "tslog": "4.9.3",
-    "undici": "6.21.2",
+    "undici": "6.23.0",
     "zod": "3.25.56"
   },
   "devDependencies": {
