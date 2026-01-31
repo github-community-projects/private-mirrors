@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-floating-promises */
+ 
 'use client'
 
 import { MarkGithubIcon } from '@primer/octicons-react'

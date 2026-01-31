@@ -15,7 +15,7 @@ export const config = {
 export default createNodeMiddleware(app, {
   probot: createProbot({
     defaults: {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+       
       log: {
         child: () => probotLogger,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

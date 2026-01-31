@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-floating-promises */
+ 
 import { getReposInOrgGQL } from 'bot/graphql'
 import { personalOctokit } from 'bot/octokit'
 import { useSession } from 'next-auth/react'
