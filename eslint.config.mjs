@@ -1,43 +1,59 @@
-import { defineConfig } from "eslint/config";
-import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
-import typescriptEslint from "@typescript-eslint/eslint-plugin";
-import tsParser from "@typescript-eslint/parser";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import js from "@eslint/js";
-import { FlatCompat } from "@eslint/eslintrc";
+import { dirname } from 'path'
+import { fileURLToPath } from 'url'
+import { FlatCompat } from '@eslint/eslintrc'
+import js from '@eslint/js'
+import tsPlugin from '@typescript-eslint/eslint-plugin'
+import tsParser from '@typescript-eslint/parser'
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+
 const compat = new FlatCompat({
-    baseDirectory: __dirname,
-    recommendedConfig: js.configs.recommended,
-    allConfig: js.configs.all
-});
+  baseDirectory: __dirname,
+  recommendedConfig: js.configs.recommended,
+})
 
-export default defineConfig([{
-    extends: [
-        ...nextCoreWebVitals,
-        ...compat.extends("eslint:recommended"),
-        ...compat.extends("plugin:@typescript-eslint/recommended"),
-        ...compat.extends("plugin:@typescript-eslint/recommended-type-checked")
-    ],
-
-    plugins: {
-        "@typescript-eslint": typescriptEslint,
-    },
-
+export default [
+  js.configs.recommended,
+  ...compat.extends('next/core-web-vitals'),
+  {
+    files: ['src/**/*.{ts,tsx}'],
     languageOptions: {
-        parser: tsParser,
-        ecmaVersion: 5,
-        sourceType: "script",
-
-        parserOptions: {
-            project: ["./tsconfig.json"],
-        },
+      parser: tsParser,
+      parserOptions: {
+        project: './tsconfig.json',
+      },
     },
-
+    plugins: {
+      '@typescript-eslint': tsPlugin,
+    },
     rules: {
-        "@typescript-eslint/no-misused-promises": "off",
+      ...tsPlugin.configs['recommended'].rules,
+      '@typescript-eslint/no-misused-promises': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
     },
-}]);
+  },
+  {
+    // Test files - lint without type-checking (not in tsconfig.json project)
+    files: ['test/**/*.{ts,tsx}'],
+    languageOptions: {
+      parser: tsParser,
+    },
+    plugins: {
+      '@typescript-eslint': tsPlugin,
+    },
+    rules: {
+      ...tsPlugin.configs['recommended'].rules,
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
+    },
+  },
+  {
+    ignores: ['node_modules/', '.next/', 'build/', '*.mjs', '*.js'],
+  },
+]

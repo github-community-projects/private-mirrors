@@ -47,14 +47,15 @@
   },
   "devDependencies": {
     "@babel/preset-env": "7.27.2",
+    "@eslint/js": "9.39.2",
     "@tanstack/eslint-plugin-query": "5.78.0",
     "@types/jest": "29.5.14",
     "@types/node": "20.14.10",
     "@types/node-fetch": "2.6.12",
     "@types/react": "18.3.12",
     "@types/styled-components": "5.1.36",
-    "@typescript-eslint/eslint-plugin": "7.16.1",
-    "@typescript-eslint/parser": "7.16.1",
+    "@typescript-eslint/eslint-plugin": "8.54.0",
+    "@typescript-eslint/parser": "8.54.0",
     "babel-jest": "29.7.0",
     "concurrently": "9.1.2",
     "dotenv-load": "3.0.0",
@@ -69,7 +70,7 @@
     "ts-jest": "29.3.4",
     "ts-node": "10.9.2",
     "typescript": "5.8.3",
-    "typescript-eslint": "7.16.1"
+    "typescript-eslint": "8.54.0"
   },
   "engines": {
     "node": "^18 || ^20 || ^22"
