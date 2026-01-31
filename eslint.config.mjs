@@ -34,6 +34,8 @@ export default [
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
+      // TypeScript handles redeclaration checks - allows type + value with same name
+      'no-redeclare': 'off',
     },
   },
   {
