@@ -24,6 +24,9 @@ export default [
       parserOptions: {
         project: './tsconfig.json',
       },
+      globals: {
+        React: 'readonly',
+      },
     },
     plugins: {
       '@typescript-eslint': tsPlugin,
@@ -35,6 +38,13 @@ export default [
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
+    },
+  },
+  {
+    // TypeScript declaration files - disable no-undef as types are ambient
+    files: ['src/**/*.d.ts'],
+    rules: {
+      'no-undef': 'off',
     },
   },
   {
