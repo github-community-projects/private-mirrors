@@ -1,22 +1,18 @@
+import nextTypescript from 'eslint-config-next/typescript'
+import nextCoreWebVitals from 'eslint-config-next/core-web-vitals'
 import { dirname } from 'path'
 import { fileURLToPath } from 'url'
-import { FlatCompat } from '@eslint/eslintrc'
 import js from '@eslint/js'
 import tsPlugin from '@typescript-eslint/eslint-plugin'
 import tsParser from '@typescript-eslint/parser'
-import jestPlugin from 'eslint-plugin-jest'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended,
-})
-
 export default [
+  ...nextTypescript,
   js.configs.recommended,
-  ...compat.extends('next/core-web-vitals'),
+  ...nextCoreWebVitals,
   {
     files: ['src/**/*.{ts,tsx}'],
     languageOptions: {
