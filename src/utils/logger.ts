@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
- 
+
 import safeStringify from 'fast-safe-stringify'
 import { Logger } from 'tslog'
 

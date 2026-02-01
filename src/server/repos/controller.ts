@@ -1,6 +1,4 @@
- 
 /* eslint-disable @typescript-eslint/no-explicit-any */
- 
 
 import simpleGit, { SimpleGitOptions } from 'simple-git'
 import { generateAuthUrl } from 'utils/auth'
