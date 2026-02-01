@@ -1,5 +1,4 @@
-import { Box, Spinner } from '@primer/react'
-import { Stack } from '@primer/react/lib-esm/Stack'
+import { Box, Spinner, Stack } from '@primer/react'
 
 interface LoadingProps {
   message: string

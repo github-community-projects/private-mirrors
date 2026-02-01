@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "concurrently -c \"auto\" -n webhooks,app  \"dotenv-load node scripts/webhook-relay.mjs\" \"next dev\"",
     "webhook": "dotenv-load node scripts/webhook-relay.mjs",
-    "build": "SKIP_ENV_VALIDATIONS='true' next build",
+    "build": "SKIP_ENV_VALIDATIONS='true' next build --webpack",
     "start": "next start",
     "lint": "SKIP_ENV_VALIDATIONS='true' eslint . && prettier --check .",
     "lint:fix": "SKIP_ENV_VALIDATIONS='true' eslint --fix . && prettier --write .",

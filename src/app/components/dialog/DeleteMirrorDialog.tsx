@@ -1,5 +1,5 @@
 import { Box, Text } from '@primer/react'
-import { Dialog } from '@primer/react/lib-esm/drafts'
+import { Dialog } from '@primer/react/drafts'
 
 interface DeleteMirrorDialogProps {
   orgLogin: string

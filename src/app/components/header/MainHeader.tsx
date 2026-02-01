@@ -1,8 +1,7 @@
 'use client'
 
 import { MarkGithubIcon } from '@primer/octicons-react'
-import { Avatar, Button, Header, Octicon, Text } from '@primer/react'
-import { Stack } from '@primer/react/lib-esm/Stack'
+import { Avatar, Button, Header, Octicon, Stack, Text } from '@primer/react'
 import { signOut, useSession } from 'next-auth/react'
 
 export const MainHeader = () => {

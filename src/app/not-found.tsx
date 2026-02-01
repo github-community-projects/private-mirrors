@@ -2,7 +2,7 @@
 
 import { AlertIcon } from '@primer/octicons-react'
 import { Box, Octicon } from '@primer/react'
-import Blankslate from '@primer/react/lib-esm/Blankslate/Blankslate'
+import { Blankslate } from '@primer/react/drafts'
 
 const NotFoundPage = () => {
   return (

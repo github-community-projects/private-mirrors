@@ -17,10 +17,9 @@ import {
   Link,
   Octicon,
   RelativeTime,
+  Stack,
 } from '@primer/react'
-import Blankslate from '@primer/react/lib-esm/Blankslate/Blankslate'
-import { DataTable, Table } from '@primer/react/lib-esm/DataTable'
-import { Stack } from '@primer/react/lib-esm/Stack'
+import { Blankslate, DataTable, Table } from '@primer/react/drafts'
 import { ForkBreadcrumbs } from 'app/components/breadcrumbs/ForkBreadcrumbs'
 import { CreateMirrorDialog } from 'app/components/dialog/CreateMirrorDialog'
 import { DeleteMirrorDialog } from 'app/components/dialog/DeleteMirrorDialog'

@@ -1,6 +1,5 @@
 import { PlusIcon, SearchIcon, XCircleFillIcon } from '@primer/octicons-react'
-import { Box, Button, FormControl, TextInput } from '@primer/react'
-import { Stack } from '@primer/react/lib-esm/Stack'
+import { Box, Button, FormControl, Stack, TextInput } from '@primer/react'
 import { ChangeEvent } from 'react'
 
 interface SearchWithCreateProps {

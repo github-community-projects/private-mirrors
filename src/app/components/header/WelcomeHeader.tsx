@@ -1,6 +1,5 @@
 import { RepoForkedIcon } from '@primer/octicons-react'
-import { Octicon, Pagehead, Text } from '@primer/react'
-import { Stack } from '@primer/react/lib-esm/Stack'
+import { Octicon, Pagehead, Stack, Text } from '@primer/react'
 
 export const WelcomeHeader = () => {
   return (
