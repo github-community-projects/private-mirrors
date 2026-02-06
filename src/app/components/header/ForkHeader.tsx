@@ -1,5 +1,12 @@
-import { Avatar, Label, Link, Pagehead, Spinner, Text } from '@primer/react'
-import { Stack } from '@primer/react/lib-esm/Stack'
+import {
+  Avatar,
+  Label,
+  Link,
+  Pagehead,
+  Spinner,
+  Stack,
+  Text,
+} from '@primer/react'
 import { ForkData } from 'hooks/useFork'
 
 interface ForkHeaderProps {

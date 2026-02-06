@@ -1,6 +1,13 @@
-import { Box, FormControl, Label, Link, Text, TextInput } from '@primer/react'
-import { Stack } from '@primer/react/lib-esm/Stack'
-import { Dialog } from '@primer/react/lib-esm/drafts'
+import {
+  Box,
+  FormControl,
+  Label,
+  Link,
+  Stack,
+  Text,
+  TextInput,
+} from '@primer/react'
+import { Dialog } from '@primer/react/drafts'
 
 import { useState } from 'react'
 

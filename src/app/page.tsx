@@ -1,14 +1,12 @@
 'use client'
 
-import { Avatar, Box, Link, Octicon } from '@primer/react'
+import { Avatar, Box, Link, Octicon, Stack } from '@primer/react'
+import { Blankslate, DataTable, Table } from '@primer/react/drafts'
 import { useState } from 'react'
 import { OrgsData, useOrgsData } from 'hooks/useOrganizations'
 import { Search } from './components/search/Search'
-import { DataTable, Table } from '@primer/react/lib-esm/DataTable'
 import Fuse from 'fuse.js'
-import Blankslate from '@primer/react/lib-esm/Blankslate/Blankslate'
 import { OrganizationIcon } from '@primer/octicons-react'
-import { Stack } from '@primer/react/lib-esm/Stack'
 import { WelcomeHeader } from './components/header/WelcomeHeader'
 import { ErrorFlash } from './components/flash/ErrorFlash'
 
