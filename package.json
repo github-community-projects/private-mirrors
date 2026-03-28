@@ -9,10 +9,10 @@
   "scripts": {
     "dev": "concurrently -c \"auto\" -n webhooks,app  \"dotenv-load node scripts/webhook-relay.mjs\" \"next dev\"",
     "webhook": "dotenv-load node scripts/webhook-relay.mjs",
-    "build": "SKIP_ENV_VALIDATIONS='true' next build",
+    "build": "SKIP_ENV_VALIDATIONS='true' next build --webpack",
     "start": "next start",
-    "lint": "SKIP_ENV_VALIDATIONS='true' next lint && prettier --check .",
-    "lint:fix": "SKIP_ENV_VALIDATIONS='true' next lint --fix && prettier --write .",
+    "lint": "SKIP_ENV_VALIDATIONS='true' eslint . && prettier --check .",
+    "lint:fix": "SKIP_ENV_VALIDATIONS='true' eslint --fix . && prettier --write .",
     "bot:build": "tsc ./src/bot/index.ts --noEmit false --esModuleInterop --outDir ./build",
     "bot:start": "probot run ./build/index.js",
     "test": "TEST_LOGGING=1 ts-node -O '{\"module\":\"commonjs\"}' node_modules/jest/bin/jest.js",
@@ -25,40 +25,42 @@
     "@primer/react": "36.27.0",
     "@t3-oss/env-nextjs": "0.13.7",
     "@tanstack/react-query": "4.36.1",
-    "@trpc/client": "10.45.2",
-    "@trpc/react-query": "10.45.2",
-    "@trpc/server": "10.45.2",
+    "@trpc/client": "10.45.3",
+    "@trpc/react-query": "10.45.3",
+    "@trpc/server": "10.45.3",
     "fast-safe-stringify": "2.1.1",
     "fuse.js": "7.1.0",
-    "next": "14.2.29",
-    "next-auth": "4.24.11",
-    "octokit": "3.2.1",
+    "next": "16.1.7",
+    "next-auth": "4.24.12",
+    "octokit": "3.2.2",
     "probot": "13.4.7",
     "proxy-agent": "6.5.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "simple-git": "3.28.0",
+    "simple-git": "3.32.3",
     "styled-components": "5.3.11",
     "superjson": "2.2.2",
     "tempy": "1.0.1",
     "tslog": "4.9.3",
-    "undici": "6.21.2",
+    "undici": "6.24.0",
     "zod": "3.25.56"
   },
   "devDependencies": {
     "@babel/preset-env": "7.27.2",
+    "@eslint/js": "9.39.2",
     "@tanstack/eslint-plugin-query": "5.78.0",
     "@types/jest": "29.5.14",
     "@types/node": "20.14.10",
     "@types/node-fetch": "2.6.12",
     "@types/react": "18.3.12",
-    "@typescript-eslint/eslint-plugin": "7.16.1",
-    "@typescript-eslint/parser": "7.16.1",
+    "@types/styled-components": "5.1.36",
+    "@typescript-eslint/eslint-plugin": "8.54.0",
+    "@typescript-eslint/parser": "8.54.0",
     "babel-jest": "29.7.0",
     "concurrently": "9.1.2",
     "dotenv-load": "3.0.0",
-    "eslint": "8.57.0",
-    "eslint-config-next": "15.3.3",
+    "eslint": "9.39.2",
+    "eslint-config-next": "16.1.6",
     "github-app-webhook-relay-polling": "2.0.0",
     "husky": "9.1.7",
     "jest": "29.7.0",
@@ -68,27 +70,10 @@
     "ts-jest": "29.3.4",
     "ts-node": "10.9.2",
     "typescript": "5.8.3",
-    "typescript-eslint": "7.16.1"
-  },
-  "overrides": {
-    "octokit": {
-      "@octokit/plugin-paginate-rest": "11.4.4-cjs.2"
-    }
+    "typescript-eslint": "8.54.0"
   },
   "engines": {
-    "node": "18 || 20 || 22"
-  },
-  "devEngines": {
-    "runtime": {
-      "name": "node",
-      "version": "18 || 20 || 22",
-      "onFail": "warn"
-    },
-    "packageManager": {
-      "name": "npm",
-      "version": "10 || 11",
-      "onFail": "warn"
-    }
+    "node": "^20.9 || ^22"
   },
   "lint-staged": {
     "*": "npm run lint:fix"

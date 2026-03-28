@@ -11,11 +11,10 @@ import {
   Link,
   Octicon,
   RelativeTime,
+  Stack,
   Text,
 } from '@primer/react'
-import Blankslate from '@primer/react/lib-esm/Blankslate/Blankslate'
-import { DataTable, Table } from '@primer/react/lib-esm/DataTable'
-import { Stack } from '@primer/react/lib-esm/Stack'
+import { Blankslate, DataTable, Table } from '@primer/react/drafts'
 import { AppNotInstalledFlash } from 'app/components/flash/AppNotInstalledFlash'
 import { useForksData } from 'hooks/useForks'
 import { useOrgData } from 'hooks/useOrganization'

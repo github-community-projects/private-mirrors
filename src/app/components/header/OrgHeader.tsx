@@ -1,5 +1,4 @@
-import { Avatar, Link, Pagehead, Spinner, Text } from '@primer/react'
-import { Stack } from '@primer/react/lib-esm/Stack'
+import { Avatar, Link, Pagehead, Spinner, Stack, Text } from '@primer/react'
 import { OrgData } from 'hooks/useOrganization'
 
 interface OrgHeaderProps {
