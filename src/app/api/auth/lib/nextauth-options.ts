@@ -107,6 +107,7 @@ export const nextAuthOptions: AuthOptions = {
     GitHub({
       clientId: process.env.GITHUB_CLIENT_ID!,
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+      issuer: 'https://github.com/login/oauth',
       authorization: {
         params: { scope: 'repo, user, read:org' },
       },
