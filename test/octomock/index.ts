@@ -1,6 +1,7 @@
 // This is taken from https://github.com/Chocrates/octomock
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
-let mockFunctions = {
+const mockFunctions = {
   config: {
     get: jest.fn(),
   },
@@ -307,7 +308,7 @@ export class Octomock {
     rest: Record<string, Record<string, jest.Mock>>
     config: Record<string, jest.Mock>
   }
-  defaultContext: { payload: { issue: { body: string; user: {} } } }
+  defaultContext: { payload: { issue: { body: string; user: object } } }
 
   mockGitHubImplementation: {
     context: {
@@ -400,9 +401,9 @@ export class Octomock {
 
   updateContext(context: {
     [x: string]: any
-    payload?: { issue: { body: string; user: {} } }
+    payload?: { issue: { body: string; user: object } }
   }) {
-    for (let property in context) {
+    for (const property in context) {
       this.mockGitHubImplementation.context[property] = context[property]
     }
   }

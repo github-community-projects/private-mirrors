@@ -14,6 +14,7 @@ import {
 } from '../src/bot/graphql'
 import forkCreatedPayload from './fixtures/fork.created.json'
 import mirrorCreatedPayload from './fixtures/mirror.created.json'
+import { type RepositoryCreatedEvent } from '@octokit/webhooks-types'
 
 const om = new Octomock()
 
@@ -104,7 +105,7 @@ describe('Webhooks events', () => {
     await probot.receive({
       id: forkCreatedPayload.action,
       name: 'repository',
-      payload: forkCreatedPayload as any,
+      payload: forkCreatedPayload as unknown as RepositoryCreatedEvent,
     })
 
     expect(mock.pendingMocks()).toStrictEqual([])
@@ -169,7 +170,7 @@ describe('Webhooks events', () => {
     await probot.receive({
       id: mirrorCreatedPayload.action,
       name: 'repository',
-      payload: mirrorCreatedPayload as any,
+      payload: mirrorCreatedPayload as unknown as RepositoryCreatedEvent,
     })
 
     expect(mock.pendingMocks()).toStrictEqual([])

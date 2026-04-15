@@ -2,6 +2,7 @@ import { syncReposHandler } from '../../../src/server/git/controller'
 import * as auth from '../../../src/utils/auth'
 import * as dir from '../../../src/utils/dir'
 import simpleGit from 'simple-git'
+import type { SyncReposSchema } from '../../../src/server/git/schema'
 
 const getRefSpy = jest.fn()
 
@@ -25,7 +26,7 @@ const fakeOctokitData = {
     },
   },
   installationId: 'fake-installation-id',
-}
+} as unknown as SyncReposSchema['source']['octokit']
 
 jest.mock('simple-git')
 const simpleGitMock = simpleGit as jest.Mock
@@ -354,7 +355,7 @@ describe('Git controller', () => {
     expect(gitMock.push).toHaveBeenCalledWith(['--force'])
   })
 
-  it('should be syncable, have the environment flag set to true, be a merge commit, and be a merge to main branch, ', async () => {
+  it('should be syncable, have the environment flag set to true, be a merge commit, and be a merge to main branch,', async () => {
     getRefSpy
       .mockResolvedValueOnce({
         data: {
