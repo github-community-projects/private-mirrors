@@ -11,8 +11,11 @@
     "webhook": "dotenv-load node scripts/webhook-relay.mjs",
     "build": "SKIP_ENV_VALIDATIONS='true' next build --webpack",
     "start": "next start",
-    "lint": "SKIP_ENV_VALIDATIONS='true' eslint . && prettier --check .",
-    "lint:fix": "SKIP_ENV_VALIDATIONS='true' eslint --fix . && prettier --write .",
+    "lint": "SKIP_ENV_VALIDATIONS='true' eslint .",
+    "lint:fix": "SKIP_ENV_VALIDATIONS='true' eslint --fix .",
+    "format": "prettier --check .",
+    "format:fix": "prettier --write .",
+    "type-check": "tsc --noEmit",
     "bot:build": "tsc ./src/bot/index.ts --noEmit false --esModuleInterop --outDir ./build",
     "bot:start": "probot run ./build/index.js",
     "test": "TEST_LOGGING=1 ts-node -O '{\"module\":\"commonjs\"}' node_modules/jest/bin/jest.js",
@@ -77,6 +80,12 @@
     "node": "^22 || ^24"
   },
   "lint-staged": {
-    "*": "npm run lint:fix"
+    "*": [
+      "npm run format",
+      "npm run lint"
+    ],
+    "'.ts', '.tsx', '.d.ts', '.cts', '.d.cts', '.mts', '.d.mts'": [
+      "npm run type-check"
+    ]
   }
 }
