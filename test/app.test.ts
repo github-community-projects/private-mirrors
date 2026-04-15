@@ -14,7 +14,7 @@ import {
 } from '../src/bot/graphql'
 import forkCreatedPayload from './fixtures/fork.created.json'
 import mirrorCreatedPayload from './fixtures/mirror.created.json'
-import {type RepositoryCreatedEvent} from '@octokit/webhooks-types'
+import { type RepositoryCreatedEvent } from '@octokit/webhooks-types'
 
 const om = new Octomock()
 

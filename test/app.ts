@@ -9,7 +9,7 @@ import fs from 'fs'
 import path from 'path'
 import payload from './fixtures/installation.created.json'
 const issueCreatedBody = { body: 'Thanks for opening this issue!' }
-import {type InstallationCreatedEvent} from '@octokit/webhooks-types'
+import { type InstallationCreatedEvent } from '@octokit/webhooks-types'
 
 const privateKey = fs.readFileSync(
   path.join(__dirname, 'fixtures/mock-cert.pem'),
