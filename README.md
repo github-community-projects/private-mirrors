@@ -78,7 +78,7 @@ docker run --env-file=.env -p 3000:3000 private-mirrors
 docker compose up
 ```
 
-We recommend using Node 20.x or higher, though any Node LTS version >18 should work.
+This project supports Node.js LTS releases; the latest LTS version is preferred. See the `engines` field in [package.json](./package.json) for the exact supported range.
 
 Once it's running, you'll need to create a GitHub App and configure it to point to your deployment. See the [Developing — GitHub App](docs/developing.md#github-app) section for more information.
 
