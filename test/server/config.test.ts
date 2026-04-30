@@ -1,3 +1,4 @@
+import { vi, describe, beforeEach, test, expect } from 'vitest'
 import fs from 'fs'
 import path from 'path'
 
@@ -31,7 +32,7 @@ describe('Config router', () => {
     vi.resetAllMocks()
   })
 
-  it('should fetch the values from the config', async () => {
+  test('should fetch the values from the config', async () => {
     const caller = configRouter.createCaller(createTestContext())
 
     const configSpy = vi.spyOn(config, 'getConfig').mockResolvedValue({

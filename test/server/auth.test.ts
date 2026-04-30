@@ -1,3 +1,4 @@
+import { vi, describe, beforeEach, test, expect } from 'vitest'
 import { healthCheckerRouter } from '../../src/app/api/trpc/trpc-router'
 import { Octomock } from '../octomock'
 import { createTestContext } from '../utils/auth'
@@ -14,7 +15,7 @@ describe('Git router', () => {
     vi.resetAllMocks()
   })
 
-  it('should allow users that are authenticated', async () => {
+  test('should allow users that are authenticated', async () => {
     const caller =
       t.createCallerFactory(healthCheckerRouter)(createTestContext())
 
@@ -34,7 +35,7 @@ describe('Git router', () => {
     )
   })
 
-  it('should throw on invalid sessions', async () => {
+  test('should throw on invalid sessions', async () => {
     const caller = t.createCallerFactory(healthCheckerRouter)(
       createTestContext({
         user: {
