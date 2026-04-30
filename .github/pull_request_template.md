@@ -18,5 +18,6 @@ examples: "feat: add new logger" or "fix: remove unused imports"
 ### Author/Contributor
 
 - [ ] If documentation is needed for this change, has that been included in this pull request
+- [ ] run `npm run format` and fix any formatting issues that have been introduced
 - [ ] run `npm run lint` and fix any linting issues that have been introduced
 - [ ] run `npm run test` and run tests
