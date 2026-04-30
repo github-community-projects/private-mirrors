@@ -1,4 +1,4 @@
-import { vi, describe, beforeEach, test, expect } from 'vitest'
+import { vi, describe, beforeEach, it, expect } from 'vitest'
 // TODO: We should only mock out clone and push but keep the rest of the options
 // the same. This will allow us to test the actual git commands.
 const stubbedGit = {
@@ -109,7 +109,7 @@ describe('Repos router', () => {
     process.env = { ...UNMODIFIED_ENV }
   })
 
-  test('should create a mirror when repo does not exist', async () => {
+  it('should create a mirror when repo does not exist', async () => {
     const caller = t.createCallerFactory(reposRouter)(createTestContext())
 
     const configSpy = vi.spyOn(config, 'getConfig').mockResolvedValue({
@@ -154,7 +154,7 @@ describe('Repos router', () => {
     })
   })
 
-  test('should throw an error when repo already exists', async () => {
+  it('should throw an error when repo already exists', async () => {
     const caller = t.createCallerFactory(reposRouter)(createTestContext())
 
     const configSpy = vi.spyOn(config, 'getConfig').mockResolvedValue({
@@ -188,7 +188,7 @@ describe('Repos router', () => {
     expect(stubbedGit.clone).toHaveBeenCalledTimes(0)
   })
 
-  test('should cleanup repos when there is an error', async () => {
+  it('should cleanup repos when there is an error', async () => {
     const caller = t.createCallerFactory(reposRouter)(createTestContext())
 
     const configSpy = vi.spyOn(config, 'getConfig').mockResolvedValue({
@@ -237,7 +237,7 @@ describe('Repos router', () => {
     expect(stubbedGit.clone).toHaveBeenCalledTimes(1)
   })
 
-  test('dual-org: should cleanup repos when there is an error', async () => {
+  it('dual-org: should cleanup repos when there is an error', async () => {
     const caller = t.createCallerFactory(reposRouter)(createTestContext())
 
     const configSpy = vi.spyOn(config, 'getConfig').mockResolvedValue({
@@ -287,7 +287,7 @@ describe('Repos router', () => {
     expect(stubbedGit.clone).toHaveBeenCalledTimes(1)
   })
 
-  test('should create an internal repo when the CREATE_MIRRORS_WITH_INTERNAL_VISIBILITY flag is used', async () => {
+  it('should create an internal repo when the CREATE_MIRRORS_WITH_INTERNAL_VISIBILITY flag is used', async () => {
     const caller = t.createCallerFactory(reposRouter)(createTestContext())
 
     const configSpy = vi.spyOn(config, 'getConfig').mockResolvedValue({
@@ -341,7 +341,7 @@ describe('Repos router', () => {
     })
   })
 
-  test('reject repository names over the character limit', async () => {
+  it('reject repository names over the character limit', async () => {
     const caller = t.createCallerFactory(reposRouter)(createTestContext())
 
     await caller

@@ -1,4 +1,4 @@
-import { vi, describe, beforeEach, test, expect } from 'vitest'
+import { vi, describe, beforeEach, it, expect } from 'vitest'
 import * as config from '../src/bot/config'
 import { Octomock } from './octomock'
 const om = new Octomock()
@@ -16,7 +16,7 @@ describe('PMA Config', () => {
     delete process.env.PRIVATE_ORG
   })
 
-  test('should use env variables when they are available', async () => {
+  it('should use env variables when they are available', async () => {
     // set the env variables
     process.env.PUBLIC_ORG = 'github'
     process.env.PRIVATE_ORG = 'github-test'
@@ -29,7 +29,7 @@ describe('PMA Config', () => {
     })
   })
 
-  test('should use the public org for both values when only PUBLIC_ORG provided', async () => {
+  it('should use the public org for both values when only PUBLIC_ORG provided', async () => {
     // set the env variables
     process.env.PUBLIC_ORG = 'github'
 
@@ -41,7 +41,7 @@ describe('PMA Config', () => {
     })
   })
 
-  test('should throw an error when no env and no org id provided', async () => {
+  it('should throw an error when no env and no org id provided', async () => {
     await config.getConfig().catch((error) => {
       expect(error.message).toContain('Organization ID is required')
     })

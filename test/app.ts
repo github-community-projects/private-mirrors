@@ -1,4 +1,4 @@
-import { describe, beforeEach, afterEach, test, expect } from 'vitest'
+import { describe, beforeEach, afterEach, it, expect } from 'vitest'
 import nock from 'nock'
 
 // Requiring our app implementation
@@ -35,7 +35,7 @@ describe('Webhooks events', () => {
     probot.load(app)
   })
 
-  test('creates a comment when an issue is opened', () => {
+  it('creates a comment when an issue is opened', () => {
     let commentBody: Record<string, string> | null = null
 
     const mock = nock('https://api.github.com')

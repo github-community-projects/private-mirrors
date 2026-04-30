@@ -1,4 +1,4 @@
-import { vi, describe, beforeEach, test, expect } from 'vitest'
+import { vi, describe, beforeEach, it, expect } from 'vitest'
 import { syncReposHandler } from '../../../src/server/git/controller'
 import * as auth from '../../../src/utils/auth'
 import * as dir from '../../../src/utils/dir'
@@ -58,7 +58,7 @@ describe('Git controller', () => {
     gitMock.show.mockReset()
   })
 
-  test('should not be syncable', async () => {
+  it('should not be syncable', async () => {
     getRefSpy
       .mockResolvedValueOnce({
         data: {
@@ -121,7 +121,7 @@ describe('Git controller', () => {
     ])
   })
 
-  test('should be syncable, but have the environment flag set to false', async () => {
+  it('should be syncable, but have the environment flag set to false', async () => {
     getRefSpy
       .mockResolvedValueOnce({
         data: {
@@ -192,7 +192,7 @@ describe('Git controller', () => {
     expect(gitMock.push).toHaveBeenCalledWith(['--force'])
   })
 
-  test('should be syncable, have the environment flag set to true, but not be a merge commit', async () => {
+  it('should be syncable, have the environment flag set to true, but not be a merge commit', async () => {
     getRefSpy
       .mockResolvedValueOnce({
         data: {
@@ -270,7 +270,7 @@ describe('Git controller', () => {
     expect(gitMock.push).toHaveBeenCalledWith(['--force'])
   })
 
-  test('should be syncable, have the environment flag set to true, be a merge commit, but not be a merge to main branch', async () => {
+  it('should be syncable, have the environment flag set to true, be a merge commit, but not be a merge to main branch', async () => {
     getRefSpy
       .mockResolvedValueOnce({
         data: {
@@ -353,7 +353,7 @@ describe('Git controller', () => {
     expect(gitMock.push).toHaveBeenCalledWith(['--force'])
   })
 
-  test('should be syncable, have the environment flag set to true, be a merge commit, and be a merge to main branch,', async () => {
+  it('should be syncable, have the environment flag set to true, be a merge commit, and be a merge to main branch,', async () => {
     getRefSpy
       .mockResolvedValueOnce({
         data: {
