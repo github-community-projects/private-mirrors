@@ -22,5 +22,11 @@ export default defineConfig({
         'build/**',
       ],
     },
+    typecheck: {
+      enabled: true,
+      checker: 'tsc',
+      include: ['test/**/*.ts'],
+      tsconfig: './tsconfig.json',
+    },
   },
 })

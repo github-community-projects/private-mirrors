@@ -18,7 +18,7 @@
     "type-check": "tsc --noEmit",
     "bot:build": "tsc ./src/bot/index.ts --noEmit false --esModuleInterop --outDir ./build",
     "bot:start": "probot run ./build/index.js",
-    "test": "npm run type-check && TEST_LOGGING=1 vitest run",
+    "test": "TEST_LOGGING=1 vitest run",
     "test:watch": "TEST_LOGGING=1 vitest",
     "test:coverage": "TEST_LOGGING=1 vitest run --coverage",
     "prepare": "husky || true"
