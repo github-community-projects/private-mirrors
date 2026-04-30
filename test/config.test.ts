@@ -1,3 +1,4 @@
+import { vi, describe, beforeEach, it, expect } from 'vitest'
 import * as config from '../src/bot/config'
 import { Octomock } from './octomock'
 const om = new Octomock()

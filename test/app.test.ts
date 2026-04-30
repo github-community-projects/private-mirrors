@@ -1,3 +1,4 @@
+import { describe, beforeEach, it, expect } from 'vitest'
 import nock from 'nock'
 
 // Requiring our app implementation
@@ -46,7 +47,7 @@ describe('Webhooks events', () => {
     probot.load(app.default)
   })
 
-  test('creates branch protections for a fork', async () => {
+  it('creates branch protections for a fork', async () => {
     const mock = nock('https://api.github.com')
       // Test that we can hit the app endpoints
       .get('/app')
@@ -111,7 +112,7 @@ describe('Webhooks events', () => {
     expect(mock.pendingMocks()).toStrictEqual([])
   })
 
-  test('creates branch protections for a mirror', async () => {
+  it('creates branch protections for a mirror', async () => {
     const mock = nock('https://api.github.com')
       // Test that we can hit the app endpoints
       .get('/app')

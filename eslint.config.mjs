@@ -68,6 +68,13 @@ export default [
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
+      'vitest/consistent-test-it': [
+        'error',
+        {
+          fn: 'test',
+          withinDescribe: 'it',
+        },
+      ],
       // TODO: clean up conditional tests
       'vitest/no-conditional-expect': 'off',
     },

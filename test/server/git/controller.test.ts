@@ -1,3 +1,4 @@
+import { vi, describe, beforeEach, it, expect } from 'vitest'
 import { syncReposHandler } from '../../../src/server/git/controller'
 import * as auth from '../../../src/utils/auth'
 import * as dir from '../../../src/utils/dir'

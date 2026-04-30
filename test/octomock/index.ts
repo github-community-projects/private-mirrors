@@ -1,7 +1,7 @@
 // This is taken from https://github.com/Chocrates/octomock
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import type { Mock } from 'vitest'
+import { vi, type Mock } from 'vitest'
 
 const mockFunctions = {
   config: {

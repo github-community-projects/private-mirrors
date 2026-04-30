@@ -1,3 +1,4 @@
+import { vi, describe, beforeEach, it, expect } from 'vitest'
 // TODO: We should only mock out clone and push but keep the rest of the options
 // the same. This will allow us to test the actual git commands.
 const stubbedGit = {
