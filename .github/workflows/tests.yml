@@ -1,4 +1,4 @@
-name: Run Vitest Tests
+name: Run Tests
 
 on:
   push:
@@ -33,5 +33,5 @@ jobs:
       - name: Install Dependencies
         run: npm ci --ignore-scripts
 
-      - name: Run Vitest Tests
+      - name: Run Tests
         run: npm test
