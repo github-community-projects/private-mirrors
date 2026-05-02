@@ -21,6 +21,12 @@ export default defineConfig({
         '.next/**',
         'build/**',
       ],
+      thresholds: {
+        lines: 45,
+        functions: 35,
+        branches: 35,
+        statements: 45,
+      },
     },
     typecheck: {
       enabled: true,
