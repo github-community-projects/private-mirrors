@@ -2,6 +2,7 @@
   "name": "private-mirrors",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "description": "A GitHub App that allows you to contribute upstream using a 'private fork'",
   "author": "Andrew Henry <ajhenry@github.com>",
   "license": "MIT",
