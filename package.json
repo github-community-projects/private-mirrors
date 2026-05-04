@@ -45,7 +45,7 @@
     "simple-git": "3.32.3",
     "styled-components": "5.3.11",
     "superjson": "2.2.2",
-    "tempy": "1.0.1",
+    "tempy": "^3.2.0",
     "tslog": "4.9.3",
     "undici": "6.24.0",
     "zod": "3.25.56"

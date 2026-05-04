@@ -1,4 +1,3 @@
-import tempy from 'tempy'
+import { temporaryDirectory as tempyTemporaryDirectory } from 'tempy'
 
-// FIXME: Had to downgrade tempy to not use esm
-export const temporaryDirectory = () => tempy.directory()
+export const temporaryDirectory = () => tempyTemporaryDirectory()
