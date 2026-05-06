@@ -17,10 +17,9 @@
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
     "type-check": "tsc --noEmit",
-    "bot:start": "tsx ./src/bot/main.ts",
-    "test": "TEST_LOGGING=1 vitest run",
-    "test:watch": "TEST_LOGGING=1 vitest",
-    "test:coverage": "TEST_LOGGING=1 vitest run --coverage",
+    "bot:start": "tsc ./src/bot/main.ts",
+    "test": "TEST_LOGGING=1 vitest run --coverage",
+    "test:watch": "TEST_LOGGING=1 vitest --coverage",
     "prepare": "husky || true"
   },
   "dependencies": {
