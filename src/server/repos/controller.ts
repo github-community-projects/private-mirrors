@@ -94,8 +94,6 @@ export const createMirrorHandler = async ({
         `user.name=pma[bot]`,
         // We want to use the private installation ID as the email so that we can push to the private repo
         `user.email=${privateInstallationId}+pma[bot]@users.noreply.github.com`,
-        // Disable any global git hooks to prevent potential interference when running the app locally
-        'core.hooksPath=/dev/null',
       ],
     }
     const git = simpleGit(tempDir, options)

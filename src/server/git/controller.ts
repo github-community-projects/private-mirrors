@@ -59,8 +59,6 @@ export const syncReposHandler = async ({
       config: [
         `user.name=pma[bot]`,
         `user.email=${input.source.octokit.installationId}+pma[bot]@users.noreply.github.com`,
-        // Disable any global git hooks to prevent potential interference when running the app locally
-        'core.hooksPath=/dev/null',
       ],
     }
 
