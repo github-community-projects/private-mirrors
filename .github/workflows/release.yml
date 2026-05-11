@@ -26,8 +26,6 @@ jobs:
       publish: true
       release-config-name: release-drafter.yml
       image-name: ${{ github.repository }}
-      image-registry: ghcr.io
-      image-registry-username: ${{ github.actor }}
       create-attestation: true
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
