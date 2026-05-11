@@ -94,8 +94,6 @@ export const createMirrorHandler = async ({
         `user.name=pma[bot]`,
         // We want to use the private installation ID as the email so that we can push to the private repo
         `user.email=${privateInstallationId}+pma[bot]@users.noreply.github.com`,
-        // Disable any global git hooks to prevent potential interference when running the app locally
-        'core.hooksPath=/dev/null',
       ],
     }
     const git = simpleGit(tempDir, options)
@@ -149,11 +147,11 @@ export const createMirrorHandler = async ({
       newRepo.data.name,
     )
     await git.addRemote('upstream', upstreamRemote)
-    await git.push('upstream', defaultBranch)
+    await git.push(['--no-verify', 'upstream', defaultBranch])
 
     // Create a new branch on both
     await git.checkoutBranch(input.newBranchName, defaultBranch)
-    await git.push('origin', input.newBranchName)
+    await git.push(['--no-verify', 'origin', input.newBranchName])
 
     reposApiLogger.info('Mirror created', {
       org: newRepo.data.owner.login,
