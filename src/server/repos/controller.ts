@@ -147,11 +147,11 @@ export const createMirrorHandler = async ({
       newRepo.data.name,
     )
     await git.addRemote('upstream', upstreamRemote)
-    await git.push('upstream', defaultBranch)
+    await git.push(['--no-verify', 'upstream', defaultBranch])
 
     // Create a new branch on both
     await git.checkoutBranch(input.newBranchName, defaultBranch)
-    await git.push('origin', input.newBranchName)
+    await git.push(['--no-verify', 'origin', input.newBranchName])
 
     reposApiLogger.info('Mirror created', {
       org: newRepo.data.owner.login,

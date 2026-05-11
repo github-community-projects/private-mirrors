@@ -127,7 +127,7 @@ export const syncReposHandler = async ({
           )
 
           // Push this back to the source branch to retrigger the sync
-          await git.push(['--force'])
+          await git.push(['--no-verify', '--force'])
 
           // Return to end function call
           return {
@@ -145,12 +145,12 @@ export const syncReposHandler = async ({
     gitApiLogger.debug('Checked out branch', input.destination.branch)
 
     // Fast Forward merge the source branch on top of the destination branch
-    await git.merge(['--ff-only', input.source.branch]) // shouldn't fail because of check above, but nothing done to handle a failure
+    await git.merge(['--no-verify', '--ff-only', input.source.branch]) // shouldn't fail because of check above, but nothing done to handle a failure
     gitApiLogger.debug(
       `Merged source branch: ${input.source.branch} into destination branch: ${input.destination.branch} using fast forward`,
     )
 
-    await git.push(['--force'])
+    await git.push(['--no-verify', '--force'])
 
     gitApiLogger.debug(
       `Pushed to ${input.destination.org}/${input.destination.repo}/${input.destination.branch}`,
