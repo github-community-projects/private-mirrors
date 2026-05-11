@@ -29,6 +29,4 @@ jobs:
       create-attestation: true
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
-      image-registry: ghcr.io
-      image-registry-username: ${{ github.actor }}
       image-registry-password: ${{ secrets.GITHUB_TOKEN }}
