@@ -187,9 +187,13 @@ describe('Git controller', () => {
       'destination/destinationBranch',
     )
     expect(gitMock.merge).toHaveBeenCalledTimes(1)
-    expect(gitMock.merge).toHaveBeenCalledWith(['--ff-only', 'sourceBranch'])
+    expect(gitMock.merge).toHaveBeenCalledWith([
+      '--no-verify',
+      '--ff-only',
+      'sourceBranch',
+    ])
     expect(gitMock.push).toHaveBeenCalledTimes(1)
-    expect(gitMock.push).toHaveBeenCalledWith(['--force'])
+    expect(gitMock.push).toHaveBeenCalledWith(['--no-verify', '--force'])
   })
 
   it('should be syncable, have the environment flag set to true, but not be a merge commit', async () => {
@@ -265,9 +269,13 @@ describe('Git controller', () => {
       'destination/destinationBranch',
     )
     expect(gitMock.merge).toHaveBeenCalledTimes(1)
-    expect(gitMock.merge).toHaveBeenCalledWith(['--ff-only', 'sourceBranch'])
+    expect(gitMock.merge).toHaveBeenCalledWith([
+      '--no-verify',
+      '--ff-only',
+      'sourceBranch',
+    ])
     expect(gitMock.push).toHaveBeenCalledTimes(1)
-    expect(gitMock.push).toHaveBeenCalledWith(['--force'])
+    expect(gitMock.push).toHaveBeenCalledWith(['--no-verify', '--force'])
   })
 
   it('should be syncable, have the environment flag set to true, be a merge commit, but not be a merge to main branch', async () => {
@@ -348,9 +356,13 @@ describe('Git controller', () => {
       'destination/destinationBranch',
     )
     expect(gitMock.merge).toHaveBeenCalledTimes(1)
-    expect(gitMock.merge).toHaveBeenCalledWith(['--ff-only', 'sourceBranch'])
+    expect(gitMock.merge).toHaveBeenCalledWith([
+      '--no-verify',
+      '--ff-only',
+      'sourceBranch',
+    ])
     expect(gitMock.push).toHaveBeenCalledTimes(1)
-    expect(gitMock.push).toHaveBeenCalledWith(['--force'])
+    expect(gitMock.push).toHaveBeenCalledWith(['--no-verify', '--force'])
   })
 
   it('should be syncable, have the environment flag set to true, be a merge commit, and be a merge to main branch,', async () => {
@@ -429,6 +441,6 @@ describe('Git controller', () => {
     expect(gitMock.reset).toHaveBeenCalledTimes(1)
     expect(gitMock.reset).toHaveBeenCalledWith(['--hard', 'HEAD^2'])
     expect(gitMock.push).toHaveBeenCalledTimes(1)
-    expect(gitMock.push).toHaveBeenCalledWith(['--force'])
+    expect(gitMock.push).toHaveBeenCalledWith(['--no-verify', '--force'])
   })
 })
