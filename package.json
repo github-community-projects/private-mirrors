@@ -17,7 +17,6 @@
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
     "type-check": "tsc --noEmit",
-    "bot:start": "tsc ./src/bot/main.ts",
     "test": "TEST_LOGGING=1 vitest run --coverage",
     "test:watch": "TEST_LOGGING=1 vitest --coverage",
     "prepare": "husky || true"
@@ -52,6 +51,7 @@
   "devDependencies": {
     "@eslint/js": "9.39.2",
     "@tanstack/eslint-plugin-query": "5.78.0",
+    "@tsconfig/next": "^2.0.6",
     "@types/node": "^22.19.15",
     "@types/node-fetch": "2.6.12",
     "@types/react": "18.3.12",
@@ -69,7 +69,6 @@
     "lint-staged": "15.5.1",
     "nock": "14.0.5",
     "prettier": "3.5.3",
-    "tsx": "^4.21.0",
     "typescript": "5.8.3",
     "typescript-eslint": "8.54.0",
     "vitest": "4.1.5"
