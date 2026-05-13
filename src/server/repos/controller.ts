@@ -2,7 +2,7 @@
 
 import simpleGit, { SimpleGitOptions } from 'simple-git'
 import { generateAuthUrl } from 'utils/auth'
-import { temporaryDirectory } from 'utils/dir'
+import { temporaryDirectory } from 'tempy'
 import { getConfig } from '../../bot/config'
 import {
   appOctokit,

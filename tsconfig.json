@@ -1,27 +1,19 @@
 {
   "extends": "@tsconfig/next/tsconfig.json",
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "preserve",
-    "lib": ["ES2022", "DOM"],
-    "jsx": "react-jsx",
-    "checkJs": true,
-    "outDir": "./build",
-    "removeComments": true,
-    "noUnusedLocals": false,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "baseUrl": "src",
     "paths": {
-      "@/bot": ["bot"],
-      "@/utils": ["utils"]
-    },
-    "inlineSourceMap": true,
-    "forceConsistentCasingInFileNames": true,
-    "pretty": false
+      "app/*": ["./src/app/*"],
+      "bot": ["./src/bot/index.ts"],
+      "bot/*": ["./src/bot/*"],
+      "hooks/*": ["./src/hooks/*"],
+      "server/*": ["./src/server/*"],
+      "types/*": ["./src/types/*"],
+      "utils/*": ["./src/utils/*"]
+    }
   },
   "include": ["src", "test", ".next/types/**/*.ts", ".next/dev/types/**/*.ts"],
-  "exclude": ["node_modules"],
-  "compileOnSave": false
+  "exclude": ["node_modules"]
 }

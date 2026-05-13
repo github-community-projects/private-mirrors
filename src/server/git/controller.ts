@@ -1,6 +1,6 @@
 import simpleGit, { SimpleGitOptions } from 'simple-git'
 import { generateAuthUrl } from '../../utils/auth'
-import { temporaryDirectory } from '../../utils/dir'
+import { temporaryDirectory } from 'tempy'
 import { logger } from '../../utils/logger'
 import { SyncReposSchema } from './schema'
 
