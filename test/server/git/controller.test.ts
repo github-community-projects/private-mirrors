@@ -1,7 +1,7 @@
 import { vi, describe, beforeEach, it, expect } from 'vitest'
 import { syncReposHandler } from '../../../src/server/git/controller'
 import * as auth from '../../../src/utils/auth'
-import * as dir from '../../../src/utils/dir'
+import * as tempy from 'tempy'
 import simpleGit from 'simple-git'
 import type { Mock } from 'vitest'
 import type { SyncReposSchema } from '../../../src/server/git/schema'
@@ -31,6 +31,7 @@ const fakeOctokitData = {
 } as unknown as SyncReposSchema['source']['octokit']
 
 vi.mock('simple-git')
+vi.mock('tempy', () => ({ temporaryDirectory: vi.fn() }))
 const simpleGitMock = simpleGit as unknown as Mock
 const gitMock = {
   addRemote: vi.fn(),
@@ -82,7 +83,7 @@ describe('Git controller', () => {
       .mockReturnValueOnce(
         'https://x-access-token:privateAccessToken@github.com/destinationOwner/destinationRepo',
       )
-    vi.spyOn(dir, 'temporaryDirectory').mockReturnValue('directory')
+    vi.mocked(tempy.temporaryDirectory).mockReturnValue('directory')
 
     gitMock.raw.mockImplementation(() => {
       throw new Error('Not an ancestor')
@@ -145,7 +146,7 @@ describe('Git controller', () => {
       .mockReturnValueOnce(
         'https://x-access-token:privateAccessToken@github.com/destinationOwner/destinationRepo',
       )
-    vi.spyOn(dir, 'temporaryDirectory').mockReturnValue('directory')
+    vi.mocked(tempy.temporaryDirectory).mockReturnValue('directory')
 
     gitMock.raw.mockResolvedValueOnce('')
 
@@ -220,7 +221,7 @@ describe('Git controller', () => {
       .mockReturnValueOnce(
         'https://x-access-token:privateAccessToken@github.com/destinationOwner/destinationRepo',
       )
-    vi.spyOn(dir, 'temporaryDirectory').mockReturnValue('directory')
+    vi.mocked(tempy.temporaryDirectory).mockReturnValue('directory')
 
     gitMock.raw.mockResolvedValueOnce('')
     gitMock.show.mockResolvedValueOnce('sha1')
@@ -302,7 +303,7 @@ describe('Git controller', () => {
       .mockReturnValueOnce(
         'https://x-access-token:privateAccessToken@github.com/destinationOwner/destinationRepo',
       )
-    vi.spyOn(dir, 'temporaryDirectory').mockReturnValue('directory')
+    vi.mocked(tempy.temporaryDirectory).mockReturnValue('directory')
 
     gitMock.raw.mockResolvedValue('')
     gitMock.show.mockResolvedValueOnce('sha1 sha2')
@@ -389,7 +390,7 @@ describe('Git controller', () => {
       .mockReturnValueOnce(
         'https://x-access-token:privateAccessToken@github.com/destinationOwner/destinationRepo',
       )
-    vi.spyOn(dir, 'temporaryDirectory').mockReturnValue('directory')
+    vi.mocked(tempy.temporaryDirectory).mockReturnValue('directory')
 
     gitMock.raw
       .mockResolvedValueOnce('')

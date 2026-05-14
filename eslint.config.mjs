@@ -80,6 +80,6 @@ export default [
     },
   },
   {
-    ignores: ['node_modules/', '.next/', 'build/', '*.mjs', '*.js'],
+    ignores: ['node_modules/', '.next/', 'build/', '*.mjs', '*.js', '*.cjs'],
   },
 ]

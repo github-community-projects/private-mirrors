@@ -2,6 +2,7 @@
   "name": "private-mirrors",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "description": "A GitHub App that allows you to contribute upstream using a 'private fork'",
   "author": "Andrew Henry <ajhenry@github.com>",
   "license": "MIT",
@@ -16,8 +17,6 @@
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
     "type-check": "tsc --noEmit",
-    "bot:build": "tsc ./src/bot/index.ts --noEmit false --esModuleInterop --outDir ./build",
-    "bot:start": "probot run ./build/index.js",
     "test": "TEST_LOGGING=1 vitest run --coverage",
     "test:watch": "TEST_LOGGING=1 vitest --coverage",
     "prepare": "husky || true"
@@ -44,7 +43,7 @@
     "simple-git": "3.36.0",
     "styled-components": "5.3.11",
     "superjson": "2.2.2",
-    "tempy": "1.0.1",
+    "tempy": "^3.2.0",
     "tslog": "4.9.3",
     "undici": "6.24.0",
     "zod": "3.25.56"
@@ -52,6 +51,7 @@
   "devDependencies": {
     "@eslint/js": "9.39.2",
     "@tanstack/eslint-plugin-query": "5.78.0",
+    "@tsconfig/next": "^2.0.6",
     "@types/node": "^22.19.15",
     "@types/node-fetch": "2.6.12",
     "@types/react": "18.3.12",
