@@ -226,13 +226,78 @@ export const createMirrorHandler = async ({
     }
     const git = simpleGit(tempDir, options)
 
-    // Create a clone of the fork that contains only what is necessary to push to the mirror
-    const cloneConfig = ['--single-branch', '--branch', branch, '--no-tags']
-    await git.clone(forkRemote, tempDir, cloneConfig)
+    // Run the slow git work (clone + push) with a timeout. If execution exceeds
+    // MIRROR_SYNC_TIMEOUT_MS we return a pending response and let the work
+    // continue in the background.
+    const gitWork = (async () => {
+      // Create a clone of the fork that contains only what is necessary to push to the mirror
+      const cloneConfig = ['--single-branch', '--branch', branch, '--no-tags']
+      await git.clone(forkRemote, tempDir, cloneConfig)
 
-    // Push the commits from cloned source up to the newly created mirror
-    await git.addRemote('mirror', mirrorRemote)
-    await git.push(['--no-verify', 'mirror', branch])
+      // Push the commits from cloned source up to the newly created mirror
+      await git.addRemote('mirror', mirrorRemote)
+      await git.push(['--no-verify', 'mirror', branch])
+    })()
+
+    const MIRROR_SYNC_TIMEOUT_MS = Number(
+      process.env.MIRROR_SYNC_TIMEOUT_MS ?? 30_000,
+    )
+
+    // Sentinel returned by the timeout branch of Promise.race so the pending path
+    // is distinguishable from a resolved git promise without throw/catch.
+    const PENDING_SENTINEL: unique symbol = Symbol('pending')
+
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const timeoutPromise = new Promise<typeof PENDING_SENTINEL>((resolve) => {
+      timer = setTimeout(
+        () => resolve(PENDING_SENTINEL),
+        MIRROR_SYNC_TIMEOUT_MS,
+      )
+    })
+
+    const raceResult = await Promise.race([gitWork, timeoutPromise])
+
+    if (raceResult === PENDING_SENTINEL) {
+      reposApiLogger.info(
+        'Mirror creation exceeded sync window; continuing in background',
+        {
+          repo: mirrorRepo?.data.name,
+          timeoutMs: MIRROR_SYNC_TIMEOUT_MS,
+        },
+      )
+
+      // Attaching handlers here is required — without them a later rejection
+      // would surface as an unhandled promise rejection.
+      gitWork
+        .then(() =>
+          reposApiLogger.info('Background mirror creation completed', {
+            repo: mirrorRepo?.data.name,
+          }),
+        )
+        .catch(async (err) => {
+          reposApiLogger.error('Background mirror creation failed', {
+            error: err,
+            repo: mirrorRepo?.data.name,
+          })
+          await deleteMirrorAndSyncBranch({
+            privateOctokit,
+            mirrorRepoRef: mirrorRepo && {
+              owner: mirrorRepo.data.owner.login,
+              name: input.newRepoName,
+            },
+            publicOctokit,
+            syncBranchRef,
+          })
+        })
+
+      return {
+        success: true,
+        pending: true,
+        data: mirrorRepo.data,
+      }
+    }
+
+    clearTimeout(timer)
 
     reposApiLogger.info('Mirror created', {
       org: mirrorRepo.data.owner.login,
@@ -241,6 +306,7 @@ export const createMirrorHandler = async ({
 
     return {
       success: true,
+      pending: false,
       data: mirrorRepo.data,
     }
   } catch (error) {

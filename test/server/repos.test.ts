@@ -180,6 +180,7 @@ describe('Repos router', () => {
 
     expect(res).toEqual({
       success: true,
+      pending: false,
       data: fakeMirrorRepo.data,
     })
   })
@@ -377,7 +378,81 @@ describe('Repos router', () => {
 
     expect(res).toEqual({
       success: true,
+      pending: false,
       data: fakeMirrorRepo.data,
+    })
+  })
+
+  it('returns pending when git work exceeds the sync timeout and cleans up on background failure', async () => {
+    const caller = t.createCallerFactory(reposRouter)(createTestContext())
+
+    vi.spyOn(config, 'getConfig').mockResolvedValue({
+      publicOrg: 'github',
+      privateOrg: 'github-test',
+    })
+
+    om.mockFunctions.rest.apps.getOrgInstallation.mockResolvedValue(
+      fakeOrgInstallation,
+    )
+    om.mockFunctions.rest.orgs.get.mockResolvedValue(fakeOrg)
+    om.mockFunctions.rest.repos.get.mockResolvedValueOnce(repoNotFound)
+    om.mockFunctions.rest.repos.get.mockResolvedValueOnce(fakeForkRepo)
+    om.mockFunctions.rest.git.getRef.mockResolvedValue(fakeBranchRef)
+    om.mockFunctions.rest.git.createRef.mockResolvedValue({ status: 201 })
+    om.mockFunctions.rest.orgs.getAllCustomProperties.mockResolvedValue(
+      fakeOrgCustomProperties,
+    )
+    om.mockFunctions.rest.repos.createInOrg.mockResolvedValue(fakeMirrorRepo)
+
+    // Force the git work to never resolve during the sync window so the
+    // timeout branch is taken. Capture the reject so we can trip it after.
+    let rejectPush: (err: Error) => void = () => {}
+    const pushPromise = new Promise((_resolve, reject) => {
+      rejectPush = reject
+    })
+    stubbedGit.clone.mockResolvedValue({})
+    stubbedGit.addRemote.mockResolvedValue({})
+    stubbedGit.push.mockReturnValue(pushPromise)
+
+    // Resolve when cleanup actually runs, so the test waits exactly until the
+    // background .catch handler completes
+    const cleanupCalled = new Promise<void>((resolve) => {
+      om.mockFunctions.rest.git.deleteRef.mockImplementation(async () => {
+        resolve()
+        return {}
+      })
+    })
+    om.mockFunctions.rest.repos.delete.mockResolvedValue({})
+
+    // Shrink the sync timeout so the test completes quickly without fake timers.
+    vi.stubEnv('MIRROR_SYNC_TIMEOUT_MS', '50')
+
+    const res = await caller.createMirror({
+      forkId: 'test',
+      orgId: 'test',
+      forkRepoName: 'fork-test',
+      forkRepoOwner: 'github',
+      newRepoName: 'test',
+    })
+
+    expect(res).toEqual({
+      success: true,
+      pending: true,
+      data: fakeMirrorRepo.data,
+    })
+
+    // Trip the background failure and wait for cleanup to actually run.
+    rejectPush(new Error('background push failed'))
+    await cleanupCalled
+
+    expect(om.mockFunctions.rest.repos.delete).toHaveBeenCalledWith({
+      owner: 'github-test',
+      repo: 'test',
+    })
+    expect(om.mockFunctions.rest.git.deleteRef).toHaveBeenCalledWith({
+      owner: 'github',
+      repo: 'fork-test',
+      ref: 'heads/test',
     })
   })
 
