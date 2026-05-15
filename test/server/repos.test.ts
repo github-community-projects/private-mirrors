@@ -118,6 +118,7 @@ describe('Repos router', () => {
     om.resetMocks()
     vi.resetAllMocks()
     process.env = { ...UNMODIFIED_ENV }
+    vi.stubEnv('SKIP_BRANCH_PROTECTION_CREATION', '')
     // Default to a small commit count so the chunked push loop is skipped and
     // only the final tip push runs. Tests that exercise chunking override this.
     stubbedGit.raw.mockResolvedValue('2\n')
