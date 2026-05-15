@@ -20,10 +20,10 @@ export default defineConfig({
         'build/**',
       ],
       thresholds: {
-        lines: 45,
-        functions: 35,
-        branches: 35,
-        statements: 45,
+        statements: 50,
+        branches: 40,
+        functions: 45,
+        lines: 50,
       },
     },
     typecheck: {
