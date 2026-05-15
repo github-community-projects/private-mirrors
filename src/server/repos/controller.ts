@@ -243,12 +243,11 @@ export const createMirrorHandler = async ({
       )
 
       for (let chunk = 1; chunk * chunkSize < commitCount; chunk++) {
-        // Get the sha for the end of the next chunk of commits to push
+        // Get the sha for the end of the next chunk of commits to push by skipping the recent commits
         const sha = (
           await git.raw([
             'rev-list',
-            '--reverse',
-            `--skip=${chunk * chunkSize - 1}`,
+            `--skip=${commitCount - chunk * chunkSize}`,
             '--max-count=1',
             branch,
           ])

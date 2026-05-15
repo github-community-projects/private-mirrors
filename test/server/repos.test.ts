@@ -408,13 +408,16 @@ describe('Repos router', () => {
     )
     om.mockFunctions.rest.repos.createInOrg.mockResolvedValue(fakeMirrorRepo)
 
-    // 5 commits with chunk size 2: loop iterates at skip=1 (idx 1) and skip=3
-    // (idx 3), then a final tip push lands the actual branch — three pushes.
+    // 5 commits with chunk size 2: loop iterates at skip=3 (c2) and skip=1
+    // (c4), then a final tip push lands the actual branch — three pushes.
+    // rev-list returns commits newest-first, so --skip=N from a 5-commit
+    // history returns the commit at oldest-first index (4 - N).
     const commits = ['c1', 'c2', 'c3', 'c4', 'c5']
     stubbedGit.raw.mockImplementation(async (args: string[]) => {
       if (args.includes('--count')) return `${commits.length}\n`
       const skipArg = args.find((a) => a.startsWith('--skip='))!
-      return `${commits[Number(skipArg.split('=')[1])]}\n`
+      const skip = Number(skipArg.split('=')[1])
+      return `${commits[commits.length - 1 - skip]}\n`
     })
     vi.stubEnv('MIRROR_PUSH_CHUNK_SIZE', '2')
 
