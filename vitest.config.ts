@@ -30,7 +30,7 @@ export default defineConfig({
       enabled: true,
       checker: 'tsc',
       include: ['test/**/*.ts'],
-      tsconfig: './tsconfig.json',
+      tsconfig: './tsconfig.test.json',
     },
   },
   resolve: {

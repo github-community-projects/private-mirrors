@@ -138,7 +138,7 @@ const Organization = () => {
   })
 
   // perform search if there is a search value
-  let forksSet = []
+  let forksSet: typeof forks = []
   if (searchValue) {
     forksSet = fuse.search(searchValue).map((result) => result.item)
   } else {
@@ -167,116 +167,128 @@ const Organization = () => {
           aria-describedby="forks table"
           aria-labelledby="forks table"
           data={forksPaginationSet}
-          columns={[
-            {
-              header: 'Repository',
-              rowHeader: true,
-              field: 'name',
-              sortBy: 'alphanumeric',
-              width: '400px',
-              renderCell: (row) => {
-                return (
-                  <Stack direction="horizontal" align="center">
-                    <Stack.Item>
-                      <Avatar
-                        src={row.parent.owner.avatarUrl ?? row.owner.avatarUrl}
-                        size={32}
-                      />
-                    </Stack.Item>
-                    <Stack.Item grow={false}>
+          columns={
+            [
+              {
+                header: 'Repository',
+                rowHeader: true,
+                field: 'name',
+                sortBy: 'alphanumeric',
+                width: '400px',
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                renderCell: (row: any) => {
+                  return (
+                    <Stack direction="horizontal" align="center">
                       <Stack.Item>
-                        <Link
-                          sx={{
-                            paddingRight: '5px',
-                            fontWeight: 'bold',
-                            fontSize: 2,
-                          }}
-                          href={`/${orgData?.data?.id}/forks/${row.id}`}
-                        >
-                          {row.name}
-                        </Link>
-                        <Label variant="secondary">
-                          {row.isPrivate ? 'Private' : 'Public'}
-                        </Label>
+                        <Avatar
+                          src={
+                            row.parent.owner.avatarUrl ?? row.owner.avatarUrl
+                          }
+                          size={32}
+                        />
                       </Stack.Item>
-                      <Stack.Item>
-                        <Text sx={{ color: 'fg.muted' }}>
-                          Forked from{' '}
+                      <Stack.Item grow={false}>
+                        <Stack.Item>
                           <Link
-                            href={`https://github.com/${row.parent.owner.login}/${row.parent.name}`}
-                            target="_blank"
-                            rel="noreferrer noopener"
-                            sx={{ color: 'fg.muted' }}
+                            sx={{
+                              paddingRight: '5px',
+                              fontWeight: 'bold',
+                              fontSize: 2,
+                            }}
+                            href={`/${orgData?.data?.id}/forks/${row.id}`}
                           >
-                            {row.parent.owner.login}/{row.parent.name}
+                            {row.name}
                           </Link>
-                        </Text>
+                          <Label variant="secondary">
+                            {row.isPrivate ? 'Private' : 'Public'}
+                          </Label>
+                        </Stack.Item>
+                        <Stack.Item>
+                          <Text sx={{ color: 'fg.muted' }}>
+                            Forked from{' '}
+                            <Link
+                              href={`https://github.com/${row.parent.owner.login}/${row.parent.name}`}
+                              target="_blank"
+                              rel="noreferrer noopener"
+                              sx={{ color: 'fg.muted' }}
+                            >
+                              {row.parent.owner.login}/{row.parent.name}
+                            </Link>
+                          </Text>
+                        </Stack.Item>
                       </Stack.Item>
-                    </Stack.Item>
-                  </Stack>
-                )
+                    </Stack>
+                  )
+                },
               },
-            },
-            {
-              header: 'Branches',
-              field: 'refs.totalCount',
-              width: 'auto',
-              renderCell: (row) => {
-                return (
-                  <Stack direction="horizontal">
-                    <Stack.Item>
-                      <Box>
-                        <Octicon
-                          icon={GitBranchIcon}
-                          color="fg.muted"
-                          size={16}
-                        ></Octicon>
-                        <Text sx={{ paddingLeft: '3px', color: 'fg.muted' }}>
-                          {row.refs.totalCount}
-                        </Text>
-                      </Box>
-                    </Stack.Item>
-                  </Stack>
-                )
-              },
-            },
-            {
-              header: 'Languages',
-              field: 'languages',
-              width: 'auto',
-              renderCell: (row) => {
-                const languages = row.languages.nodes
-
-                return (
-                  <Stack direction="horizontal">
-                    {languages.map((lang) => (
-                      <Stack.Item key={lang.name} grow={false}>
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              {
+                header: 'Branches',
+                field: 'refs.totalCount',
+                width: 'auto',
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                renderCell: (row: any) => {
+                  return (
+                    <Stack direction="horizontal">
+                      <Stack.Item>
+                        <Box>
                           <Octicon
-                            icon={DotFillIcon}
-                            color={lang.color}
+                            icon={GitBranchIcon}
+                            color="fg.muted"
                             size={16}
                           ></Octicon>
-                          <Text>{lang.name}</Text>
+                          <Text sx={{ paddingLeft: '3px', color: 'fg.muted' }}>
+                            {row.refs.totalCount}
+                          </Text>
                         </Box>
                       </Stack.Item>
-                    ))}
-                  </Stack>
-                )
+                    </Stack>
+                  )
+                },
               },
-            },
-            {
-              header: 'Updated',
-              field: 'updatedAt',
-              sortBy: 'datetime',
-              width: 'auto',
-              renderCell: (row) => {
-                return (
-                  <RelativeTime date={new Date(row.updatedAt)} tense="past" />
-                )
+              {
+                header: 'Languages',
+                field: 'languages',
+                width: 'auto',
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                renderCell: (row: any) => {
+                  const languages = row.languages.nodes
+
+                  return (
+                    <Stack direction="horizontal">
+                      {languages.map(
+                        (lang: { name: string; color: string }) => (
+                          <Stack.Item key={lang.name} grow={false}>
+                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                              <Octicon
+                                icon={DotFillIcon}
+                                color={lang.color}
+                                size={16}
+                              ></Octicon>
+                              <Text>{lang.name}</Text>
+                            </Box>
+                          </Stack.Item>
+                        ),
+                      )}
+                    </Stack>
+                  )
+                },
               },
-            },
-          ]}
+              {
+                header: 'Updated',
+                field: 'updatedAt',
+                sortBy: 'datetime',
+                width: 'auto',
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                renderCell: (row: any) => {
+                  return (
+                    <RelativeTime date={new Date(row.updatedAt)} tense="past" />
+                  )
+                },
+              },
+              // TODO: Remove `as any` once @primer/react DataTable generics support moduleResolution:"bundler"
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            ] as any
+          }
           cellPadding="spacious"
         />
         <Table.Pagination

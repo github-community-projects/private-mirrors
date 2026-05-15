@@ -8,7 +8,7 @@ export const SyncReposSchema = z.object({
     branch: z.string(),
     octokit: z.object({
       accessToken: z.string(),
-      octokit: z.instanceof(Octokit),
+      octokit: z.custom<Octokit>(),
       installationId: z.string(),
     }),
   }),
@@ -18,7 +18,7 @@ export const SyncReposSchema = z.object({
     branch: z.string(),
     octokit: z.object({
       accessToken: z.string(),
-      octokit: z.instanceof(Octokit),
+      octokit: z.custom<Octokit>(),
       installationId: z.string(),
     }),
   }),

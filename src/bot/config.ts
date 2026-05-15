@@ -1,4 +1,4 @@
-import { Configuration } from '@probot/octokit-plugin-config/dist-types/types'
+import type { Configuration } from '@probot/octokit-plugin-config'
 import z from 'zod'
 import { logger } from '../utils/logger'
 import { appOctokit, installationOctokit } from './octokit'
