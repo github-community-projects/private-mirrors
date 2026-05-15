@@ -56,7 +56,7 @@ export const createMirrorHandler = async ({
         owner: orgData.data.login,
         repo: input.newRepoName,
       })
-      .then((res) => {
+      .then((res: { status: number }) => {
         // if we get a response, then we know the repo exists so we throw an error
         if (res.status === 200) {
           reposApiLogger.info(
@@ -68,8 +68,7 @@ export const createMirrorHandler = async ({
           )
         }
       })
-      .catch((error) => {
-        // catch and rethrow the error if the repo already exists
+      .catch((error: Error) => {
         if ((error as Error).message.includes('already exists')) {
           throw error
         }
@@ -107,6 +106,7 @@ export const createMirrorHandler = async ({
 
     // Get the organization custom properties
     const orgCustomProps =
+      // @ts-expect-error getAllCustomProperties exists in the API but is not yet in octokit 5 type definitions
       await privateOctokit.rest.orgs.getAllCustomProperties({
         org: privateOrg,
       })
@@ -117,6 +117,7 @@ export const createMirrorHandler = async ({
         (prop: { property_name: string }) => prop.property_name === 'fork',
       )
     ) {
+      // @ts-expect-error createOrUpdateCustomProperty exists in the API but is not yet in octokit 5 type definitions
       await privateOctokit.rest.orgs.createOrUpdateCustomProperty({
         org: privateOrg,
         custom_property_name: 'fork',
@@ -128,7 +129,7 @@ export const createMirrorHandler = async ({
     newRepo = await privateOctokit.rest.repos.createInOrg({
       name: input.newRepoName,
       org: privateOrg,
-      // @ts-expect-error because the rest API accepts internal as an option but the types aren't up to date
+      // @ts-expect-error 'internal' visibility is valid but not in octokit 5 type definitions
       visibility: process.env.CREATE_MIRRORS_WITH_INTERNAL_VISIBILITY
         ? 'internal'
         : 'private',
@@ -219,7 +220,7 @@ export const listMirrorsHandler = async ({
         order: 'desc',
         sort: 'updated',
       },
-      (response) => response.data,
+      (response: { data: unknown[] }) => response.data,
     )
 
     return repos

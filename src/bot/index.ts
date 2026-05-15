@@ -53,7 +53,7 @@ function bot(app: Probot) {
       repositoryName: context.payload.repository.name,
     })
 
-    const authenticatedApp = await context.octokit.apps.getAuthenticated()
+    const authenticatedApp = await context.octokit.rest.apps.getAuthenticated()
     if (!authenticatedApp?.data) {
       botLogger.error('Failed to get authenticated app')
       return
@@ -118,7 +118,7 @@ function bot(app: Probot) {
 
   // We listen for repository edited events in case someone plays with branch protections
   app.on('repository.edited', async (context) => {
-    const authenticatedApp = await context.octokit.apps.getAuthenticated()
+    const authenticatedApp = await context.octokit.rest.apps.getAuthenticated()
     if (!authenticatedApp?.data) {
       botLogger.error('Failed to get authenticated app')
       return
@@ -223,7 +223,7 @@ function bot(app: Probot) {
         const res = await syncReposHandler({
           input: {
             source: {
-              org: context.payload.repository.owner.login, // fork org
+              org: context.payload.repository.owner!.login, // fork org
               repo: context.payload.repository.name, // fork repo
               branch: branch, // fork branch
               octokit: octokitData.contribution,
@@ -248,7 +248,7 @@ function bot(app: Probot) {
         const res = await syncReposHandler({
           input: {
             source: {
-              org: context.payload.repository.owner.login, // mirror org
+              org: context.payload.repository.owner!.login, // mirror org
               repo: context.payload.repository.name, // mirror repo
               branch,
               octokit: octokitData.private,
@@ -278,7 +278,8 @@ function bot(app: Probot) {
           },
         )
 
-        const authenticatedApp = await context.octokit.apps.getAuthenticated()
+        const authenticatedApp =
+          await context.octokit.rest.apps.getAuthenticated()
         if (!authenticatedApp?.data) {
           botLogger.error('Failed to get authenticated app')
           return

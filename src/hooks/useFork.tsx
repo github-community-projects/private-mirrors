@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react'
 const getForkById = async (accessToken: string, repoId: string) => {
   try {
     return (
-      await personalOctokit(accessToken).request('GET /repositories/:id', {
+      await personalOctokit(accessToken).request('GET /repositories/{id}', {
         id: repoId,
       })
     ).data as Awaited<ReturnType<Octokit['rest']['repos']['get']>>['data']
