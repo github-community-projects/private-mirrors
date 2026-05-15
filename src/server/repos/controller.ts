@@ -234,8 +234,30 @@ export const createMirrorHandler = async ({
       const cloneConfig = ['--single-branch', '--branch', branch, '--no-tags']
       await git.clone(forkRemote, tempDir, cloneConfig)
 
-      // Push the commits from cloned source up to the newly created mirror
       await git.addRemote('mirror', mirrorRemote)
+
+      // Push commits in chunks so that large pushes don't encounter timeout issues
+      const chunkSize = Number(process.env.MIRROR_PUSH_CHUNK_SIZE ?? 1000)
+      const commitCount = Number(
+        (await git.raw(['rev-list', '--count', branch])).trim(),
+      )
+
+      for (let chunk = 1; chunk * chunkSize < commitCount; chunk++) {
+        // Get the sha for the end of the next chunk of commits to push
+        const sha = (
+          await git.raw([
+            'rev-list',
+            '--reverse',
+            `--skip=${chunk * chunkSize - 1}`,
+            '--max-count=1',
+            branch,
+          ])
+        ).trim()
+
+        await git.push(['--no-verify', 'mirror', `${sha}:refs/heads/${branch}`])
+      }
+
+      // Push up the branch tip and any remaining commits
       await git.push(['--no-verify', 'mirror', branch])
     })()
 

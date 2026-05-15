@@ -8,6 +8,7 @@ const stubbedGit = {
   fetch: vi.fn(),
   checkoutBranch: vi.fn(),
   mergeFromTo: vi.fn(),
+  raw: vi.fn(),
 }
 
 vi.mock('simple-git', () => ({
@@ -117,6 +118,9 @@ describe('Repos router', () => {
     om.resetMocks()
     vi.resetAllMocks()
     process.env = { ...UNMODIFIED_ENV }
+    // Default to a small commit count so the chunked push loop is skipped and
+    // only the final tip push runs. Tests that exercise chunking override this.
+    stubbedGit.raw.mockResolvedValue('2\n')
   })
 
   it('should create a mirror when repo does not exist', async () => {
@@ -375,6 +379,69 @@ describe('Repos router', () => {
     expect(stubbedGit.addRemote).toHaveBeenCalledTimes(1)
     expect(stubbedGit.push).toHaveBeenCalledTimes(1)
     expect(stubbedGit.checkoutBranch).not.toHaveBeenCalled()
+
+    expect(res).toEqual({
+      success: true,
+      pending: false,
+      data: fakeMirrorRepo.data,
+    })
+  })
+
+  it('pushes large repos in chunks of commits', async () => {
+    const caller = t.createCallerFactory(reposRouter)(createTestContext())
+
+    vi.spyOn(config, 'getConfig').mockResolvedValue({
+      publicOrg: 'github',
+      privateOrg: 'github-test',
+    })
+
+    om.mockFunctions.rest.apps.getOrgInstallation.mockResolvedValue(
+      fakeOrgInstallation,
+    )
+    om.mockFunctions.rest.orgs.get.mockResolvedValue(fakeOrg)
+    om.mockFunctions.rest.repos.get.mockResolvedValueOnce(repoNotFound)
+    om.mockFunctions.rest.repos.get.mockResolvedValueOnce(fakeForkRepo)
+    om.mockFunctions.rest.git.getRef.mockResolvedValue(fakeBranchRef)
+    om.mockFunctions.rest.git.createRef.mockResolvedValue({ status: 201 })
+    om.mockFunctions.rest.orgs.getAllCustomProperties.mockResolvedValue(
+      fakeOrgCustomProperties,
+    )
+    om.mockFunctions.rest.repos.createInOrg.mockResolvedValue(fakeMirrorRepo)
+
+    // 5 commits with chunk size 2: loop iterates at skip=1 (idx 1) and skip=3
+    // (idx 3), then a final tip push lands the actual branch — three pushes.
+    const commits = ['c1', 'c2', 'c3', 'c4', 'c5']
+    stubbedGit.raw.mockImplementation(async (args: string[]) => {
+      if (args.includes('--count')) return `${commits.length}\n`
+      const skipArg = args.find((a) => a.startsWith('--skip='))!
+      return `${commits[Number(skipArg.split('=')[1])]}\n`
+    })
+    vi.stubEnv('MIRROR_PUSH_CHUNK_SIZE', '2')
+
+    const res = await caller.createMirror({
+      forkId: 'test',
+      orgId: 'test',
+      forkRepoName: 'fork-test',
+      forkRepoOwner: 'github',
+      newRepoName: 'test',
+    })
+
+    expect(stubbedGit.push).toHaveBeenCalledTimes(3)
+    expect(stubbedGit.push).toHaveBeenNthCalledWith(1, [
+      '--no-verify',
+      'mirror',
+      'c2:refs/heads/main',
+    ])
+    expect(stubbedGit.push).toHaveBeenNthCalledWith(2, [
+      '--no-verify',
+      'mirror',
+      'c4:refs/heads/main',
+    ])
+    expect(stubbedGit.push).toHaveBeenNthCalledWith(3, [
+      '--no-verify',
+      'mirror',
+      'main',
+    ])
 
     expect(res).toEqual({
       success: true,
