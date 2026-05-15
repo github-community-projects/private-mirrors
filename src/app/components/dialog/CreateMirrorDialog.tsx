@@ -20,7 +20,7 @@ interface CreateMirrorDialogProps {
   forkParentName: string
   isOpen: boolean
   closeDialog: () => void
-  createMirror: (data: { repoName: string; branchName: string }) => void
+  createMirror: (data: { repoName: string }) => void
 }
 
 export const CreateMirrorDialog = ({
@@ -61,7 +61,7 @@ export const CreateMirrorDialog = ({
           content: 'Confirm',
           variant: 'primary',
           onClick: () => {
-            createMirror({ repoName, branchName: repoName })
+            createMirror({ repoName })
             setRepoName(DEFAULT_REPO_NAME)
           },
           disabled: !hasUserInput || !validation.success,

@@ -21,7 +21,6 @@ export const CreateMirrorSchema = z.object({
   forkRepoName: z.string(),
   forkId: z.string(),
   newRepoName: mirrorNameSchema,
-  newBranchName: z.string(),
 })
 
 export const ListMirrorsSchema = z.object({

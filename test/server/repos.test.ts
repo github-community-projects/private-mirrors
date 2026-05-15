@@ -136,7 +136,6 @@ describe('Repos router', () => {
       orgId: 'test',
       forkRepoName: 'fork-test',
       forkRepoOwner: 'github',
-      newBranchName: 'test',
       newRepoName: 'test',
     })
 
@@ -175,7 +174,6 @@ describe('Repos router', () => {
         orgId: 'test',
         forkRepoName: 'fork-test',
         forkRepoOwner: 'github',
-        newBranchName: 'test',
         newRepoName: 'test',
       })
       .catch((error) => {
@@ -221,7 +219,6 @@ describe('Repos router', () => {
         orgId: 'test',
         forkRepoName: 'fork-test',
         forkRepoOwner: 'github',
-        newBranchName: 'test',
         newRepoName: 'test',
       })
       .catch((error) => {
@@ -271,7 +268,6 @@ describe('Repos router', () => {
         orgId: 'test',
         forkRepoName: 'fork-test',
         forkRepoOwner: 'github',
-        newBranchName: 'test',
         newRepoName: 'test',
       })
       .catch((error) => {
@@ -317,7 +313,6 @@ describe('Repos router', () => {
       orgId: 'test',
       forkRepoName: 'fork-test',
       forkRepoOwner: 'github',
-      newBranchName: 'test',
       newRepoName: 'test',
     })
 
@@ -350,7 +345,6 @@ describe('Repos router', () => {
         orgId: 'test',
         forkRepoName: 'fork-test',
         forkRepoOwner: 'github',
-        newBranchName: 'test',
         newRepoName: 'a'.repeat(101),
       })
       .catch((error) => {

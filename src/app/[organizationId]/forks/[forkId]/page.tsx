@@ -199,20 +199,13 @@ const Fork = () => {
   } = trpc.deleteMirror.useMutation()
 
   const handleOnCreateMirror = useCallback(
-    async ({
-      repoName,
-      branchName,
-    }: {
-      repoName: string
-      branchName: string
-    }) => {
+    async ({ repoName }: { repoName: string }) => {
       // close other flashes and dialogs when this is opened
       closeAllFlashes()
       closeCreateDialog()
 
       await createMirror({
         newRepoName: repoName,
-        newBranchName: branchName,
         orgId: String(orgData?.data?.id),
         forkRepoName: forkData?.data?.name ?? '',
         forkRepoOwner: forkData?.data?.owner.login ?? '',
