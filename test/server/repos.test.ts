@@ -48,6 +48,7 @@ const fakeForkRepo = {
   data: {
     clone_url: 'https://github.com/github-test/fork-test.git',
     login: 'fork-test',
+    default_branch: 'main',
     owner: {
       login: 'github-test',
     },
@@ -88,6 +89,15 @@ const repoNotFound = {
   },
 }
 
+const fakeBranchRef = {
+  status: 200,
+  data: {
+    object: {
+      sha: 'deadbeef',
+    },
+  },
+}
+
 const fakeOrgCustomProperties = {
   status: 200,
   data: [
@@ -123,6 +133,8 @@ describe('Repos router', () => {
     om.mockFunctions.rest.orgs.get.mockResolvedValue(fakeOrg)
     om.mockFunctions.rest.repos.get.mockResolvedValueOnce(repoNotFound)
     om.mockFunctions.rest.repos.get.mockResolvedValueOnce(fakeForkRepo)
+    om.mockFunctions.rest.git.getRef.mockResolvedValue(fakeBranchRef)
+    om.mockFunctions.rest.git.createRef.mockResolvedValue({ status: 201 })
     om.mockFunctions.rest.orgs.getAllCustomProperties.mockResolvedValue(
       fakeOrgCustomProperties,
     )
@@ -142,10 +154,29 @@ describe('Repos router', () => {
     // TODO: use real git operations and verify fs state after
     expect(configSpy).toHaveBeenCalledTimes(1)
     expect(om.mockFunctions.rest.repos.get).toHaveBeenCalledTimes(2)
+    expect(om.mockFunctions.rest.git.getRef).toHaveBeenCalledTimes(1)
+    expect(om.mockFunctions.rest.git.createRef).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ref: 'refs/heads/test',
+        sha: 'deadbeef',
+      }),
+    )
     expect(stubbedGit.clone).toHaveBeenCalledTimes(1)
-    expect(stubbedGit.addRemote).toHaveBeenCalledTimes(1)
-    expect(stubbedGit.push).toHaveBeenCalledTimes(2)
-    expect(stubbedGit.checkoutBranch).toHaveBeenCalledTimes(1)
+    const cloneArgs = stubbedGit.clone.mock.calls[0]
+    expect(cloneArgs[2]).toEqual([
+      '--single-branch',
+      '--branch',
+      'main',
+      '--no-tags',
+    ])
+    expect(stubbedGit.addRemote.mock.calls[0][0]).toBe('mirror')
+    expect(stubbedGit.push).toHaveBeenCalledTimes(1)
+    expect(stubbedGit.push).toHaveBeenCalledWith([
+      '--no-verify',
+      'mirror',
+      'main',
+    ])
+    expect(stubbedGit.checkoutBranch).not.toHaveBeenCalled()
 
     expect(res).toEqual({
       success: true,
@@ -168,17 +199,15 @@ describe('Repos router', () => {
     om.mockFunctions.rest.repos.get.mockResolvedValue(fakeMirrorRepo)
     om.mockFunctions.rest.repos.delete.mockResolvedValue({})
 
-    await caller
-      .createMirror({
+    await expect(
+      caller.createMirror({
         forkId: 'test',
         orgId: 'test',
         forkRepoName: 'fork-test',
         forkRepoOwner: 'github',
         newRepoName: 'test',
-      })
-      .catch((error) => {
-        expect(error.message).toEqual('Repo github-test/test already exists')
-      })
+      }),
+    ).rejects.toThrow('a mirror named test already exists in github')
 
     expect(configSpy).toHaveBeenCalledTimes(1)
     expect(om.mockFunctions.rest.repos.get).toHaveBeenCalledTimes(1)
@@ -199,13 +228,15 @@ describe('Repos router', () => {
     )
     om.mockFunctions.rest.orgs.get.mockResolvedValue(fakeOrg)
     om.mockFunctions.rest.repos.get.mockResolvedValueOnce(repoNotFound)
-    om.mockFunctions.rest.repos.get.mockResolvedValueOnce(fakeMirrorRepo)
+    om.mockFunctions.rest.repos.get.mockResolvedValueOnce(fakeForkRepo)
+    om.mockFunctions.rest.git.getRef.mockResolvedValue(fakeBranchRef)
+    om.mockFunctions.rest.git.createRef.mockResolvedValue({ status: 201 })
     stubbedGit.clone.mockResolvedValue({})
     om.mockFunctions.rest.orgs.getAllCustomProperties.mockResolvedValue({
       data: [{ fork: 'test' }],
     })
     om.mockFunctions.rest.repos.createInOrg.mockResolvedValue({
-      data: { owner: { login: 'github' } },
+      data: { owner: { login: 'github' }, name: 'test' },
     })
 
     // error after repo creation so that cleanup can be tested
@@ -231,6 +262,11 @@ describe('Repos router', () => {
       owner: 'github',
       repo: 'test',
     })
+    expect(om.mockFunctions.rest.git.deleteRef).toHaveBeenCalledWith({
+      owner: 'github',
+      repo: 'fork-test',
+      ref: 'heads/test',
+    })
     expect(stubbedGit.clone).toHaveBeenCalledTimes(1)
   })
 
@@ -247,13 +283,15 @@ describe('Repos router', () => {
     )
     om.mockFunctions.rest.orgs.get.mockResolvedValue(fakeOrg)
     om.mockFunctions.rest.repos.get.mockResolvedValueOnce(repoNotFound)
-    om.mockFunctions.rest.repos.get.mockResolvedValueOnce(fakeMirrorRepo)
+    om.mockFunctions.rest.repos.get.mockResolvedValueOnce(fakeForkRepo)
+    om.mockFunctions.rest.git.getRef.mockResolvedValue(fakeBranchRef)
+    om.mockFunctions.rest.git.createRef.mockResolvedValue({ status: 201 })
     stubbedGit.clone.mockResolvedValue({})
     om.mockFunctions.rest.orgs.getAllCustomProperties.mockResolvedValue({
       data: [{ fork: 'test' }],
     })
     om.mockFunctions.rest.repos.createInOrg.mockResolvedValue({
-      data: { owner: { login: 'github-test' } },
+      data: { owner: { login: 'github-test' }, name: 'test' },
     })
     om.mockFunctions.rest.repos.delete.mockResolvedValue({})
 
@@ -280,6 +318,11 @@ describe('Repos router', () => {
       owner: 'github-test',
       repo: 'test',
     })
+    expect(om.mockFunctions.rest.git.deleteRef).toHaveBeenCalledWith({
+      owner: 'github',
+      repo: 'fork-test',
+      ref: 'heads/test',
+    })
     expect(stubbedGit.clone).toHaveBeenCalledTimes(1)
   })
 
@@ -297,6 +340,8 @@ describe('Repos router', () => {
     om.mockFunctions.rest.orgs.get.mockResolvedValue(fakeOrg)
     om.mockFunctions.rest.repos.get.mockResolvedValueOnce(repoNotFound)
     om.mockFunctions.rest.repos.get.mockResolvedValueOnce(fakeForkRepo)
+    om.mockFunctions.rest.git.getRef.mockResolvedValue(fakeBranchRef)
+    om.mockFunctions.rest.git.createRef.mockResolvedValue({ status: 201 })
     om.mockFunctions.rest.orgs.getAllCustomProperties.mockResolvedValue(
       fakeOrgCustomProperties,
     )
@@ -327,8 +372,8 @@ describe('Repos router', () => {
       }),
     )
     expect(stubbedGit.addRemote).toHaveBeenCalledTimes(1)
-    expect(stubbedGit.push).toHaveBeenCalledTimes(2)
-    expect(stubbedGit.checkoutBranch).toHaveBeenCalledTimes(1)
+    expect(stubbedGit.push).toHaveBeenCalledTimes(1)
+    expect(stubbedGit.checkoutBranch).not.toHaveBeenCalled()
 
     expect(res).toEqual({
       success: true,
@@ -352,5 +397,154 @@ describe('Repos router', () => {
           /Mirror name cannot exceed 100 characters/,
         )
       })
+  })
+
+  describe('editMirror', () => {
+    it('renames the mirror and the sync branch ref on the public fork', async () => {
+      const caller = t.createCallerFactory(reposRouter)(createTestContext())
+
+      vi.spyOn(config, 'getConfig').mockResolvedValue({
+        publicOrg: 'github',
+        privateOrg: 'github-test',
+      })
+
+      om.mockFunctions.rest.apps.getOrgInstallation.mockResolvedValue(
+        fakeOrgInstallation,
+      )
+      om.mockFunctions.rest.repos.getCustomPropertiesValues.mockResolvedValue({
+        status: 200,
+        data: [{ property_name: 'fork', value: 'github/fork-test' }],
+      })
+      om.mockFunctions.rest.repos.update.mockResolvedValue({
+        status: 200,
+        data: { name: 'renamed' },
+      })
+      om.mockFunctions.rest.repos.renameBranch.mockResolvedValue({
+        status: 201,
+      })
+
+      const res = await caller.editMirror({
+        orgId: 'test',
+        mirrorName: 'old-name',
+        newMirrorName: 'new-name',
+      })
+
+      expect(om.mockFunctions.rest.repos.update).toHaveBeenCalledWith({
+        owner: 'github-test',
+        repo: 'old-name',
+        name: 'new-name',
+      })
+      expect(om.mockFunctions.rest.repos.renameBranch).toHaveBeenCalledWith({
+        owner: 'github',
+        repo: 'fork-test',
+        branch: 'old-name',
+        new_name: 'new-name',
+      })
+      expect(res.success).toBe(true)
+    })
+
+    it('still succeeds when the fork ref rename fails', async () => {
+      const caller = t.createCallerFactory(reposRouter)(createTestContext())
+
+      vi.spyOn(config, 'getConfig').mockResolvedValue({
+        publicOrg: 'github',
+        privateOrg: 'github-test',
+      })
+
+      om.mockFunctions.rest.apps.getOrgInstallation.mockResolvedValue(
+        fakeOrgInstallation,
+      )
+      om.mockFunctions.rest.repos.getCustomPropertiesValues.mockResolvedValue({
+        status: 200,
+        data: [{ property_name: 'fork', value: 'github/fork-test' }],
+      })
+      om.mockFunctions.rest.repos.update.mockResolvedValue({
+        status: 200,
+        data: { name: 'renamed' },
+      })
+      om.mockFunctions.rest.repos.renameBranch.mockRejectedValue(
+        new Error('no branch'),
+      )
+
+      const res = await caller.editMirror({
+        orgId: 'test',
+        mirrorName: 'old-name',
+        newMirrorName: 'new-name',
+      })
+
+      expect(om.mockFunctions.rest.repos.update).toHaveBeenCalled()
+      expect(res.success).toBe(true)
+    })
+
+    it('skips the branch rename when the fork custom property cannot be read', async () => {
+      const caller = t.createCallerFactory(reposRouter)(createTestContext())
+
+      vi.spyOn(config, 'getConfig').mockResolvedValue({
+        publicOrg: 'github',
+        privateOrg: 'github-test',
+      })
+
+      om.mockFunctions.rest.apps.getOrgInstallation.mockResolvedValue(
+        fakeOrgInstallation,
+      )
+      om.mockFunctions.rest.repos.getCustomPropertiesValues.mockRejectedValue(
+        new Error('nope'),
+      )
+      om.mockFunctions.rest.repos.update.mockResolvedValue({
+        status: 200,
+        data: { name: 'renamed' },
+      })
+
+      const res = await caller.editMirror({
+        orgId: 'test',
+        mirrorName: 'old-name',
+        newMirrorName: 'new-name',
+      })
+
+      expect(om.mockFunctions.rest.repos.update).toHaveBeenCalledWith({
+        owner: 'github-test',
+        repo: 'old-name',
+        name: 'new-name',
+      })
+      expect(om.mockFunctions.rest.repos.renameBranch).not.toHaveBeenCalled()
+      expect(res.success).toBe(true)
+    })
+  })
+
+  describe('deleteMirror', () => {
+    it('deletes the mirror and the sync branch ref on the public fork', async () => {
+      const caller = t.createCallerFactory(reposRouter)(createTestContext())
+
+      vi.spyOn(config, 'getConfig').mockResolvedValue({
+        publicOrg: 'github',
+        privateOrg: 'github-test',
+      })
+
+      om.mockFunctions.rest.apps.getOrgInstallation.mockResolvedValue(
+        fakeOrgInstallation,
+      )
+      om.mockFunctions.rest.repos.getCustomPropertiesValues.mockResolvedValue({
+        status: 200,
+        data: [{ property_name: 'fork', value: 'github/fork-test' }],
+      })
+      om.mockFunctions.rest.repos.delete.mockResolvedValue({ status: 204 })
+      om.mockFunctions.rest.git.deleteRef.mockResolvedValue({ status: 204 })
+
+      const res = await caller.deleteMirror({
+        orgId: 'test',
+        mirrorName: 'to-delete',
+      })
+
+      expect(om.mockFunctions.rest.repos.delete).toHaveBeenCalledWith({
+        owner: 'github-test',
+        repo: 'to-delete',
+      })
+      expect(om.mockFunctions.rest.git.deleteRef).toHaveBeenCalledWith({
+        owner: 'github',
+        repo: 'fork-test',
+        ref: 'heads/to-delete',
+      })
+      expect(res.success).toBe(true)
+    })
   })
 })

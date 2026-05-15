@@ -201,6 +201,7 @@ const mockFunctions = {
       listForUser: vi.fn(),
       getCommitRefSha: vi.fn(),
       getCustomPropertiesValues: vi.fn(),
+      renameBranch: vi.fn(),
     },
     issues: {
       list: vi.fn(),
@@ -301,6 +302,11 @@ const mockFunctions = {
     },
     users: {
       getAuthenticated: vi.fn(),
+    },
+    git: {
+      getRef: vi.fn(),
+      createRef: vi.fn(),
+      deleteRef: vi.fn(),
     },
   },
 }

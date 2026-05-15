@@ -9,6 +9,7 @@ import {
   getAuthenticatedOctokit,
   installationOctokit,
 } from '../../bot/octokit'
+import { Octokit } from '../../bot/rest'
 import { logger } from '../../utils/logger'
 import {
   CreateMirrorSchema,
@@ -20,6 +21,71 @@ import { TRPCError } from '@trpc/server'
 
 const reposApiLogger = logger.getSubLogger({ name: 'repos-api' })
 
+type MirrorRepo = Awaited<ReturnType<Octokit['rest']['repos']['createInOrg']>>
+type RepoRef = { owner: string; name: string }
+type SyncBranchRef = { owner: string; repo: string; branch: string }
+
+// Reads the `fork` custom property set at mirror-creation time and parses it
+// into { owner, name }. Returns undefined if the property is missing or
+// malformed
+const getForkRepoFromMirror = async (
+  octokit: Octokit,
+  mirrorOwner: string,
+  mirrorName: string,
+): Promise<RepoRef | undefined> => {
+  try {
+    const props = await octokit.rest.repos.getCustomPropertiesValues({
+      owner: mirrorOwner,
+      repo: mirrorName,
+    })
+    const forkProp = props.data.find((p) => p.property_name === 'fork')
+    if (!forkProp || typeof forkProp.value !== 'string') return undefined
+    const [owner, name] = forkProp.value.split('/')
+    if (!owner || !name) return undefined
+    return { owner, name }
+  } catch (error) {
+    reposApiLogger.error('Failed to read fork custom property', { error })
+    return undefined
+  }
+}
+
+// Deletes a private mirror repo and, when provided, the sync-destination
+// branch on the public fork.
+const deleteMirrorAndSyncBranch = async ({
+  privateOctokit,
+  mirrorRepoRef,
+  publicOctokit,
+  syncBranchRef,
+}: {
+  privateOctokit: Octokit | undefined
+  mirrorRepoRef: RepoRef | undefined
+  publicOctokit: Octokit | undefined
+  syncBranchRef: SyncBranchRef | undefined
+}) => {
+  if (privateOctokit && mirrorRepoRef) {
+    try {
+      await privateOctokit.rest.repos.delete({
+        owner: mirrorRepoRef.owner,
+        repo: mirrorRepoRef.name,
+      })
+    } catch (deleteError) {
+      reposApiLogger.error('Failed to delete mirror', { deleteError })
+    }
+  }
+
+  if (publicOctokit && syncBranchRef) {
+    try {
+      await publicOctokit.rest.git.deleteRef({
+        owner: syncBranchRef.owner,
+        repo: syncBranchRef.repo,
+        ref: `heads/${syncBranchRef.branch}`,
+      })
+    } catch (deleteError) {
+      reposApiLogger.error('Failed to delete sync branch ref', { deleteError })
+    }
+  }
+}
+
 // Creates a mirror of a forked repo
 export const createMirrorHandler = async ({
   input,
@@ -27,8 +93,10 @@ export const createMirrorHandler = async ({
   input: CreateMirrorSchema
 }) => {
   // Use to track mirror creation for cleanup in case of errors
-  let privateOctokit
-  let newRepo
+  let privateOctokit: Octokit | undefined
+  let publicOctokit: Octokit | undefined
+  let mirrorRepo: MirrorRepo | undefined
+  let syncBranchRef: SyncBranchRef | undefined
 
   try {
     reposApiLogger.info('createMirror', { input: input })
@@ -40,70 +108,66 @@ export const createMirrorHandler = async ({
     const { publicOrg, privateOrg } = config
 
     const octokitData = await getAuthenticatedOctokit(publicOrg, privateOrg)
-    const contributionOctokit = octokitData.contribution.octokit
-    const contributionAccessToken = octokitData.contribution.accessToken
+    publicOctokit = octokitData.contribution.octokit
+    const publicAccessToken = octokitData.contribution.accessToken
 
     privateOctokit = octokitData.private.octokit
     const privateInstallationId = octokitData.private.installationId
     const privateAccessToken = octokitData.private.accessToken
 
-    const orgData = await contributionOctokit.rest.orgs.get({
-      org: publicOrg,
-    })
-
-    await contributionOctokit.rest.repos
+    // Check if the desired repo name already exists in the private org before forking
+    const response = await privateOctokit.rest.repos
       .get({
-        owner: orgData.data.login,
+        owner: privateOrg,
         repo: input.newRepoName,
       })
-      .then((res) => {
-        // if we get a response, then we know the repo exists so we throw an error
-        if (res.status === 200) {
-          reposApiLogger.info(
-            `Repo ${orgData.data.login}/${input.newRepoName} already exists`,
-          )
-
-          throw new Error(
-            `Repo ${orgData.data.login}/${input.newRepoName} already exists`,
-          )
-        }
-      })
       .catch((error) => {
-        // catch and rethrow the error if the repo already exists
-        if ((error as Error).message.includes('already exists')) {
-          throw error
-        }
-
-        // if there is a real error, then we log it and throw it
+        // If there is an error other than "Not Found", log and throw it
         if (!(error as Error).message.includes('Not Found')) {
-          reposApiLogger.error('Not found', { error })
+          reposApiLogger.error(
+            `Searching for existing mirror named ${input.newRepoName} in ${privateOrg} failed with: `,
+            { error },
+          )
           throw error
         }
       })
 
-    const forkData = await contributionOctokit.rest.repos.get({
+    // If we get a response, the repo already exists so we should throw an error
+    if (response && response.status === 200) {
+      reposApiLogger.info(
+        `a mirror named ${input.newRepoName} already exists in ${privateOrg}`,
+      )
+
+      throw new Error(
+        `a mirror named ${input.newRepoName} already exists in ${privateOrg}`,
+      )
+    }
+
+    // TODO: replace this call with a passed in branch name as part of https://github.com/github-community-projects/private-mirrors/issues/448
+    const forkRepo = await publicOctokit.rest.repos.get({
       owner: input.forkRepoOwner,
       repo: input.forkRepoName,
     })
+    const branch = forkRepo.data.default_branch
 
-    // Now create a temporary directory to clone the repo into
-    const tempDir = temporaryDirectory()
-
-    const options: Partial<SimpleGitOptions> = {
-      config: [
-        `user.name=pma[bot]`,
-        // We want to use the private installation ID as the email so that we can push to the private repo
-        `user.email=${privateInstallationId}+pma[bot]@users.noreply.github.com`,
-      ],
+    // Create a sync destination branch on the public fork with the same name as the mirror
+    const sourceBranchRef = await publicOctokit.rest.git.getRef({
+      owner: input.forkRepoOwner,
+      repo: input.forkRepoName,
+      ref: `heads/${branch}`,
+    })
+    const sourceBranchSha = sourceBranchRef.data.object.sha
+    await publicOctokit.rest.git.createRef({
+      owner: input.forkRepoOwner,
+      repo: input.forkRepoName,
+      ref: `refs/heads/${input.newRepoName}`,
+      sha: sourceBranchSha,
+    })
+    syncBranchRef = {
+      owner: input.forkRepoOwner,
+      repo: input.forkRepoName,
+      branch: input.newRepoName,
     }
-    const git = simpleGit(tempDir, options)
-    const remote = generateAuthUrl(
-      contributionAccessToken,
-      input.forkRepoOwner,
-      input.forkRepoName,
-    )
-
-    await git.clone(remote, tempDir)
 
     // Get the organization custom properties
     const orgCustomProps =
@@ -124,8 +188,8 @@ export const createMirrorHandler = async ({
       })
     }
 
-    // This repo needs to be created in the private org
-    newRepo = await privateOctokit.rest.repos.createInOrg({
+    // Create the mirror repo in the private org
+    mirrorRepo = await privateOctokit.rest.repos.createInOrg({
       name: input.newRepoName,
       org: privateOrg,
       // @ts-expect-error because the rest API accepts internal as an option but the types aren't up to date
@@ -138,29 +202,46 @@ export const createMirrorHandler = async ({
       },
     })
 
-    const defaultBranch = forkData.data.default_branch
-
-    // Add the mirror remote
-    const upstreamRemote = generateAuthUrl(
-      privateAccessToken,
-      newRepo.data.owner.login,
-      newRepo.data.name,
+    const forkRemote = generateAuthUrl(
+      publicAccessToken,
+      input.forkRepoOwner,
+      input.forkRepoName,
     )
-    await git.addRemote('upstream', upstreamRemote)
-    await git.push(['--no-verify', 'upstream', defaultBranch])
 
-    // Create a new branch on both
-    await git.checkoutBranch(input.newRepoName, defaultBranch)
-    await git.push(['--no-verify', 'origin', input.newRepoName])
+    const mirrorRemote = generateAuthUrl(
+      privateAccessToken,
+      mirrorRepo.data.owner.login,
+      mirrorRepo.data.name,
+    )
+
+    // Create a temporary directory to clone the repo into
+    const tempDir = temporaryDirectory()
+
+    const options: Partial<SimpleGitOptions> = {
+      config: [
+        `user.name=pma[bot]`,
+        // We want to use the private installation ID as the email so that we can push to the private repo
+        `user.email=${privateInstallationId}+pma[bot]@users.noreply.github.com`,
+      ],
+    }
+    const git = simpleGit(tempDir, options)
+
+    // Create a clone of the fork that contains only what is necessary to push to the mirror
+    const cloneConfig = ['--single-branch', '--branch', branch, '--no-tags']
+    await git.clone(forkRemote, tempDir, cloneConfig)
+
+    // Push the commits from cloned source up to the newly created mirror
+    await git.addRemote('mirror', mirrorRemote)
+    await git.push(['--no-verify', 'mirror', branch])
 
     reposApiLogger.info('Mirror created', {
-      org: newRepo.data.owner.login,
-      name: newRepo.data.name,
+      org: mirrorRepo.data.owner.login,
+      name: mirrorRepo.data.name,
     })
 
     return {
       success: true,
-      data: newRepo.data,
+      data: mirrorRepo.data,
     }
   } catch (error) {
     reposApiLogger.error('Error creating mirror', { error })
@@ -171,17 +252,15 @@ export const createMirrorHandler = async ({
       (error as Error)?.message ??
       'An error occurred'
 
-    if (privateOctokit && newRepo) {
-      try {
-        // Clean up the private mirror repo made
-        await privateOctokit.rest.repos.delete({
-          owner: newRepo.data.owner.login,
-          repo: input.newRepoName,
-        })
-      } catch (deleteError) {
-        reposApiLogger.error('Failed to delete mirror', { deleteError })
-      }
-    }
+    await deleteMirrorAndSyncBranch({
+      privateOctokit,
+      mirrorRepoRef: mirrorRepo && {
+        owner: mirrorRepo.data.owner.login,
+        name: input.newRepoName,
+      },
+      publicOctokit,
+      syncBranchRef,
+    })
 
     throw new TRPCError({
       code: 'INTERNAL_SERVER_ERROR',
@@ -239,7 +318,9 @@ export const listMirrorsHandler = async ({
   }
 }
 
-// Edits the name of a mirror
+// Edits the name of a mirror and renames the sync destination branch on
+// the public fork (which shares the mirror's name) so that the two
+// stay aligned.
 export const editMirrorHandler = async ({
   input,
 }: {
@@ -250,17 +331,43 @@ export const editMirrorHandler = async ({
 
     const config = await getConfig(input.orgId)
 
-    const installationId = await appOctokit().rest.apps.getOrgInstallation({
-      org: config.privateOrg,
-    })
+    const octokitData = await getAuthenticatedOctokit(
+      config.publicOrg,
+      config.privateOrg,
+    )
+    const publicOctokit = octokitData.contribution.octokit
+    const privateOctokit = octokitData.private.octokit
 
-    const octokit = installationOctokit(String(installationId.data.id))
+    // Lookup the mirror's associated fork to rename the sync branch later
+    const forkRepoRef = await getForkRepoFromMirror(
+      privateOctokit,
+      config.privateOrg,
+      input.mirrorName,
+    )
 
-    const repo = await octokit.rest.repos.update({
+    const repo = await privateOctokit.rest.repos.update({
       owner: config.privateOrg,
       repo: input.mirrorName,
       name: input.newMirrorName,
     })
+
+    if (forkRepoRef) {
+      try {
+        await publicOctokit.rest.repos.renameBranch({
+          owner: forkRepoRef.owner,
+          repo: forkRepoRef.name,
+          branch: input.mirrorName,
+          new_name: input.newMirrorName,
+        })
+      } catch (error) {
+        reposApiLogger.error('Failed to rename sync branch on fork', {
+          error,
+          forkRepoRef,
+          oldBranch: input.mirrorName,
+          newBranch: input.newMirrorName,
+        })
+      }
+    }
 
     return {
       success: true,
@@ -282,7 +389,7 @@ export const editMirrorHandler = async ({
   }
 }
 
-// Deletes a mirror
+// Deletes a mirror and its sync-destination branch on the public fork.
 export const deleteMirrorHandler = async ({
   input,
 }: {
@@ -293,15 +400,28 @@ export const deleteMirrorHandler = async ({
 
     const config = await getConfig(input.orgId)
 
-    const installationId = await appOctokit().rest.apps.getOrgInstallation({
-      org: config.privateOrg,
-    })
+    const octokitData = await getAuthenticatedOctokit(
+      config.publicOrg,
+      config.privateOrg,
+    )
+    const publicOctokit = octokitData.contribution.octokit
+    const privateOctokit = octokitData.private.octokit
 
-    const octokit = installationOctokit(String(installationId.data.id))
+    const forkRepoRef = await getForkRepoFromMirror(
+      privateOctokit,
+      config.privateOrg,
+      input.mirrorName,
+    )
 
-    await octokit.rest.repos.delete({
-      owner: config.privateOrg,
-      repo: input.mirrorName,
+    await deleteMirrorAndSyncBranch({
+      privateOctokit,
+      mirrorRepoRef: { owner: config.privateOrg, name: input.mirrorName },
+      publicOctokit,
+      syncBranchRef: forkRepoRef && {
+        owner: forkRepoRef.owner,
+        repo: forkRepoRef.name,
+        branch: input.mirrorName,
+      },
     })
 
     return {
