@@ -26,6 +26,7 @@ import { DeleteMirrorDialog } from 'app/components/dialog/DeleteMirrorDialog'
 import { EditMirrorDialog } from 'app/components/dialog/EditMirrorDialog'
 import { AppNotInstalledFlash } from 'app/components/flash/AppNotInstalledFlash'
 import { ErrorFlash } from 'app/components/flash/ErrorFlash'
+import { PendingFlash } from 'app/components/flash/PendingFlash'
 import { SuccessFlash } from 'app/components/flash/SuccessFlash'
 import { ForkHeader } from 'app/components/header/ForkHeader'
 import { Loading } from 'app/components/loading/Loading'
@@ -120,6 +121,17 @@ const Fork = () => {
     [setIsCreateSuccessFlashOpen],
   )
 
+  const [isCreatePendingFlashOpen, setIsCreatePendingFlashOpen] =
+    useState(false)
+  const closeCreatePendingFlash = useCallback(
+    () => setIsCreatePendingFlashOpen(false),
+    [setIsCreatePendingFlashOpen],
+  )
+  const openCreatePendingFlash = useCallback(
+    () => setIsCreatePendingFlashOpen(true),
+    [setIsCreatePendingFlashOpen],
+  )
+
   const [isEditSuccessFlashOpen, setIsEditSuccessFlashOpen] = useState(false)
   const closeEditSuccessFlash = useCallback(
     () => setIsEditSuccessFlashOpen(false),
@@ -133,12 +145,14 @@ const Fork = () => {
   const closeAllFlashes = useCallback(() => {
     closeCreateErrorFlash()
     closeCreateSuccessFlash()
+    closeCreatePendingFlash()
     closeEditErrorFlash()
     closeEditSuccessFlash()
     closeDeleteErrorFlash()
   }, [
     closeCreateErrorFlash,
     closeCreateSuccessFlash,
+    closeCreatePendingFlash,
     closeEditErrorFlash,
     closeEditSuccessFlash,
     closeDeleteErrorFlash,
@@ -213,7 +227,11 @@ const Fork = () => {
       })
         .then((res) => {
           if (res.success) {
-            openCreateSuccessFlash()
+            if (res.pending) {
+              openCreatePendingFlash()
+            } else {
+              openCreateSuccessFlash()
+            }
           }
         })
         .catch((error) => {
@@ -229,6 +247,7 @@ const Fork = () => {
       createMirror,
       refetchMirrors,
       openCreateSuccessFlash,
+      openCreatePendingFlash,
       openCreateErrorFlash,
       orgData,
       forkData,
@@ -307,6 +326,40 @@ const Fork = () => {
     ],
   )
 
+  // Rendered identically in both the empty-state and populated branches below.
+  // Extracted so any change to flash rendering only needs to be made once.
+  const createMirrorFlashes = (
+    <>
+      <Box sx={{ marginBottom: '10px' }}>
+        {createMirrorData &&
+          createMirrorData.success &&
+          !createMirrorData.pending &&
+          isCreateSuccessFlashOpen && (
+            <SuccessFlash
+              message="You have successfully created a new private mirror at"
+              closeFlash={closeCreateSuccessFlash}
+              mirrorName={createMirrorData.data?.name}
+              mirrorUrl={createMirrorData.data?.html_url}
+              orgLogin={createMirrorData.data?.owner.login}
+            />
+          )}
+      </Box>
+      <Box sx={{ marginBottom: '10px' }}>
+        {createMirrorData &&
+          createMirrorData.success &&
+          createMirrorData.pending &&
+          isCreatePendingFlashOpen && (
+            <PendingFlash
+              closeFlash={closeCreatePendingFlash}
+              mirrorName={createMirrorData.data?.name}
+              mirrorUrl={createMirrorData.data?.html_url}
+              orgLogin={createMirrorData.data?.owner.login}
+            />
+          )}
+      </Box>
+    </>
+  )
+
   // show loading table
   if (mirrorsLoading || configLoading) {
     return (
@@ -376,19 +429,7 @@ const Fork = () => {
             />
           )}
         </Box>
-        <Box sx={{ marginBottom: '10px' }}>
-          {createMirrorData &&
-            createMirrorData.success &&
-            isCreateSuccessFlashOpen && (
-              <SuccessFlash
-                message="You have successfully created a new private mirror at"
-                closeFlash={closeCreateSuccessFlash}
-                mirrorName={createMirrorData.data?.name}
-                mirrorUrl={createMirrorData.data?.html_url}
-                orgLogin={createMirrorData.data?.owner.login}
-              />
-            )}
-        </Box>
+        {createMirrorFlashes}
         <ForkBreadcrumbs orgData={orgData.data} forkData={forkData.data} />
         <SearchWithCreate
           placeholder="Find a mirror"
@@ -501,19 +542,7 @@ const Fork = () => {
           />
         )}
       </Box>
-      <Box sx={{ marginBottom: '10px' }}>
-        {createMirrorData &&
-          createMirrorData.success &&
-          isCreateSuccessFlashOpen && (
-            <SuccessFlash
-              message="You have successfully created a new private mirror at"
-              closeFlash={closeCreateSuccessFlash}
-              mirrorName={createMirrorData.data?.name}
-              mirrorUrl={createMirrorData.data?.html_url}
-              orgLogin={createMirrorData.data?.owner.login}
-            />
-          )}
-      </Box>
+      {createMirrorFlashes}
       <Box sx={{ marginBottom: '10px' }}>
         {editMirrorData && editMirrorData.success && isEditSuccessFlashOpen && (
           <SuccessFlash
