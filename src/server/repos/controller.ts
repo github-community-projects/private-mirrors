@@ -239,7 +239,9 @@ export const createMirrorHandler = async ({
       // Push commits in chunks so that large pushes don't encounter timeout issues
       const chunkSize = Number(process.env.MIRROR_PUSH_CHUNK_SIZE ?? 1000)
       const commitCount = Number(
-        (await git.raw(['rev-list', '--count', branch])).trim(),
+        (
+          await git.raw(['rev-list', '--first-parent', '--count', branch])
+        ).trim(),
       )
 
       for (let chunk = 1; chunk * chunkSize < commitCount; chunk++) {
@@ -247,6 +249,7 @@ export const createMirrorHandler = async ({
         const sha = (
           await git.raw([
             'rev-list',
+            '--first-parent',
             `--skip=${commitCount - chunk * chunkSize}`,
             '--max-count=1',
             branch,
