@@ -54,6 +54,44 @@ export const env = createEnv({
       .optional()
       .default('false')
       .transform((value) => value === 'true'),
+    MIRROR_SYNC_TIMEOUT_MS: z
+      .string()
+      .optional()
+      .default('30000')
+      .transform((value, ctx) => {
+        const parsed = Number(value)
+        if (
+          !Number.isFinite(parsed) ||
+          !Number.isInteger(parsed) ||
+          parsed <= 0
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'MIRROR_SYNC_TIMEOUT_MS must be a positive integer',
+          })
+          return z.NEVER
+        }
+        return parsed
+      }),
+    MIRROR_PUSH_CHUNK_SIZE: z
+      .string()
+      .optional()
+      .default('1000')
+      .transform((value, ctx) => {
+        const parsed = Number(value)
+        if (
+          !Number.isFinite(parsed) ||
+          !Number.isInteger(parsed) ||
+          parsed <= 0
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'MIRROR_PUSH_CHUNK_SIZE must be a positive integer',
+          })
+          return z.NEVER
+        }
+        return parsed
+      }),
   },
   /*
    * Environment variables available on the client (and server).
@@ -87,6 +125,8 @@ export const env = createEnv({
       process.env.CREATE_MIRRORS_WITH_INTERNAL_VISIBILITY,
     DELETE_INTERNAL_MERGE_COMMITS_ON_SYNC:
       process.env.DELETE_INTERNAL_MERGE_COMMITS_ON_SYNC,
+    MIRROR_SYNC_TIMEOUT_MS: process.env.MIRROR_SYNC_TIMEOUT_MS,
+    MIRROR_PUSH_CHUNK_SIZE: process.env.MIRROR_PUSH_CHUNK_SIZE,
   },
   skipValidation: process.env.SKIP_ENV_VALIDATIONS === 'true',
 })

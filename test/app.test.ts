@@ -1,4 +1,4 @@
-import { describe, beforeEach, it, expect } from 'vitest'
+import { describe, beforeEach, it, expect, vi } from 'vitest'
 import nock from 'nock'
 
 // Requiring our app implementation
@@ -34,6 +34,7 @@ describe('Webhooks events', () => {
   beforeEach(() => {
     nock.disableNetConnect()
     om.resetMocks()
+    vi.stubEnv('SKIP_BRANCH_PROTECTION_CREATION', '')
     probot = new Probot({
       appId: 12345,
       privateKey,
