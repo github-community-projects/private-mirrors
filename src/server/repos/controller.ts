@@ -34,11 +34,12 @@ const getForkRepoFromMirror = async (
   mirrorName: string,
 ): Promise<RepoRef | undefined> => {
   try {
+    // @ts-expect-error getCustomPropertiesValues exists in the API but is not yet in octokit 5 type definitions
     const props = await octokit.rest.repos.getCustomPropertiesValues({
       owner: mirrorOwner,
       repo: mirrorName,
     })
-    const forkProp = props.data.find((p) => p.property_name === 'fork')
+    const forkProp = props.data.find((p: { property_name: string }) => p.property_name === 'fork')
     if (!forkProp || typeof forkProp.value !== 'string') return undefined
     const [owner, name] = forkProp.value.split('/')
     if (!owner || !name) return undefined
@@ -116,28 +117,13 @@ export const createMirrorHandler = async ({
     const privateAccessToken = octokitData.private.accessToken
 
     // Check if the desired repo name already exists in the private org before forking
-    await privateOctokit.rest.repos
+    const response = await privateOctokit.rest.repos
       .get({
         owner: privateOrg,
         repo: input.newRepoName,
       })
-      .then((res: { status: number }) => {
-        if (res.status === 200) {
-          reposApiLogger.info(
-            `Repo ${orgData.data.login}/${input.newRepoName} already exists`,
-          )
-
-          throw new Error(
-            `Repo ${orgData.data.login}/${input.newRepoName} already exists`,
-          )
-        }
-      })
-      .catch((error: Error) => {
-        if ((error as Error).message.includes('already exists')) {
-          throw error
-        }
-
-        // if there is a real error, then we log it and throw it
+      .catch((error) => {
+        // If there is an error other than "Not Found", log and throw it
         if (!(error as Error).message.includes('Not Found')) {
           reposApiLogger.error(
             `Searching for existing mirror named ${input.newRepoName} in ${privateOrg} failed with: `,
@@ -146,6 +132,17 @@ export const createMirrorHandler = async ({
           throw error
         }
       })
+
+    // If we get a response, the repo already exists so we should throw an error
+    if (response && response.status === 200) {
+      reposApiLogger.info(
+        `a mirror named ${input.newRepoName} already exists in ${privateOrg}`,
+      )
+
+      throw new Error(
+        `a mirror named ${input.newRepoName} already exists in ${privateOrg}`,
+      )
+    }
 
     // TODO: replace this call with a passed in branch name as part of https://github.com/github-community-projects/private-mirrors/issues/448
     const forkRepo = await publicOctokit.rest.repos.get({
