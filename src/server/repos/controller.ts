@@ -118,13 +118,28 @@ export const createMirrorHandler = async ({
     const privateAccessToken = octokitData.private.accessToken
 
     // Check if the desired repo name already exists in the private org before forking
-    const response = await privateOctokit.rest.repos
+    await privateOctokit.rest.repos
       .get({
         owner: privateOrg,
         repo: input.newRepoName,
       })
-      .catch((error) => {
-        // If there is an error other than "Not Found", log and throw it
+      .then((res: { status: number }) => {
+        if (res.status === 200) {
+          reposApiLogger.info(
+            `Repo ${orgData.data.login}/${input.newRepoName} already exists`,
+          )
+
+          throw new Error(
+            `Repo ${orgData.data.login}/${input.newRepoName} already exists`,
+          )
+        }
+      })
+      .catch((error: Error) => {
+        if ((error as Error).message.includes('already exists')) {
+          throw error
+        }
+
+        // if there is a real error, then we log it and throw it
         if (!(error as Error).message.includes('Not Found')) {
           reposApiLogger.error(
             `Searching for existing mirror named ${input.newRepoName} in ${privateOrg} failed with: `,
@@ -133,17 +148,6 @@ export const createMirrorHandler = async ({
           throw error
         }
       })
-
-    // If we get a response, the repo already exists so we should throw an error
-    if (response && response.status === 200) {
-      reposApiLogger.info(
-        `a mirror named ${input.newRepoName} already exists in ${privateOrg}`,
-      )
-
-      throw new Error(
-        `a mirror named ${input.newRepoName} already exists in ${privateOrg}`,
-      )
-    }
 
     // TODO: replace this call with a passed in branch name as part of https://github.com/github-community-projects/private-mirrors/issues/448
     const forkRepo = await publicOctokit.rest.repos.get({
@@ -173,6 +177,7 @@ export const createMirrorHandler = async ({
 
     // Get the organization custom properties
     const orgCustomProps =
+      // @ts-expect-error getAllCustomProperties exists in the API but is not yet in octokit 5 type definitions
       await privateOctokit.rest.orgs.getAllCustomProperties({
         org: privateOrg,
       })
@@ -183,6 +188,7 @@ export const createMirrorHandler = async ({
         (prop: { property_name: string }) => prop.property_name === 'fork',
       )
     ) {
+      // @ts-expect-error createOrUpdateCustomProperty exists in the API but is not yet in octokit 5 type definitions
       await privateOctokit.rest.orgs.createOrUpdateCustomProperty({
         org: privateOrg,
         custom_property_name: 'fork',
@@ -194,7 +200,7 @@ export const createMirrorHandler = async ({
     mirrorRepo = await privateOctokit.rest.repos.createInOrg({
       name: input.newRepoName,
       org: privateOrg,
-      // @ts-expect-error because the rest API accepts internal as an option but the types aren't up to date
+      // @ts-expect-error 'internal' visibility is valid but not in octokit 5 type definitions
       visibility: process.env.CREATE_MIRRORS_WITH_INTERNAL_VISIBILITY
         ? 'internal'
         : 'private',
@@ -395,7 +401,7 @@ export const listMirrorsHandler = async ({
         order: 'desc',
         sort: 'updated',
       },
-      (response) => response.data,
+      (response: { data: unknown[] }) => response.data,
     )
 
     return repos

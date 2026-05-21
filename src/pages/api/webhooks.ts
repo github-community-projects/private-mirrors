@@ -12,7 +12,7 @@ export const config = {
   },
 }
 
-export default createNodeMiddleware(app, {
+export default await createNodeMiddleware(app, {
   probot: createProbot({
     defaults: {
       log: {

@@ -477,7 +477,7 @@ const Fork = () => {
   })
 
   // perform search if there is a search value
-  let mirrorSet = []
+  let mirrorSet: typeof mirrors = []
   if (searchValue) {
     mirrorSet = fuse.search(searchValue).map((result) => result.item)
   } else {
@@ -566,94 +566,112 @@ const Fork = () => {
         <DataTable
           aria-describedby="mirrors table"
           aria-labelledby="mirrors table"
-          data={mirrorPaginationSet}
-          columns={[
-            {
-              header: 'Mirror name',
-              rowHeader: true,
-              field: 'name',
-              sortBy: 'alphanumeric',
-              width: '400px',
-              renderCell: (row) => {
-                return (
-                  <Link
-                    sx={{
-                      paddingRight: '5px',
-                      fontWeight: 'bold',
-                      fontSize: 2,
-                    }}
-                    href={row.html_url}
-                    target="_blank"
-                    rel="noreferrer noopener"
-                  >
-                    {row.name}
-                  </Link>
-                )
+          data={
+            mirrorPaginationSet as Array<{
+              id: number
+              name: string
+              html_url: string
+              updated_at: string
+            }>
+          }
+          // TODO: Remove `as any` once @primer/react DataTable generics support moduleResolution:"bundler"
+
+          columns={
+            [
+              {
+                header: 'Mirror name',
+                rowHeader: true,
+                field: 'name',
+                sortBy: 'alphanumeric',
+                width: '400px',
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                renderCell: (row: any) => {
+                  return (
+                    <Link
+                      sx={{
+                        paddingRight: '5px',
+                        fontWeight: 'bold',
+                        fontSize: 2,
+                      }}
+                      href={row.html_url}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                    >
+                      {row.name}
+                    </Link>
+                  )
+                },
               },
-            },
-            {
-              header: 'Last updated',
-              field: 'updated_at',
-              sortBy: 'datetime',
-              width: 'auto',
-              renderCell: (row) => {
-                return (
-                  <RelativeTime date={new Date(row.updated_at)} tense="past" />
-                )
+              {
+                header: 'Last updated',
+                field: 'updated_at',
+                sortBy: 'datetime',
+                width: 'auto',
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                renderCell: (row: any) => {
+                  return (
+                    <RelativeTime
+                      date={new Date(row.updated_at)}
+                      tense="past"
+                    />
+                  )
+                },
               },
-            },
-            {
-              id: 'actions',
-              header: '',
-              width: '50px',
-              align: 'end',
-              renderCell: (row) => {
-                return (
-                  <ActionMenu>
-                    <ActionMenu.Anchor>
-                      <IconButton
-                        aria-label={`Actions: ${row.name}`}
-                        icon={KebabHorizontalIcon}
-                        variant="invisible"
-                      />
-                    </ActionMenu.Anchor>
-                    <ActionMenu.Overlay>
-                      <ActionList>
-                        <ActionList.Item
-                          onSelect={() => {
-                            openEditDialog(row.name)
-                          }}
-                        >
-                          <Stack align="center" direction="horizontal">
-                            <Stack.Item>
-                              <Octicon icon={PencilIcon}></Octicon>
-                            </Stack.Item>
-                            <Stack.Item>Edit mirror</Stack.Item>
-                          </Stack>
-                        </ActionList.Item>
-                        <ActionList.Item
-                          variant="danger"
-                          onSelect={() => {
-                            openDeleteDialog(
-                              row.name,
-                              mirrorPaginationSet.length,
-                            )
-                          }}
-                        >
-                          <Stack align="center" direction="horizontal">
-                            <Stack.Item>
-                              <Octicon icon={TrashIcon}></Octicon>
-                            </Stack.Item>
-                            <Stack.Item>Delete mirror</Stack.Item>
-                          </Stack>
-                        </ActionList.Item>
-                      </ActionList>
-                    </ActionMenu.Overlay>
-                  </ActionMenu>
-                )
+              {
+                id: 'actions',
+                header: '',
+                width: '50px',
+                align: 'end',
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                renderCell: (row: any) => {
+                  return (
+                    <ActionMenu>
+                      <ActionMenu.Anchor>
+                        <IconButton
+                          aria-label={`Actions: ${row.name}`}
+                          icon={KebabHorizontalIcon}
+                          variant="invisible"
+                        />
+                      </ActionMenu.Anchor>
+                      <ActionMenu.Overlay>
+                        <ActionList>
+                          <ActionList.Item
+                            onSelect={() => {
+                              openEditDialog(row.name)
+                            }}
+                          >
+                            <Stack align="center" direction="horizontal">
+                              <Stack.Item>
+                                <Octicon icon={PencilIcon}></Octicon>
+                              </Stack.Item>
+                              <Stack.Item>Edit mirror</Stack.Item>
+                            </Stack>
+                          </ActionList.Item>
+                          <ActionList.Item
+                            variant="danger"
+                            onSelect={() => {
+                              openDeleteDialog(
+                                row.name,
+                                mirrorPaginationSet.length,
+                              )
+                            }}
+                          >
+                            <Stack align="center" direction="horizontal">
+                              <Stack.Item>
+                                <Octicon icon={TrashIcon}></Octicon>
+                              </Stack.Item>
+                              <Stack.Item>Delete mirror</Stack.Item>
+                            </Stack>
+                          </ActionList.Item>
+                        </ActionList>
+                      </ActionMenu.Overlay>
+                    </ActionMenu>
+                  )
+                },
               },
-            },
-          ]}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            ] as any
+          }
           cellPadding="spacious"
         />
         <Table.Pagination
