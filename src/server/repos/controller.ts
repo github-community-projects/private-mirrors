@@ -35,11 +35,12 @@ const getForkRepoFromMirror = async (
   mirrorName: string,
 ): Promise<RepoRef | undefined> => {
   try {
+    // @ts-expect-error getCustomPropertiesValues exists in the API but is not yet in octokit 5 type definitions
     const props = await octokit.rest.repos.getCustomPropertiesValues({
       owner: mirrorOwner,
       repo: mirrorName,
     })
-    const forkProp = props.data.find((p) => p.property_name === 'fork')
+    const forkProp = props.data.find((p: { property_name: string }) => p.property_name === 'fork')
     if (!forkProp || typeof forkProp.value !== 'string') return undefined
     const [owner, name] = forkProp.value.split('/')
     if (!owner || !name) return undefined
