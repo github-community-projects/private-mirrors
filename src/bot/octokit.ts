@@ -1,5 +1,7 @@
 import { createAppAuth } from '@octokit/auth-app'
+import { request as octokitRequest } from '@octokit/request'
 import { generatePKCS8Key } from 'utils/pem'
+import { getGitHubApiUrl } from '../utils/github-urls'
 import { logger } from '../utils/logger'
 import { Octokit } from './rest'
 
@@ -21,12 +23,15 @@ const privateKey =
  */
 export const generateAppAccessToken = async (installationId?: string) => {
   const convertedKey = generatePKCS8Key(privateKey)
+  // Ensure auth requests target the configured (potentially GHE/GHES) API URL.
+  const request = octokitRequest.defaults({ baseUrl: getGitHubApiUrl() })
 
   if (installationId) {
     const auth = createAppAuth({
       appId: process.env.APP_ID!,
       privateKey: convertedKey,
       installationId: installationId,
+      request,
     })
 
     const appAuthentication = await auth({
@@ -41,6 +46,7 @@ export const generateAppAccessToken = async (installationId?: string) => {
     privateKey,
     clientId: process.env.CLIENT_ID!,
     clientSecret: process.env.CLIENT_SECRET!,
+    request,
   })
 
   const appAuthentication = await auth({

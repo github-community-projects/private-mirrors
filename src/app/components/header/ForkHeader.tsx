@@ -8,6 +8,7 @@ import {
   Text,
 } from '@primer/react'
 import { ForkData } from 'hooks/useFork'
+import { getGitHubServerUrl } from 'utils/github-urls'
 
 interface ForkHeaderProps {
   forkData: ForkData
@@ -49,7 +50,7 @@ export const ForkHeader = ({ forkData }: ForkHeaderProps) => {
               <Text sx={{ color: 'fg.muted' }}>
                 Forked from{' '}
                 <Link
-                  href={`https://github.com/${forkData.parent?.owner.login}/${forkData.parent?.name}`}
+                  href={`${getGitHubServerUrl()}/${forkData.parent?.owner.login}/${forkData.parent?.name}`}
                   target="_blank"
                   rel="noreferrer noopener"
                   sx={{ color: 'fg.muted' }}

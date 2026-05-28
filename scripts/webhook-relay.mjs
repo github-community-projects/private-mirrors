@@ -1,7 +1,7 @@
 import { sign } from '@octokit/webhooks-methods'
 import WebhookRelay from 'github-app-webhook-relay-polling'
 import crypto from 'node:crypto'
-import { App } from 'octokit'
+import { App, Octokit } from 'octokit'
 
 import './proxy.mjs'
 
@@ -13,6 +13,39 @@ if (!process.env.PUBLIC_ORG) {
 }
 
 const url = `${process.env.NEXTAUTH_URL}/api/webhooks`
+
+const deriveApiUrl = (serverUrl) => {
+  try {
+    const u = new URL(serverUrl)
+    const host = u.host.toLowerCase()
+    if (host === 'github.com' || host === 'www.github.com') {
+      return 'https://api.github.com'
+    }
+    if (host === 'ghe.com' || host.endsWith('.ghe.com')) {
+      return `${u.protocol}//api.${host}`
+    }
+    return `${u.protocol}//${u.host}/api/v3`
+  } catch {
+    return 'https://api.github.com'
+  }
+}
+
+const apiBaseUrl =
+  process.env.GITHUB_API_URL ??
+  process.env.NEXT_PUBLIC_GITHUB_API_URL ??
+  deriveApiUrl(
+    process.env.GITHUB_SERVER_URL ??
+      process.env.NEXT_PUBLIC_GITHUB_SERVER_URL ??
+      'https://github.com',
+  )
+
+if (apiBaseUrl !== 'https://api.github.com') {
+  console.warn(
+    `[webhook-relay] Using API base URL: ${apiBaseUrl}. The polling webhook relay relies on the GitHub App hook deliveries endpoint and may not work against all GHE deployments.`,
+  )
+}
+
+const RelayOctokit = Octokit.defaults({ baseUrl: apiBaseUrl })
 
 const privateKey =
   process.env.PRIVATE_KEY &&
@@ -35,6 +68,7 @@ const setupForwarder = (organizationOwner) => {
       // value does not matter, but has to be set.
       secret: 'secret',
     },
+    Octokit: RelayOctokit,
   })
 
   const relay = new WebhookRelay({
