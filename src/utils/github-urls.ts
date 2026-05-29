@@ -16,7 +16,7 @@ const DEFAULT_SERVER_URL = 'https://github.com'
 const DEFAULT_API_URL = 'https://api.github.com'
 const DEFAULT_EMAIL_DOMAIN = 'users.noreply.github.com'
 const GHES_API_V3_SUFFIX_REGEX = /\/api\/v3\/?$/
-const isGithubDotComHost = (host: string) =>
+export const isGithubDotComHost = (host: string) =>
   host === 'github.com' || host === 'www.github.com'
 
 const stripTrailingSlash = (value: string) => value.replace(/\/+$/, '')
