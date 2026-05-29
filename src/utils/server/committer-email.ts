@@ -1,4 +1,8 @@
-import { getCommitterEmailDomain, getGitHubServerUrl } from '../github-urls'
+import {
+  getCommitterEmailDomain,
+  getGitHubServerUrl,
+  isGithubDotComHost,
+} from '../github-urls'
 import { logger } from '../logger'
 
 const githubUrlsLogger = logger.getSubLogger({ name: 'github-urls' })
@@ -8,7 +12,7 @@ let hasWarnedAboutDefaultCommitterEmailDomain = false
 const isGithubDotComServer = (serverUrl: string) => {
   try {
     const host = new URL(serverUrl).host.toLowerCase()
-    return host === 'github.com' || host === 'www.github.com'
+    return isGithubDotComHost(host)
   } catch {
     return true
   }
