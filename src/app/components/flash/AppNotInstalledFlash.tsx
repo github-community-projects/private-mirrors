@@ -1,5 +1,6 @@
 import { AlertIcon } from '@primer/octicons-react'
 import { Box, Flash, Link, Octicon } from '@primer/react'
+import { getGitHubServerUrl } from 'utils/github-urls'
 
 interface AppNotInstalledFlashProps {
   orgLogin: string
@@ -24,7 +25,7 @@ export const AppNotInstalledFlash = ({
           <Box sx={{ marginLeft: '20px' }}>
             This organization does not have the required App installed. Visit{' '}
             <Link
-              href={`https://github.com/organizations/${orgLogin}/settings/installations`}
+              href={`${getGitHubServerUrl()}/organizations/${orgLogin}/settings/installations`}
             >
               this page
             </Link>{' '}

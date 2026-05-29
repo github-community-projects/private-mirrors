@@ -2,6 +2,7 @@ import simpleGit, { SimpleGitOptions } from 'simple-git'
 import { generateAuthUrl } from '../../utils/auth'
 import { temporaryDirectory } from 'tempy'
 import { logger } from '../../utils/logger'
+import { getCommitterEmailDomainWithWarning } from '../../utils/server/committer-email'
 import { SyncReposSchema } from './schema'
 
 const gitApiLogger = logger.getSubLogger({ name: 'git-api' })
@@ -58,7 +59,7 @@ export const syncReposHandler = async ({
     const options: Partial<SimpleGitOptions> = {
       config: [
         `user.name=pma[bot]`,
-        `user.email=${input.source.octokit.installationId}+pma[bot]@users.noreply.github.com`,
+        `user.email=${input.source.octokit.installationId}+pma[bot]@${getCommitterEmailDomainWithWarning()}`,
       ],
     }
 
