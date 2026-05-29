@@ -2,7 +2,7 @@ import { TRPCError } from '@trpc/server'
 import { getConfig } from '../bot/config'
 import { personalOctokit } from '../bot/octokit'
 import { logger } from '../utils/logger'
-import { getGitHubServerHost } from './github-urls'
+import { getGitHubServerHost, getGitHubServerProtocol } from './github-urls'
 
 /**
  * Generates a git url with the access token in it
@@ -19,7 +19,7 @@ export const generateAuthUrl = (
   const USER = 'x-access-token'
   const PASS = accessToken
   const REPO = `${getGitHubServerHost()}/${owner}/${repo}`
-  return `https://${USER}:${PASS}@${REPO}`
+  return `${getGitHubServerProtocol()}//${USER}:${PASS}@${REPO}`
 }
 
 const middlewareLogger = logger.getSubLogger({ name: 'middleware' })

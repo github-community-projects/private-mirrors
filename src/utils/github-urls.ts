@@ -15,6 +15,9 @@
 const DEFAULT_SERVER_URL = 'https://github.com'
 const DEFAULT_API_URL = 'https://api.github.com'
 const DEFAULT_EMAIL_DOMAIN = 'users.noreply.github.com'
+const GHES_API_V3_SUFFIX_REGEX = /\/api\/v3\/?$/
+export const isGithubDotComHost = (host: string) =>
+  host === 'github.com' || host === 'www.github.com'
 
 const stripTrailingSlash = (value: string) => value.replace(/\/+$/, '')
 
@@ -33,6 +36,9 @@ const safeUrl = (value: string | undefined | null): URL | null => {
  * - `https://github.com` => `https://api.github.com`
  * - `https://<tenant>.ghe.com` => `https://api.<tenant>.ghe.com`
  * - anything else (GHES) => `<server>/api/v3`
+ *
+ * Keep this derivation in sync with the local fallback in
+ * `scripts/webhook-relay.mjs`.
  */
 export const deriveApiUrlFromServerUrl = (serverUrl: string): string => {
   const url = safeUrl(serverUrl)
@@ -40,7 +46,7 @@ export const deriveApiUrlFromServerUrl = (serverUrl: string): string => {
 
   const host = url.host.toLowerCase()
 
-  if (host === 'github.com' || host === 'www.github.com') {
+  if (isGithubDotComHost(host)) {
     return DEFAULT_API_URL
   }
 
@@ -77,11 +83,31 @@ export const getGitHubApiUrl = (): string => {
 }
 
 /**
+ * Returns the GraphQL endpoint URL (e.g. `https://api.github.com/graphql`).
+ * Safe to call from both server and client code.
+ */
+export const getGitHubGraphQlUrl = (): string => {
+  const apiUrl = getGitHubApiUrl()
+  if (GHES_API_V3_SUFFIX_REGEX.test(apiUrl)) {
+    return apiUrl.replace(GHES_API_V3_SUFFIX_REGEX, '/api/graphql')
+  }
+  return `${apiUrl}/graphql`
+}
+
+/**
  * Returns the hostname portion of the GitHub server URL (e.g. `github.com`).
  * Used to build authenticated git URLs.
  */
 export const getGitHubServerHost = (): string => {
   return safeUrl(getGitHubServerUrl())?.host ?? 'github.com'
+}
+
+/**
+ * Returns the scheme portion of the GitHub server URL (e.g. `https:`).
+ * Used to build authenticated git URLs.
+ */
+export const getGitHubServerProtocol = (): string => {
+  return safeUrl(getGitHubServerUrl())?.protocol ?? 'https:'
 }
 
 /**

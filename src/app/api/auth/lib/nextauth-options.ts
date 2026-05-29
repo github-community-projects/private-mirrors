@@ -104,6 +104,43 @@ export const refreshAccessToken = async (
 
 const apiBaseUrl = getGitHubApiUrl()
 
+export const createGitHubUserinfoRequest =
+  (apiBaseUrl: string) =>
+  async ({
+    client,
+    tokens,
+  }: {
+    client: { userinfo: (accessToken: string) => Promise<unknown> }
+    tokens: { access_token?: string | null }
+  }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const profile = (await client.userinfo(tokens.access_token!)) as any
+
+    if (!profile.email) {
+      try {
+        const res = await fetch(`${apiBaseUrl}/user/emails`, {
+          headers: {
+            Authorization: `token ${tokens.access_token}`,
+            'User-Agent': 'private-mirrors-app',
+          },
+        })
+
+        if (res.ok) {
+          const emails: Array<{
+            email: string
+            primary: boolean
+            verified: boolean
+          }> = await res.json()
+          profile.email = (emails.find((e) => e.primary) ?? emails[0])?.email
+        }
+      } catch (error) {
+        authLogger.warn('Failed to fetch user emails', { error })
+      }
+    }
+
+    return profile
+  }
+
 export const nextAuthOptions: AuthOptions = {
   pages: {
     signIn: '/auth/login',
@@ -124,36 +161,7 @@ export const nextAuthOptions: AuthOptions = {
         url: `${apiBaseUrl}/user`,
         // The built-in GitHub provider hardcodes `https://api.github.com/user/emails`
         // for the email fallback. Override the request so we use the configured API host.
-        async request({ client, tokens }) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const profile = (await client.userinfo(tokens.access_token!)) as any
-
-          if (!profile.email) {
-            try {
-              const res = await fetch(`${apiBaseUrl}/user/emails`, {
-                headers: {
-                  Authorization: `token ${tokens.access_token}`,
-                  'User-Agent': 'private-mirrors-app',
-                },
-              })
-
-              if (res.ok) {
-                const emails: Array<{
-                  email: string
-                  primary: boolean
-                  verified: boolean
-                }> = await res.json()
-                profile.email = (
-                  emails.find((e) => e.primary) ?? emails[0]
-                )?.email
-              }
-            } catch (error) {
-              authLogger.warn('Failed to fetch user emails', { error })
-            }
-          }
-
-          return profile
-        },
+        request: createGitHubUserinfoRequest(apiBaseUrl),
       },
     }),
   ],
