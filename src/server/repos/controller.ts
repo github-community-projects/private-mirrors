@@ -2,7 +2,6 @@
 
 import simpleGit, { SimpleGitOptions } from 'simple-git'
 import { generateAuthUrl } from 'utils/auth'
-import { getCommitterEmailDomain } from 'utils/github-urls'
 import { temporaryDirectory } from 'tempy'
 import { getConfig } from '../../bot/config'
 import {
@@ -12,6 +11,7 @@ import {
 } from '../../bot/octokit'
 import { Octokit } from '../../bot/rest'
 import { logger } from '../../utils/logger'
+import { getCommitterEmailDomainWithWarning } from '../../utils/server/committer-email'
 import {
   CreateMirrorSchema,
   DeleteMirrorSchema,
@@ -222,7 +222,7 @@ export const createMirrorHandler = async ({
       config: [
         `user.name=pma[bot]`,
         // We want to use the private installation ID as the email so that we can push to the private repo
-        `user.email=${privateInstallationId}+pma[bot]@${getCommitterEmailDomain()}`,
+        `user.email=${privateInstallationId}+pma[bot]@${getCommitterEmailDomainWithWarning()}`,
       ],
     }
     const git = simpleGit(tempDir, options)

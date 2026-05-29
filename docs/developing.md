@@ -143,7 +143,7 @@ This will create an optimized production build of the app in the `out` directory
 
 ### Building for GHE.com / GHES
 
-The `NEXT_PUBLIC_GITHUB_SERVER_URL` and `NEXT_PUBLIC_GITHUB_API_URL` env vars are inlined into the client bundle at build time. When targeting a GHE.com Data Residency tenant or a GHES instance, you must set them before running `npm run build` (or pass them as Docker build args). For example:
+The `NEXT_PUBLIC_GITHUB_SERVER_URL` and `NEXT_PUBLIC_GITHUB_API_URL` env vars are inlined into the client bundle at build time. When targeting a GHE.com Data Residency tenant or a GHES instance, you must set them before running `npm run build` (or pass them as Docker build args). The bundled `Dockerfile` already forwards these build args into `npm run build`. For example:
 
 ```sh
 NEXT_PUBLIC_GITHUB_SERVER_URL=https://acme.ghe.com \

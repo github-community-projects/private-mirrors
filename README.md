@@ -113,10 +113,11 @@ GITHUB_SERVER_URL=https://acme.ghe.com
 # Required for client-side hooks and UI links to point at the correct host.
 NEXT_PUBLIC_GITHUB_SERVER_URL=https://acme.ghe.com
 
-# Optional. Auto-derived from GITHUB_SERVER_URL:
+# Optional REST API base URL. Auto-derived from GITHUB_SERVER_URL:
 #   github.com         -> https://api.github.com
 #   <tenant>.ghe.com   -> https://api.<tenant>.ghe.com
 #   <ghes-host>        -> https://<ghes-host>/api/v3
+# GraphQL is derived from this value and uses /api/graphql on GHES.
 # Override only if the auto-derivation does not match your instance.
 GITHUB_API_URL=
 NEXT_PUBLIC_GITHUB_API_URL=
@@ -131,7 +132,8 @@ GITHUB_USER_EMAIL_DOMAIN=users.noreply.acme.ghe.com
 Notes:
 
 - The OAuth App / GitHub App, organizations, members and forks must all live on the same GHE instance.
-- The `NEXT_PUBLIC_*` variables are inlined into the client bundle at build time. When building the Docker image, pass them as build args (e.g. `--build-arg NEXT_PUBLIC_GITHUB_SERVER_URL=https://acme.ghe.com`) and update the `Dockerfile` to forward them into the `npm run build` step.
+- The `NEXT_PUBLIC_*` variables are inlined into the client bundle at build time. When building the Docker image, pass them as build args (e.g. `--build-arg NEXT_PUBLIC_GITHUB_SERVER_URL=https://acme.ghe.com`). The bundled `Dockerfile` already forwards them into the `npm run build` step.
+- If you leave `GITHUB_USER_EMAIL_DOMAIN` unset on a non-github.com deployment, the app still falls back to `users.noreply.github.com` for compatibility, but it now logs a warning so you can correct the configuration.
 - The local webhook relay (`npm run webhook`) uses `github-app-webhook-relay-polling` against the GitHub App hook deliveries endpoint. It is best-effort on GHE; in production, use real webhook deliveries configured directly on your GitHub App.
 
 ## Usage

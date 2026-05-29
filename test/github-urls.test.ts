@@ -3,7 +3,9 @@ import {
   deriveApiUrlFromServerUrl,
   getCommitterEmailDomain,
   getGitHubApiUrl,
+  getGitHubGraphQlUrl,
   getGitHubServerHost,
+  getGitHubServerProtocol,
   getGitHubServerUrl,
   getOAuthAccessTokenUrl,
   getOAuthAuthorizationUrl,
@@ -68,7 +70,9 @@ describe('github-urls helpers', () => {
     it('returns github.com defaults when no env is set', () => {
       expect(getGitHubServerUrl()).toBe('https://github.com')
       expect(getGitHubApiUrl()).toBe('https://api.github.com')
+      expect(getGitHubGraphQlUrl()).toBe('https://api.github.com/graphql')
       expect(getGitHubServerHost()).toBe('github.com')
+      expect(getGitHubServerProtocol()).toBe('https:')
       expect(getOAuthAuthorizationUrl()).toBe(
         'https://github.com/login/oauth/authorize',
       )
@@ -84,6 +88,7 @@ describe('github-urls helpers', () => {
     it('derives API URL from GITHUB_SERVER_URL', () => {
       process.env.GITHUB_SERVER_URL = 'https://acme.ghe.com'
       expect(getGitHubApiUrl()).toBe('https://api.acme.ghe.com')
+      expect(getGitHubGraphQlUrl()).toBe('https://api.acme.ghe.com/graphql')
       expect(getGitHubServerHost()).toBe('acme.ghe.com')
       expect(getOAuthIssuer()).toBe('https://acme.ghe.com/login/oauth')
     })
@@ -95,9 +100,10 @@ describe('github-urls helpers', () => {
   })
 
   describe('GHES configuration', () => {
-    it('derives /api/v3 URL', () => {
+    it('derives /api/v3 REST URL and /api/graphql GraphQL URL', () => {
       process.env.GITHUB_SERVER_URL = 'https://ghes.example.com'
       expect(getGitHubApiUrl()).toBe('https://ghes.example.com/api/v3')
+      expect(getGitHubGraphQlUrl()).toBe('https://ghes.example.com/api/graphql')
     })
   })
 
@@ -106,12 +112,26 @@ describe('github-urls helpers', () => {
       process.env.GITHUB_SERVER_URL = 'https://acme.ghe.com'
       process.env.GITHUB_API_URL = 'https://custom.api.example/v3'
       expect(getGitHubApiUrl()).toBe('https://custom.api.example/v3')
+      expect(getGitHubGraphQlUrl()).toBe(
+        'https://custom.api.example/v3/graphql',
+      )
+    })
+
+    it('derives the GHES GraphQL endpoint from an explicit /api/v3 override', () => {
+      process.env.GITHUB_API_URL = 'https://ghes.example.com/api/v3'
+      expect(getGitHubGraphQlUrl()).toBe('https://ghes.example.com/api/graphql')
     })
 
     it('prefers NEXT_PUBLIC_* over server-only env', () => {
       process.env.GITHUB_SERVER_URL = 'https://server.example'
       process.env.NEXT_PUBLIC_GITHUB_SERVER_URL = 'https://public.example'
       expect(getGitHubServerUrl()).toBe('https://public.example')
+    })
+
+    it('preserves a custom protocol from the configured server URL', () => {
+      process.env.GITHUB_SERVER_URL = 'http://ghes.example.com:8080'
+      expect(getGitHubServerProtocol()).toBe('http:')
+      expect(getGitHubServerHost()).toBe('ghes.example.com:8080')
     })
 
     it('respects GITHUB_USER_EMAIL_DOMAIN override', () => {

@@ -14,6 +14,9 @@ if (!process.env.PUBLIC_ORG) {
 
 const url = `${process.env.NEXTAUTH_URL}/api/webhooks`
 
+// Keep this fallback in sync with deriveApiUrlFromServerUrl in
+// src/utils/github-urls.ts. The relay only needs the REST API base URL; GraphQL
+// callers must use /api/graphql on GHES.
 const deriveApiUrl = (serverUrl) => {
   try {
     const u = new URL(serverUrl)
