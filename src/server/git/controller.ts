@@ -2,6 +2,7 @@ import simpleGit, { SimpleGitOptions } from 'simple-git'
 import { generateAuthUrl } from '../../utils/auth'
 import { temporaryDirectory } from 'tempy'
 import { logger } from '../../utils/logger'
+import { cleanupTempDir } from '../../utils/temp-dir'
 import { SyncReposSchema } from './schema'
 
 const gitApiLogger = logger.getSubLogger({ name: 'git-api' })
@@ -12,6 +13,7 @@ export const syncReposHandler = async ({
 }: {
   input: SyncReposSchema // owner, name, branch, accessToken
 }) => {
+  let tempDir: string | undefined
   try {
     gitApiLogger.info(
       'Syncing source repo: ',
@@ -53,7 +55,7 @@ export const syncReposHandler = async ({
     )
 
     // First clone the source and destination repos into the same folder
-    const tempDir = temporaryDirectory()
+    tempDir = temporaryDirectory()
 
     const options: Partial<SimpleGitOptions> = {
       config: [
@@ -164,5 +166,7 @@ export const syncReposHandler = async ({
     return {
       success: false,
     }
+  } finally {
+    await cleanupTempDir(tempDir, gitApiLogger)
   }
 }

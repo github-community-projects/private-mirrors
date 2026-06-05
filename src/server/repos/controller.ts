@@ -11,6 +11,7 @@ import {
 } from '../../bot/octokit'
 import { Octokit } from '../../bot/rest'
 import { logger } from '../../utils/logger'
+import { cleanupTempDir } from '../../utils/temp-dir'
 import {
   CreateMirrorSchema,
   DeleteMirrorSchema,
@@ -97,6 +98,7 @@ export const createMirrorHandler = async ({
   let publicOctokit: Octokit | undefined
   let mirrorRepo: MirrorRepo | undefined
   let syncBranchRef: SyncBranchRef | undefined
+  let tempDir: string | undefined
 
   try {
     reposApiLogger.info('createMirror', { input: input })
@@ -215,7 +217,7 @@ export const createMirrorHandler = async ({
     )
 
     // Create a temporary directory to clone the repo into
-    const tempDir = temporaryDirectory()
+    tempDir = temporaryDirectory()
 
     const options: Partial<SimpleGitOptions> = {
       config: [
@@ -313,6 +315,7 @@ export const createMirrorHandler = async ({
             syncBranchRef,
           })
         })
+        .finally(() => cleanupTempDir(tempDir, reposApiLogger))
 
       return {
         success: true,
@@ -322,6 +325,8 @@ export const createMirrorHandler = async ({
     }
 
     clearTimeout(timer)
+
+    await cleanupTempDir(tempDir, reposApiLogger)
 
     reposApiLogger.info('Mirror created', {
       org: mirrorRepo.data.owner.login,
@@ -341,6 +346,8 @@ export const createMirrorHandler = async ({
       (error as any)?.response?.data?.message ??
       (error as Error)?.message ??
       'An error occurred'
+
+    await cleanupTempDir(tempDir, reposApiLogger)
 
     await deleteMirrorAndSyncBranch({
       privateOctokit,

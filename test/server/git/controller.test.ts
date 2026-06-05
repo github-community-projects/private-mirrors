@@ -2,6 +2,7 @@ import { vi, describe, beforeEach, it, expect } from 'vitest'
 import { syncReposHandler } from '../../../src/server/git/controller'
 import * as auth from '../../../src/utils/auth'
 import * as tempy from 'tempy'
+import { cleanupTempDir } from '../../../src/utils/temp-dir'
 import simpleGit from 'simple-git'
 import type { Mock } from 'vitest'
 import type { SyncReposSchema } from '../../../src/server/git/schema'
@@ -32,6 +33,7 @@ const fakeOctokitData = {
 
 vi.mock('simple-git')
 vi.mock('tempy', () => ({ temporaryDirectory: vi.fn() }))
+vi.mock('../../../src/utils/temp-dir', () => ({ cleanupTempDir: vi.fn() }))
 const simpleGitMock = simpleGit as unknown as Mock
 const gitMock = {
   addRemote: vi.fn(),
@@ -57,6 +59,8 @@ describe('Git controller', () => {
     gitMock.raw.mockReset()
     gitMock.reset.mockReset()
     gitMock.show.mockReset()
+    vi.mocked(cleanupTempDir).mockReset()
+    vi.mocked(cleanupTempDir).mockResolvedValue(undefined)
   })
 
   it('should not be syncable', async () => {
@@ -78,10 +82,10 @@ describe('Git controller', () => {
 
     vi.spyOn(auth, 'generateAuthUrl')
       .mockReturnValueOnce(
-        'https://x-access-token:contributionAccessToken@github.com/sourceOwner/sourceRepo',
+        'https://x-access-token@github.com/sourceOwner/sourceRepo',
       )
       .mockReturnValueOnce(
-        'https://x-access-token:privateAccessToken@github.com/destinationOwner/destinationRepo',
+        'https://x-access-token@github.com/destinationOwner/destinationRepo',
       )
     vi.mocked(tempy.temporaryDirectory).mockReturnValue('directory')
 
@@ -141,10 +145,10 @@ describe('Git controller', () => {
 
     vi.spyOn(auth, 'generateAuthUrl')
       .mockReturnValueOnce(
-        'https://x-access-token:contributionAccessToken@github.com/sourceOwner/sourceRepo',
+        'https://x-access-token@github.com/sourceOwner/sourceRepo',
       )
       .mockReturnValueOnce(
-        'https://x-access-token:privateAccessToken@github.com/destinationOwner/destinationRepo',
+        'https://x-access-token@github.com/destinationOwner/destinationRepo',
       )
     vi.mocked(tempy.temporaryDirectory).mockReturnValue('directory')
 
@@ -216,10 +220,10 @@ describe('Git controller', () => {
 
     vi.spyOn(auth, 'generateAuthUrl')
       .mockReturnValueOnce(
-        'https://x-access-token:contributionAccessToken@github.com/sourceOwner/sourceRepo',
+        'https://x-access-token@github.com/sourceOwner/sourceRepo',
       )
       .mockReturnValueOnce(
-        'https://x-access-token:privateAccessToken@github.com/destinationOwner/destinationRepo',
+        'https://x-access-token@github.com/destinationOwner/destinationRepo',
       )
     vi.mocked(tempy.temporaryDirectory).mockReturnValue('directory')
 
@@ -298,10 +302,10 @@ describe('Git controller', () => {
 
     vi.spyOn(auth, 'generateAuthUrl')
       .mockReturnValueOnce(
-        'https://x-access-token:contributionAccessToken@github.com/sourceOwner/sourceRepo',
+        'https://x-access-token@github.com/sourceOwner/sourceRepo',
       )
       .mockReturnValueOnce(
-        'https://x-access-token:privateAccessToken@github.com/destinationOwner/destinationRepo',
+        'https://x-access-token@github.com/destinationOwner/destinationRepo',
       )
     vi.mocked(tempy.temporaryDirectory).mockReturnValue('directory')
 
@@ -385,10 +389,10 @@ describe('Git controller', () => {
 
     vi.spyOn(auth, 'generateAuthUrl')
       .mockReturnValueOnce(
-        'https://x-access-token:contributionAccessToken@github.com/sourceOwner/sourceRepo',
+        'https://x-access-token@github.com/sourceOwner/sourceRepo',
       )
       .mockReturnValueOnce(
-        'https://x-access-token:privateAccessToken@github.com/destinationOwner/destinationRepo',
+        'https://x-access-token@github.com/destinationOwner/destinationRepo',
       )
     vi.mocked(tempy.temporaryDirectory).mockReturnValue('directory')
 
@@ -443,5 +447,119 @@ describe('Git controller', () => {
     expect(gitMock.reset).toHaveBeenCalledWith(['--hard', 'HEAD^2'])
     expect(gitMock.push).toHaveBeenCalledTimes(1)
     expect(gitMock.push).toHaveBeenCalledWith(['--no-verify', '--force'])
+  })
+
+  it('cleans up the temp directory after a successful sync', async () => {
+    getRefSpy
+      .mockResolvedValueOnce({ data: { object: { sha: 'source-sha' } } })
+      .mockResolvedValueOnce({ data: { object: { sha: 'destination-sha' } } })
+
+    vi.spyOn(auth, 'generateAuthUrl')
+      .mockReturnValueOnce(
+        'https://x-access-token@github.com/sourceOwner/sourceRepo',
+      )
+      .mockReturnValueOnce(
+        'https://x-access-token@github.com/destinationOwner/destinationRepo',
+      )
+    vi.mocked(tempy.temporaryDirectory).mockReturnValue('sync-success')
+
+    gitMock.raw.mockResolvedValueOnce('')
+
+    await syncReposHandler({
+      input: {
+        source: {
+          org: 'sourceOrg',
+          repo: 'sourceRepo',
+          branch: 'sourceBranch',
+          octokit: fakeOctokitData,
+        },
+        destination: {
+          org: 'destinationOrg',
+          repo: 'destinationRepo',
+          branch: 'destinationBranch',
+          octokit: fakeOctokitData,
+        },
+        removeHeadMergeCommit: false,
+      },
+    })
+
+    expect(cleanupTempDir).toHaveBeenCalledTimes(1)
+    expect(cleanupTempDir).toHaveBeenCalledWith(
+      'sync-success',
+      expect.anything(),
+    )
+  })
+
+  it('cleans up the temp directory when sync throws', async () => {
+    // Force an early failure: the first getRef call rejects.
+    getRefSpy.mockRejectedValueOnce(new Error('upstream getRef failed'))
+    vi.mocked(tempy.temporaryDirectory).mockReturnValue('sync-error')
+
+    const response = await syncReposHandler({
+      input: {
+        source: {
+          org: 'sourceOrg',
+          repo: 'sourceRepo',
+          branch: 'sourceBranch',
+          octokit: fakeOctokitData,
+        },
+        destination: {
+          org: 'destinationOrg',
+          repo: 'destinationRepo',
+          branch: 'destinationBranch',
+          octokit: fakeOctokitData,
+        },
+        removeHeadMergeCommit: false,
+      },
+    })
+
+    // The error happened before temporaryDirectory() was called, so cleanup
+    // is invoked with undefined (no-op via the helper's own contract).
+    expect(response).toEqual({ success: false })
+    expect(cleanupTempDir).toHaveBeenCalledTimes(1)
+    expect(cleanupTempDir).toHaveBeenCalledWith(undefined, expect.anything())
+  })
+
+  it('cleans up the temp directory when sync throws after creating the temp dir', async () => {
+    getRefSpy
+      .mockResolvedValueOnce({ data: { object: { sha: 'source-sha' } } })
+      .mockResolvedValueOnce({ data: { object: { sha: 'destination-sha' } } })
+
+    vi.spyOn(auth, 'generateAuthUrl')
+      .mockReturnValueOnce(
+        'https://x-access-token@github.com/sourceOwner/sourceRepo',
+      )
+      .mockReturnValueOnce(
+        'https://x-access-token@github.com/destinationOwner/destinationRepo',
+      )
+    vi.mocked(tempy.temporaryDirectory).mockReturnValue('sync-late-error')
+
+    // Make a git operation that runs after temporaryDirectory() throw.
+    gitMock.checkoutBranch.mockRejectedValueOnce(new Error('checkout failed'))
+
+    const response = await syncReposHandler({
+      input: {
+        source: {
+          org: 'sourceOrg',
+          repo: 'sourceRepo',
+          branch: 'sourceBranch',
+          octokit: fakeOctokitData,
+        },
+        destination: {
+          org: 'destinationOrg',
+          repo: 'destinationRepo',
+          branch: 'destinationBranch',
+          octokit: fakeOctokitData,
+        },
+        removeHeadMergeCommit: false,
+      },
+    })
+
+    expect(response).toEqual({ success: false })
+    expect(cleanupTempDir).toHaveBeenCalledTimes(1)
+    expect(cleanupTempDir).toHaveBeenCalledWith(
+      'sync-late-error',
+      expect.anything(),
+    )
   })
 })
