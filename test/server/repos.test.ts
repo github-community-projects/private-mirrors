@@ -657,6 +657,63 @@ describe('Repos router', () => {
     })
   })
 
+  describe('listMirror', () => {
+    const fakeMirrorList = [{ name: 'mirror-1' }, { name: 'mirror-2' }]
+
+    const setupListMirrorsMocks = () => {
+      vi.spyOn(config, 'getConfig').mockResolvedValue({
+        publicOrg: 'github',
+        privateOrg: 'github-test',
+      })
+
+      om.mockFunctions.rest.apps.getOrgInstallation.mockResolvedValue(
+        fakeOrgInstallation,
+      )
+      om.mockFunctions.rest.orgs.get.mockResolvedValue(fakeOrg)
+      om.mockFunctions.paginate.mockResolvedValue(fakeMirrorList)
+    }
+
+    it('returns mirrorDeletionEnabled: true when DISABLE_MIRROR_DELETION is unset', async () => {
+      const caller = t.createCallerFactory(reposRouter)(createTestContext())
+      setupListMirrorsMocks()
+
+      const res = await caller.listMirrors({
+        orgId: 'test',
+        forkName: 'fork-test',
+      })
+
+      expect(res.mirrors).toEqual(fakeMirrorList)
+      expect(res.mirrorDeletionEnabled).toBe(true)
+    })
+
+    it('returns mirrorDeletionEnabled: false when DISABLE_MIRROR_DELETION is "true"', async () => {
+      const caller = t.createCallerFactory(reposRouter)(createTestContext())
+      setupListMirrorsMocks()
+      vi.stubEnv('DISABLE_MIRROR_DELETION', 'true')
+
+      const res = await caller.listMirrors({
+        orgId: 'test',
+        forkName: 'fork-test',
+      })
+
+      expect(res.mirrors).toEqual(fakeMirrorList)
+      expect(res.mirrorDeletionEnabled).toBe(false)
+    })
+
+    it('returns mirrorDeletionEnabled: true when DISABLE_MIRROR_DELETION is "false"', async () => {
+      const caller = t.createCallerFactory(reposRouter)(createTestContext())
+      setupListMirrorsMocks()
+      vi.stubEnv('DISABLE_MIRROR_DELETION', 'false')
+
+      const res = await caller.listMirrors({
+        orgId: 'test',
+        forkName: 'fork-test',
+      })
+
+      expect(res.mirrorDeletionEnabled).toBe(true)
+    })
+  })
+
   describe('deleteMirror', () => {
     it('deletes the mirror and the sync branch ref on the public fork', async () => {
       const caller = t.createCallerFactory(reposRouter)(createTestContext())
@@ -691,6 +748,24 @@ describe('Repos router', () => {
         ref: 'heads/to-delete',
       })
       expect(res.success).toBe(true)
+    })
+
+    it('throws FORBIDDEN when DISABLE_MIRROR_DELETION is "true"', async () => {
+      const caller = t.createCallerFactory(reposRouter)(createTestContext())
+      vi.stubEnv('DISABLE_MIRROR_DELETION', 'true')
+
+      await expect(
+        caller.deleteMirror({
+          orgId: 'test',
+          mirrorName: 'to-delete',
+        }),
+      ).rejects.toMatchObject({
+        code: 'FORBIDDEN',
+        message: 'Mirror deletion is disabled',
+      })
+
+      expect(om.mockFunctions.rest.repos.delete).not.toHaveBeenCalled()
+      expect(om.mockFunctions.rest.git.deleteRef).not.toHaveBeenCalled()
     })
   })
 })

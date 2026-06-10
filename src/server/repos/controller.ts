@@ -391,7 +391,10 @@ export const listMirrorsHandler = async ({
       (response) => response.data,
     )
 
-    return repos
+    return {
+      mirrors: repos,
+      mirrorDeletionEnabled: process.env.DISABLE_MIRROR_DELETION !== 'true',
+    }
   } catch (error) {
     reposApiLogger.info('Failed to fetch mirrors', { input, error })
 
@@ -485,6 +488,13 @@ export const deleteMirrorHandler = async ({
 }: {
   input: DeleteMirrorSchema
 }) => {
+  if (process.env.DISABLE_MIRROR_DELETION === 'true') {
+    throw new TRPCError({
+      code: 'FORBIDDEN',
+      message: 'Mirror deletion is disabled',
+    })
+  }
+
   try {
     reposApiLogger.info('Deleting mirror', { input })
 
