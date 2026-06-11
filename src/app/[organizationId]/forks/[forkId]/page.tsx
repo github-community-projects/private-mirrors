@@ -574,8 +574,10 @@ const Fork = () => {
               updated_at: string
             }>
           }
-          // TODO: Remove `as any` once @primer/react DataTable generics support moduleResolution:"bundler"
-
+          // `satisfies` cannot be used here — the issue is that under moduleResolution:"bundler", DataTable's
+          // generic Data param isn't inferred from the data prop and falls back to UniqueRow, making `field`
+          // only accept "id". `satisfies` would still error on field:"name" etc. `as any` is the only workaround
+          // until @primer/react fixes DataTable generic inference (draft component).
           columns={
             [
               {

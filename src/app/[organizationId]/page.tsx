@@ -285,7 +285,9 @@ const Organization = () => {
                   )
                 },
               },
-              // TODO: Remove `as any` once @primer/react DataTable generics support moduleResolution:"bundler"
+              // `satisfies` cannot be used here — under moduleResolution:"bundler", DataTable's generic Data
+              // param isn't inferred from data prop, so `field` only accepts "id". `as any` is the only
+              // workaround until @primer/react fixes DataTable generic inference (draft component).
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ] as any
           }
