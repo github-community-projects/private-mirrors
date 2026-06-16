@@ -4,8 +4,10 @@ describe('Octokit GitHub Enterprise configuration', () => {
   afterEach(() => {
     delete process.env.GITHUB_SERVER_URL
     delete process.env.GITHUB_API_URL
+    delete process.env.GITHUB_GRAPHQL_URL
     delete process.env.NEXT_PUBLIC_GITHUB_SERVER_URL
     delete process.env.NEXT_PUBLIC_GITHUB_API_URL
+    delete process.env.NEXT_PUBLIC_GITHUB_GRAPHQL_URL
     delete process.env.APP_ID
     delete process.env.CLIENT_ID
     delete process.env.CLIENT_SECRET
@@ -16,10 +18,13 @@ describe('Octokit GitHub Enterprise configuration', () => {
   })
 
   it('configures REST and GraphQL endpoints for GHES', async () => {
-    delete process.env.GITHUB_API_URL
-    delete process.env.NEXT_PUBLIC_GITHUB_API_URL
     process.env.GITHUB_SERVER_URL = 'https://ghes.example.com'
+    process.env.GITHUB_API_URL = 'https://ghes.example.com/api/v3'
+    process.env.GITHUB_GRAPHQL_URL = 'https://ghes.example.com/api/graphql'
     process.env.NEXT_PUBLIC_GITHUB_SERVER_URL = 'https://ghes.example.com'
+    process.env.NEXT_PUBLIC_GITHUB_API_URL = 'https://ghes.example.com/api/v3'
+    process.env.NEXT_PUBLIC_GITHUB_GRAPHQL_URL =
+      'https://ghes.example.com/api/graphql'
     vi.resetModules()
 
     const { Octokit } = await import('../../src/bot/rest')
@@ -38,6 +43,9 @@ describe('Octokit GitHub Enterprise configuration', () => {
 
   it('uses NEXT_PUBLIC GitHub URLs for the client-side personal octokit GraphQL endpoint', async () => {
     process.env.NEXT_PUBLIC_GITHUB_SERVER_URL = 'https://acme.ghe.com'
+    process.env.NEXT_PUBLIC_GITHUB_API_URL = 'https://api.acme.ghe.com'
+    process.env.NEXT_PUBLIC_GITHUB_GRAPHQL_URL =
+      'https://api.acme.ghe.com/graphql'
     vi.resetModules()
 
     const { personalOctokit } = await import('../../src/bot/octokit')
@@ -55,10 +63,10 @@ describe('Octokit GitHub Enterprise configuration', () => {
   })
 
   it('uses the configured REST API base URL for app auth requests', async () => {
-    delete process.env.GITHUB_API_URL
-    delete process.env.NEXT_PUBLIC_GITHUB_API_URL
     process.env.GITHUB_SERVER_URL = 'https://ghes.example.com'
+    process.env.GITHUB_API_URL = 'https://ghes.example.com/api/v3'
     process.env.NEXT_PUBLIC_GITHUB_SERVER_URL = 'https://ghes.example.com'
+    process.env.NEXT_PUBLIC_GITHUB_API_URL = 'https://ghes.example.com/api/v3'
     process.env.APP_ID = '123'
     process.env.CLIENT_ID = 'client-id'
     process.env.CLIENT_SECRET = 'client-secret'

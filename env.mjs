@@ -23,11 +23,11 @@ export const env = createEnv({
     PRIVATE_ORG: z.string().optional(),
     // GitHub Enterprise (GHE.com Data Residency / GHES) configuration.
     // When unset, defaults target github.com / api.github.com so existing
-    // deployments are unaffected. Set GITHUB_SERVER_URL to your GHE base URL
-    // (e.g. https://acme.ghe.com or https://ghes.example.com); GITHUB_API_URL
-    // is derived automatically but can be overridden.
+    // deployments are unaffected. Set each custom URL explicitly for your GHE
+    // deployment.
     GITHUB_SERVER_URL: z.string().url().optional(),
     GITHUB_API_URL: z.string().url().optional(),
+    GITHUB_GRAPHQL_URL: z.string().url().optional(),
     // Optional override for the committer email domain used on sync commits.
     // Defaults to `users.noreply.github.com` for github.com; for GHE/GHES set
     // this explicitly (the value depends on instance configuration).
@@ -110,11 +110,12 @@ export const env = createEnv({
    * 💡 You'll get type errors if these are not prefixed with NEXT_PUBLIC_.
    */
   client: {
-    // Mirrors of GITHUB_SERVER_URL / GITHUB_API_URL that are also available in
-    // client bundles. Used by client-side hooks (Octokit) and UI link builders.
-    // These are inlined at build time, so they must be set during `npm run build`.
+    // Mirrors of GitHub URL configuration that are also available in client
+    // bundles. Used by client-side hooks (Octokit) and UI link builders. These
+    // are inlined at build time, so they must be set during `npm run build`.
     NEXT_PUBLIC_GITHUB_SERVER_URL: z.string().url().optional(),
     NEXT_PUBLIC_GITHUB_API_URL: z.string().url().optional(),
+    NEXT_PUBLIC_GITHUB_GRAPHQL_URL: z.string().url().optional(),
   },
   /*
    * Due to how Next.js bundles environment variables on Edge and Client,
@@ -136,9 +137,11 @@ export const env = createEnv({
     PRIVATE_ORG: process.env.PRIVATE_ORG,
     GITHUB_SERVER_URL: process.env.GITHUB_SERVER_URL,
     GITHUB_API_URL: process.env.GITHUB_API_URL,
+    GITHUB_GRAPHQL_URL: process.env.GITHUB_GRAPHQL_URL,
     GITHUB_USER_EMAIL_DOMAIN: process.env.GITHUB_USER_EMAIL_DOMAIN,
     NEXT_PUBLIC_GITHUB_SERVER_URL: process.env.NEXT_PUBLIC_GITHUB_SERVER_URL,
     NEXT_PUBLIC_GITHUB_API_URL: process.env.NEXT_PUBLIC_GITHUB_API_URL,
+    NEXT_PUBLIC_GITHUB_GRAPHQL_URL: process.env.NEXT_PUBLIC_GITHUB_GRAPHQL_URL,
     ALLOWED_HANDLES: process.env.ALLOWED_HANDLES,
     ALLOWED_ORGS: process.env.ALLOWED_ORGS,
     SKIP_BRANCH_PROTECTION_CREATION:
