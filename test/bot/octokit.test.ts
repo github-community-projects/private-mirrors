@@ -15,6 +15,9 @@ describe('Octokit GitHub Enterprise configuration', () => {
     vi.resetModules()
     vi.unstubAllEnvs()
     vi.clearAllMocks()
+    vi.doUnmock('bot')
+    vi.doUnmock('probot')
+    vi.doUnmock('utils/logger')
   })
 
   it('configures REST and GraphQL endpoints for GHES', async () => {
@@ -96,5 +99,50 @@ describe('Octokit GitHub Enterprise configuration', () => {
     expect(defaultsSpy).toHaveBeenCalledWith({
       baseUrl: 'https://ghes.example.com/api/v3',
     })
+  })
+
+  it('configures webhook Probot Octokit endpoints for GHES', async () => {
+    process.env.GITHUB_SERVER_URL = 'https://ghes.example.com'
+    process.env.GITHUB_API_URL = 'https://ghes.example.com/api/v3'
+    process.env.GITHUB_GRAPHQL_URL = 'https://ghes.example.com/api/graphql'
+    process.env.NEXT_PUBLIC_GITHUB_SERVER_URL = 'https://ghes.example.com'
+    process.env.NEXT_PUBLIC_GITHUB_API_URL = 'https://ghes.example.com/api/v3'
+    process.env.NEXT_PUBLIC_GITHUB_GRAPHQL_URL =
+      'https://ghes.example.com/api/graphql'
+    vi.resetModules()
+
+    const createProbot = vi.fn((options) => options)
+    const createNodeMiddleware = vi.fn()
+    vi.doMock('bot', () => ({
+      default: vi.fn(),
+    }))
+    vi.doMock('utils/logger', () => ({
+      logger: {
+        getSubLogger: vi.fn().mockReturnValue({}),
+      },
+    }))
+    vi.doMock('probot', async () => {
+      const actual = await vi.importActual<typeof import('probot')>('probot')
+      return {
+        ...actual,
+        createNodeMiddleware,
+        createProbot,
+      }
+    })
+
+    await import('../../src/pages/api/webhooks')
+
+    const Octokit = createProbot.mock.calls[0][0].defaults.Octokit
+    const octokit = new Octokit({ auth: 'token' })
+    const graphqlEndpoint = (
+      octokit.graphql.endpoint as unknown as (options: { query: string }) => {
+        url: string
+      }
+    )({ query: '{ viewer { login } }' })
+
+    expect(octokit.request.endpoint.DEFAULTS.baseUrl).toBe(
+      'https://ghes.example.com/api/v3',
+    )
+    expect(graphqlEndpoint.url).toBe('https://ghes.example.com/api/graphql')
   })
 })
