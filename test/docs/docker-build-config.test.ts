@@ -10,11 +10,15 @@ describe('Dockerfile and docs for GHE client build args', () => {
 
     expect(dockerfile).toContain('ARG NEXT_PUBLIC_GITHUB_SERVER_URL')
     expect(dockerfile).toContain('ARG NEXT_PUBLIC_GITHUB_API_URL')
+    expect(dockerfile).toContain('ARG NEXT_PUBLIC_GITHUB_GRAPHQL_URL')
     expect(dockerfile).toContain(
       'ENV NEXT_PUBLIC_GITHUB_SERVER_URL=$NEXT_PUBLIC_GITHUB_SERVER_URL',
     )
     expect(dockerfile).toContain(
       'ENV NEXT_PUBLIC_GITHUB_API_URL=$NEXT_PUBLIC_GITHUB_API_URL',
+    )
+    expect(dockerfile).toContain(
+      'ENV NEXT_PUBLIC_GITHUB_GRAPHQL_URL=$NEXT_PUBLIC_GITHUB_GRAPHQL_URL',
     )
   })
 

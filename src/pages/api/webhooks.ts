@@ -1,18 +1,14 @@
 import app from 'bot'
-import { createNodeMiddleware, createProbot, ProbotOctokit } from 'probot'
 import { githubGraphQlEndpointPlugin } from 'bot/rest'
+import { createNodeMiddleware, createProbot, ProbotOctokit } from 'probot'
 import { getGitHubApiUrl } from 'utils/github-urls'
 import { logger } from 'utils/logger'
 
-const baseUrl = getGitHubApiUrl()
-
-// Configure Probot's Octokit with the GHE/GHES/github.com API base URL so
-// every `context.octokit.*` call hits the correct host.
 const GheProbotOctokit = ProbotOctokit.plugin(
   githubGraphQlEndpointPlugin,
-).defaults({ baseUrl })
-
-export const probot = createProbot({ defaults: { Octokit: GheProbotOctokit } })
+).defaults({
+  baseUrl: getGitHubApiUrl(),
+})
 
 const probotLogger = logger.getSubLogger({ name: 'probot' })
 

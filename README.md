@@ -99,7 +99,7 @@ The authentication of the UI will still need to be a user's github.com user, but
 
 ## Integrating the App into GHE.com (Data Residency) or GHES
 
-The app also supports GitHub Enterprise Cloud with Data Residency (`*.ghe.com`) and GitHub Enterprise Server. Authentication, OAuth, REST/GraphQL API calls, git remotes and UI links are all driven by the GitHub host you configure.
+The app also supports GitHub Enterprise Cloud with Data Residency (`*.ghe.com`) and GitHub Enterprise Server. Configure the server, REST API, GraphQL API, and client bundle URLs explicitly for your environment.
 
 Set the following environment variables in addition to the GHEC variables above:
 
@@ -113,14 +113,13 @@ GITHUB_SERVER_URL=https://acme.ghe.com
 # Required for client-side hooks and UI links to point at the correct host.
 NEXT_PUBLIC_GITHUB_SERVER_URL=https://acme.ghe.com
 
-# Optional REST API base URL. Auto-derived from GITHUB_SERVER_URL:
-#   github.com         -> https://api.github.com
-#   <tenant>.ghe.com   -> https://api.<tenant>.ghe.com
-#   <ghes-host>        -> https://<ghes-host>/api/v3
-# GraphQL is derived from this value and uses /api/graphql on GHES.
-# Override only if the auto-derivation does not match your instance.
-GITHUB_API_URL=
-NEXT_PUBLIC_GITHUB_API_URL=
+# REST API and GraphQL URLs for the same GitHub host.
+GITHUB_API_URL=https://api.acme.ghe.com
+GITHUB_GRAPHQL_URL=https://api.acme.ghe.com/graphql
+
+# Same values as above, but inlined into client bundles at build time.
+NEXT_PUBLIC_GITHUB_API_URL=https://api.acme.ghe.com
+NEXT_PUBLIC_GITHUB_GRAPHQL_URL=https://api.acme.ghe.com/graphql
 
 # Committer email domain used on sync commits. Defaults to `users.noreply.github.com`.
 # Set explicitly for GHE/GHES (value depends on instance configuration), e.g.:
