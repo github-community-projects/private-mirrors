@@ -175,8 +175,7 @@ export const createMirrorHandler = async ({
 
     // Get the organization custom properties
     const orgCustomProps =
-      // @ts-expect-error getAllCustomProperties exists in the API but is not yet in octokit 5 type definitions
-      await privateOctokit.rest.orgs.getAllCustomProperties({
+await privateOctokit.rest.orgs.customPropertiesForReposGetOrganizationDefinitions({
         org: privateOrg,
       })
 
