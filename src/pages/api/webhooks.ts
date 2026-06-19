@@ -2,6 +2,8 @@ import app from 'bot'
 import { createNodeMiddleware, createProbot } from 'probot'
 import { logger } from 'utils/logger'
 
+import { createNodeMiddleware, createProbot } from 'probot'
+
 export const probot = createProbot()
 
 const probotLogger = logger.getSubLogger({ name: 'probot' })
