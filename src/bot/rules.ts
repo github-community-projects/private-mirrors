@@ -261,7 +261,7 @@ const createBranchProtectionREST = async (
 
   rulesLogger.info('Created branch protection via REST', {
     res,
-    repositoryOwner: context.payload.repository.owner!.login,
+    repositoryOwner: context.payload.repository.owner?.login,
     repositoryName: context.payload.repository.name,
   })
 }
