@@ -185,8 +185,7 @@ await privateOctokit.rest.orgs.customPropertiesForReposGetOrganizationDefinition
         (prop: { property_name: string }) => prop.property_name === 'fork',
       )
     ) {
-      // @ts-expect-error createOrUpdateCustomProperty exists in the API but is not yet in octokit 5 type definitions
-      await privateOctokit.rest.orgs.createOrUpdateCustomProperty({
+await privateOctokit.rest.orgs.customPropertiesForReposCreateOrUpdateOrganizationDefinition({
         org: privateOrg,
         custom_property_name: 'fork',
         value_type: 'string',
