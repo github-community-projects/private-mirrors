@@ -35,10 +35,7 @@ const getForkRepoFromMirror = async (
   mirrorName: string,
 ): Promise<RepoRef | undefined> => {
   try {
-    // @ts-expect-error getCustomPropertiesValues exists in the API but is not yet
-    // in octokit 5 type definitions. Tracked upstream:
-    // https://github.com/octokit/octokit.js/discussions/2050
-    const props = await octokit.rest.repos.getCustomPropertiesValues({
+    const props = await octokit.rest.repos.customPropertiesForReposGetRepositoryValues({
       owner: mirrorOwner,
       repo: mirrorName,
     })
@@ -178,8 +175,7 @@ export const createMirrorHandler = async ({
 
     // Get the organization custom properties
     const orgCustomProps =
-      // @ts-expect-error getAllCustomProperties exists in the API but is not yet in octokit 5 type definitions
-      await privateOctokit.rest.orgs.getAllCustomProperties({
+      await privateOctokit.rest.orgs.customPropertiesForReposGetOrganizationDefinitions({
         org: privateOrg,
       })
 
@@ -189,8 +185,7 @@ export const createMirrorHandler = async ({
         (prop: { property_name: string }) => prop.property_name === 'fork',
       )
     ) {
-      // @ts-expect-error createOrUpdateCustomProperty exists in the API but is not yet in octokit 5 type definitions
-      await privateOctokit.rest.orgs.createOrUpdateCustomProperty({
+      await privateOctokit.rest.orgs.customPropertiesForReposCreateOrUpdateOrganizationDefinition({
         org: privateOrg,
         custom_property_name: 'fork',
         value_type: 'string',

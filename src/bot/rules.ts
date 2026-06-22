@@ -28,7 +28,7 @@ export const createAllPushProtection = async (
   if (process.env.SKIP_BRANCH_PROTECTION_CREATION) return // don't add branch protections if the env is set to skip
 
   rulesLogger.info('Creating branch protection for all branches', {
-    repositoryOwner: context.payload.repository.owner!.login,
+    repositoryOwner: context.payload.repository.owner?.login,
     repositoryName: context.payload.repository.name,
   })
 
@@ -91,7 +91,7 @@ export const createDefaultBranchProtection = async (
   if (process.env.SKIP_BRANCH_PROTECTION_CREATION) return // fallback protection in case the env is not checked before calling this function
 
   rulesLogger.info('Creating branch protection for default branch', {
-    repositoryOwner: context.payload.repository.owner!.login,
+    repositoryOwner: context.payload.repository.owner?.login,
     repositoryName: context.payload.repository.name,
   })
 
@@ -162,11 +162,16 @@ const createBranchProtectionRuleset = async (
     isMirror,
   })
 
+  const repositoryOwner = context.payload.repository.owner?.login
+  if (!repositoryOwner) {
+    throw new Error('Repository owner is undefined; cannot create branch protection ruleset')
+  }
+
   // Get the current branch protection rulesets
   const getBranchProtectionRuleset = await context.octokit.graphql<{
     repository: Repository
   }>(getBranchProtectionRulesetGQL, {
-    owner: context.payload.repository.owner!.login,
+    owner: repositoryOwner,
     name: context.payload.repository.name,
   })
 
@@ -241,10 +246,15 @@ const createBranchProtectionREST = async (
 ) => {
   rulesLogger.info('Creating branch protection via REST')
 
+  const repositoryOwner = context.payload.repository.owner?.login
+  if (!repositoryOwner) {
+    throw new Error('Repository owner is undefined; cannot create branch protection via REST')
+  }
+
   const res = await context.octokit.rest.repos.updateBranchProtection({
     branch: pattern,
     enforce_admins: true,
-    owner: context.payload.repository.owner!.login,
+    owner: repositoryOwner,
     repo: context.payload.repository.name,
     required_pull_request_reviews: {
       dismiss_stale_reviews: true,
@@ -261,7 +271,7 @@ const createBranchProtectionREST = async (
 
   rulesLogger.info('Created branch protection via REST', {
     res,
-    repositoryOwner: context.payload.repository.owner!.login,
+    repositoryOwner,
     repositoryName: context.payload.repository.name,
   })
 }
