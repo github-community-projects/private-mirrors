@@ -35,10 +35,11 @@ const getForkRepoFromMirror = async (
   mirrorName: string,
 ): Promise<RepoRef | undefined> => {
   try {
-    const props = await octokit.rest.repos.customPropertiesForReposGetRepositoryValues({
-      owner: mirrorOwner,
-      repo: mirrorName,
-    })
+    const props =
+      await octokit.rest.repos.customPropertiesForReposGetRepositoryValues({
+        owner: mirrorOwner,
+        repo: mirrorName,
+      })
     const forkProp = props.data.find(
       (p: { property_name: string }) => p.property_name === 'fork',
     )
@@ -175,9 +176,11 @@ export const createMirrorHandler = async ({
 
     // Get the organization custom properties
     const orgCustomProps =
-      await privateOctokit.rest.orgs.customPropertiesForReposGetOrganizationDefinitions({
-        org: privateOrg,
-      })
+      await privateOctokit.rest.orgs.customPropertiesForReposGetOrganizationDefinitions(
+        {
+          org: privateOrg,
+        },
+      )
 
     // Creates custom property fork in the org if it doesn't exist
     if (
@@ -185,11 +188,13 @@ export const createMirrorHandler = async ({
         (prop: { property_name: string }) => prop.property_name === 'fork',
       )
     ) {
-      await privateOctokit.rest.orgs.customPropertiesForReposCreateOrUpdateOrganizationDefinition({
-        org: privateOrg,
-        custom_property_name: 'fork',
-        value_type: 'string',
-      })
+      await privateOctokit.rest.orgs.customPropertiesForReposCreateOrUpdateOrganizationDefinition(
+        {
+          org: privateOrg,
+          custom_property_name: 'fork',
+          value_type: 'string',
+        },
+      )
     }
 
     // Create the mirror repo in the private org

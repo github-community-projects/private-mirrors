@@ -164,7 +164,9 @@ const createBranchProtectionRuleset = async (
 
   const repositoryOwner = context.payload.repository.owner?.login
   if (!repositoryOwner) {
-    throw new Error('Repository owner is undefined; cannot create branch protection ruleset')
+    throw new Error(
+      'Repository owner is undefined; cannot create branch protection ruleset',
+    )
   }
 
   // Get the current branch protection rulesets
@@ -248,7 +250,9 @@ const createBranchProtectionREST = async (
 
   const repositoryOwner = context.payload.repository.owner?.login
   if (!repositoryOwner) {
-    throw new Error('Repository owner is undefined; cannot create branch protection via REST')
+    throw new Error(
+      'Repository owner is undefined; cannot create branch protection via REST',
+    )
   }
 
   const res = await context.octokit.rest.repos.updateBranchProtection({
