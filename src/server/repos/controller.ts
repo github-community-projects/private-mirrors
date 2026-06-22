@@ -23,6 +23,9 @@ import { TRPCError } from '@trpc/server'
 const reposApiLogger = logger.getSubLogger({ name: 'repos-api' })
 
 type MirrorRepo = Awaited<ReturnType<Octokit['rest']['repos']['createInOrg']>>
+type SearchRepo = Awaited<
+  ReturnType<Octokit['rest']['search']['repos']>
+>['data']['items'][number]
 type RepoRef = { owner: string; name: string }
 type SyncBranchRef = { owner: string; repo: string; branch: string }
 
@@ -402,7 +405,7 @@ export const listMirrorsHandler = async ({
         order: 'desc',
         sort: 'updated',
       },
-      (response: { data: unknown[] }) => response.data,
+      (response: { data: SearchRepo[] }) => response.data,
     )
 
     return {
