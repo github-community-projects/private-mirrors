@@ -308,13 +308,18 @@ const mockFunctions = {
       createRef: vi.fn(),
       deleteRef: vi.fn(),
     },
+    search: {
+      repos: vi.fn(),
+    },
   },
+  paginate: vi.fn(),
 }
 
 export class Octomock {
   mockFunctions: {
     rest: Record<string, Record<string, Mock>>
     config: Record<string, Mock>
+    paginate: Mock
   }
   defaultContext: { payload: { issue: { body: string; user: object } } }
 
