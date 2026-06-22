@@ -19,7 +19,7 @@ import {
   RelativeTime,
   Stack,
 } from '@primer/react'
-import { Blankslate, DataTable, Table } from '@primer/react/drafts'
+import { Blankslate, DataTable, Table, Tooltip } from '@primer/react/drafts'
 import { ForkBreadcrumbs } from 'app/components/breadcrumbs/ForkBreadcrumbs'
 import { CreateMirrorDialog } from 'app/components/dialog/CreateMirrorDialog'
 import { DeleteMirrorDialog } from 'app/components/dialog/DeleteMirrorDialog'
@@ -185,7 +185,7 @@ const Fork = () => {
   } = trpc.createMirror.useMutation()
 
   const {
-    data: mirrors,
+    data: mirrorsData,
     isLoading: mirrorsLoading,
     refetch: refetchMirrors,
     error: listMirrorsError,
@@ -198,6 +198,8 @@ const Fork = () => {
       enabled: Boolean(organizationId) && Boolean(forkData?.data?.name),
     },
   )
+  const mirrors = mirrorsData?.mirrors
+  const mirrorDeletionEnabled = mirrorsData?.mirrorDeletionEnabled ?? false
 
   const {
     data: editMirrorData,
@@ -477,7 +479,7 @@ const Fork = () => {
   })
 
   // perform search if there is a search value
-  let mirrorSet: typeof mirrors = []
+  let mirrorSet = []
   if (searchValue) {
     mirrorSet = fuse.search(searchValue).map((result) => result.item)
   } else {
@@ -566,114 +568,105 @@ const Fork = () => {
         <DataTable
           aria-describedby="mirrors table"
           aria-labelledby="mirrors table"
-          data={
-            mirrorPaginationSet as Array<{
-              id: number
-              name: string
-              html_url: string
-              updated_at: string
-            }>
-          }
-          // `satisfies` cannot be used here — the issue is that under moduleResolution:"bundler", DataTable's
-          // generic Data param isn't inferred from the data prop and falls back to UniqueRow, making `field`
-          // only accept "id". `satisfies` would still error on field:"name" etc. `as any` is the only workaround
-          // until @primer/react fixes DataTable generic inference (draft component).
-          columns={
-            [
-              {
-                header: 'Mirror name',
-                rowHeader: true,
-                field: 'name',
-                sortBy: 'alphanumeric',
-                width: '400px',
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                renderCell: (row: any) => {
-                  return (
-                    <Link
-                      sx={{
-                        paddingRight: '5px',
-                        fontWeight: 'bold',
-                        fontSize: 2,
-                      }}
-                      href={row.html_url}
-                      target="_blank"
-                      rel="noreferrer noopener"
-                    >
-                      {row.name}
-                    </Link>
-                  )
-                },
+          data={mirrorPaginationSet}
+          columns={[
+            {
+              header: 'Mirror name',
+              rowHeader: true,
+              field: 'name',
+              sortBy: 'alphanumeric',
+              width: '400px',
+              renderCell: (row) => {
+                return (
+                  <Link
+                    sx={{
+                      paddingRight: '5px',
+                      fontWeight: 'bold',
+                      fontSize: 2,
+                    }}
+                    href={row.html_url}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                  >
+                    {row.name}
+                  </Link>
+                )
               },
-              {
-                header: 'Last updated',
-                field: 'updated_at',
-                sortBy: 'datetime',
-                width: 'auto',
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                renderCell: (row: any) => {
-                  return (
-                    <RelativeTime
-                      date={new Date(row.updated_at)}
-                      tense="past"
-                    />
-                  )
-                },
+            },
+            {
+              header: 'Last updated',
+              field: 'updated_at',
+              sortBy: 'datetime',
+              width: 'auto',
+              renderCell: (row) => {
+                return (
+                  <RelativeTime date={new Date(row.updated_at)} tense="past" />
+                )
               },
-              {
-                id: 'actions',
-                header: '',
-                width: '50px',
-                align: 'end',
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                renderCell: (row: any) => {
-                  return (
-                    <ActionMenu>
-                      <ActionMenu.Anchor>
-                        <IconButton
-                          aria-label={`Actions: ${row.name}`}
-                          icon={KebabHorizontalIcon}
-                          variant="invisible"
-                        />
-                      </ActionMenu.Anchor>
-                      <ActionMenu.Overlay>
-                        <ActionList>
-                          <ActionList.Item
-                            onSelect={() => {
-                              openEditDialog(row.name)
-                            }}
+            },
+            {
+              id: 'actions',
+              header: '',
+              width: '50px',
+              align: 'end',
+              renderCell: (row) => {
+                const deleteItem = (
+                  <ActionList.Item
+                    variant="danger"
+                    disabled={!mirrorDeletionEnabled}
+                    onSelect={() =>
+                      openDeleteDialog(row.name, mirrorPaginationSet.length)
+                    }
+                  >
+                    <Stack align="center" direction="horizontal">
+                      <Stack.Item>
+                        <Octicon icon={TrashIcon}></Octicon>
+                      </Stack.Item>
+                      <Stack.Item>Delete mirror</Stack.Item>
+                    </Stack>
+                  </ActionList.Item>
+                )
+
+                return (
+                  <ActionMenu>
+                    <ActionMenu.Anchor>
+                      <IconButton
+                        aria-label={`Actions: ${row.name}`}
+                        icon={KebabHorizontalIcon}
+                        variant="invisible"
+                      />
+                    </ActionMenu.Anchor>
+                    <ActionMenu.Overlay>
+                      <ActionList>
+                        <ActionList.Item
+                          onSelect={() => {
+                            openEditDialog(row.name)
+                          }}
+                        >
+                          <Stack align="center" direction="horizontal">
+                            <Stack.Item>
+                              <Octicon icon={PencilIcon}></Octicon>
+                            </Stack.Item>
+                            <Stack.Item>Edit mirror</Stack.Item>
+                          </Stack>
+                        </ActionList.Item>
+                        {mirrorDeletionEnabled ? (
+                          deleteItem
+                        ) : (
+                          <Tooltip
+                            direction="s"
+                            text="Mirror deletion has been disabled in the application settings"
                           >
-                            <Stack align="center" direction="horizontal">
-                              <Stack.Item>
-                                <Octicon icon={PencilIcon}></Octicon>
-                              </Stack.Item>
-                              <Stack.Item>Edit mirror</Stack.Item>
-                            </Stack>
-                          </ActionList.Item>
-                          <ActionList.Item
-                            variant="danger"
-                            onSelect={() => {
-                              openDeleteDialog(
-                                row.name,
-                                mirrorPaginationSet.length,
-                              )
-                            }}
-                          >
-                            <Stack align="center" direction="horizontal">
-                              <Stack.Item>
-                                <Octicon icon={TrashIcon}></Octicon>
-                              </Stack.Item>
-                              <Stack.Item>Delete mirror</Stack.Item>
-                            </Stack>
-                          </ActionList.Item>
-                        </ActionList>
-                      </ActionMenu.Overlay>
-                    </ActionMenu>
-                  )
-                },
+                            <Box as="span">{deleteItem}</Box>
+                          </Tooltip>
+                        )}
+                      </ActionList>
+                    </ActionMenu.Overlay>
+                  </ActionMenu>
+                )
               },
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ] as any
-          }
+            },
+          ]}
           cellPadding="spacious"
         />
         <Table.Pagination

@@ -10,4 +10,4 @@ build
 !.env.example
 .DS_Store
 next-env.d.ts
-*.tsbuildinfo
+tsconfig.tsbuildinfo
