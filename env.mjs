@@ -92,6 +92,11 @@ export const env = createEnv({
         }
         return parsed
       }),
+    DISABLE_MIRROR_DELETION: z
+      .enum(['true', 'false', ''])
+      .optional()
+      .default('false')
+      .transform((value) => value === 'true'),
   },
   /*
    * Environment variables available on the client (and server).
@@ -127,6 +132,7 @@ export const env = createEnv({
       process.env.DELETE_INTERNAL_MERGE_COMMITS_ON_SYNC,
     MIRROR_SYNC_TIMEOUT_MS: process.env.MIRROR_SYNC_TIMEOUT_MS,
     MIRROR_PUSH_CHUNK_SIZE: process.env.MIRROR_PUSH_CHUNK_SIZE,
+    DISABLE_MIRROR_DELETION: process.env.DISABLE_MIRROR_DELETION,
   },
   skipValidation: process.env.SKIP_ENV_VALIDATIONS === 'true',
 })

@@ -19,7 +19,7 @@ import {
   RelativeTime,
   Stack,
 } from '@primer/react'
-import { Blankslate, DataTable, Table } from '@primer/react/drafts'
+import { Blankslate, DataTable, Table, Tooltip } from '@primer/react/drafts'
 import { ForkBreadcrumbs } from 'app/components/breadcrumbs/ForkBreadcrumbs'
 import { CreateMirrorDialog } from 'app/components/dialog/CreateMirrorDialog'
 import { DeleteMirrorDialog } from 'app/components/dialog/DeleteMirrorDialog'
@@ -185,7 +185,7 @@ const Fork = () => {
   } = trpc.createMirror.useMutation()
 
   const {
-    data: mirrors,
+    data: mirrorsData,
     isLoading: mirrorsLoading,
     refetch: refetchMirrors,
     error: listMirrorsError,
@@ -198,6 +198,8 @@ const Fork = () => {
       enabled: Boolean(organizationId) && Boolean(forkData?.data?.name),
     },
   )
+  const mirrors = mirrorsData?.mirrors
+  const mirrorDeletionEnabled = mirrorsData?.mirrorDeletionEnabled ?? false
 
   const {
     data: editMirrorData,
@@ -608,6 +610,23 @@ const Fork = () => {
               width: '50px',
               align: 'end',
               renderCell: (row) => {
+                const deleteItem = (
+                  <ActionList.Item
+                    variant="danger"
+                    disabled={!mirrorDeletionEnabled}
+                    onSelect={() =>
+                      openDeleteDialog(row.name, mirrorPaginationSet.length)
+                    }
+                  >
+                    <Stack align="center" direction="horizontal">
+                      <Stack.Item>
+                        <Octicon icon={TrashIcon}></Octicon>
+                      </Stack.Item>
+                      <Stack.Item>Delete mirror</Stack.Item>
+                    </Stack>
+                  </ActionList.Item>
+                )
+
                 return (
                   <ActionMenu>
                     <ActionMenu.Anchor>
@@ -631,22 +650,16 @@ const Fork = () => {
                             <Stack.Item>Edit mirror</Stack.Item>
                           </Stack>
                         </ActionList.Item>
-                        <ActionList.Item
-                          variant="danger"
-                          onSelect={() => {
-                            openDeleteDialog(
-                              row.name,
-                              mirrorPaginationSet.length,
-                            )
-                          }}
-                        >
-                          <Stack align="center" direction="horizontal">
-                            <Stack.Item>
-                              <Octicon icon={TrashIcon}></Octicon>
-                            </Stack.Item>
-                            <Stack.Item>Delete mirror</Stack.Item>
-                          </Stack>
-                        </ActionList.Item>
+                        {mirrorDeletionEnabled ? (
+                          deleteItem
+                        ) : (
+                          <Tooltip
+                            direction="s"
+                            text="Mirror deletion has been disabled in the application settings"
+                          >
+                            <Box as="span">{deleteItem}</Box>
+                          </Tooltip>
+                        )}
                       </ActionList>
                     </ActionMenu.Overlay>
                   </ActionMenu>
