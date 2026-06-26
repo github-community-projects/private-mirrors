@@ -192,7 +192,9 @@ export const nextAuthOptions: AuthOptions = {
         })
 
       // Check if any of the user's organizations are in the allowed orgs list
-      if (orgs.some((org) => allowedOrgs.includes(org.login))) {
+      if (
+        orgs.some((org: { login: string }) => allowedOrgs.includes(org.login))
+      ) {
         authLogger.info(
           'User has an org in the allowed orgs list:',
           profile.login,

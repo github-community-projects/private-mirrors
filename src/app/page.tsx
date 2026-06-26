@@ -124,35 +124,42 @@ const Home = () => {
           aria-describedby="orgs table"
           aria-labelledby="orgs table"
           data={orgsPaginationSet}
-          columns={[
-            {
-              header: 'Organization',
-              rowHeader: true,
-              field: 'login',
-              sortBy: 'alphanumeric',
-              renderCell: (row) => {
-                return (
-                  <Stack direction="horizontal" align="center">
-                    <Stack.Item>
-                      <Avatar src={row.avatar_url} size={32} square={true} />
-                    </Stack.Item>
-                    <Stack.Item>
-                      <Link
-                        sx={{
-                          paddingRight: '5px',
-                          fontWeight: 'bold',
-                          fontSize: 2,
-                        }}
-                        href={`/${row.login}`}
-                      >
-                        {row.login}
-                      </Link>
-                    </Stack.Item>
-                  </Stack>
-                )
+          // `satisfies` cannot be used here — under moduleResolution:"bundler", DataTable's generic Data
+          // param isn't inferred from data prop, so `field` only accepts "id". `as any` is the only
+          // workaround until @primer/react fixes DataTable generic inference (draft component).
+          columns={
+            [
+              {
+                header: 'Organization',
+                rowHeader: true,
+                field: 'login',
+                sortBy: 'alphanumeric',
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                renderCell: (row: any) => {
+                  return (
+                    <Stack direction="horizontal" align="center">
+                      <Stack.Item>
+                        <Avatar src={row.avatar_url} size={32} square={true} />
+                      </Stack.Item>
+                      <Stack.Item>
+                        <Link
+                          sx={{
+                            paddingRight: '5px',
+                            fontWeight: 'bold',
+                            fontSize: 2,
+                          }}
+                          href={`/${row.login}`}
+                        >
+                          {row.login}
+                        </Link>
+                      </Stack.Item>
+                    </Stack>
+                  )
+                },
               },
-            },
-          ]}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            ] as any
+          }
           cellPadding="spacious"
         />
         <Table.Pagination

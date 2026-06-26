@@ -23,6 +23,9 @@ import { TRPCError } from '@trpc/server'
 const reposApiLogger = logger.getSubLogger({ name: 'repos-api' })
 
 type MirrorRepo = Awaited<ReturnType<Octokit['rest']['repos']['createInOrg']>>
+type SearchRepo = Awaited<
+  ReturnType<Octokit['rest']['search']['repos']>
+>['data']['items'][number]
 type RepoRef = { owner: string; name: string }
 type SyncBranchRef = { owner: string; repo: string; branch: string }
 
@@ -35,11 +38,14 @@ const getForkRepoFromMirror = async (
   mirrorName: string,
 ): Promise<RepoRef | undefined> => {
   try {
-    const props = await octokit.rest.repos.getCustomPropertiesValues({
-      owner: mirrorOwner,
-      repo: mirrorName,
-    })
-    const forkProp = props.data.find((p) => p.property_name === 'fork')
+    const props =
+      await octokit.rest.repos.customPropertiesForReposGetRepositoryValues({
+        owner: mirrorOwner,
+        repo: mirrorName,
+      })
+    const forkProp = props.data.find(
+      (p: { property_name: string }) => p.property_name === 'fork',
+    )
     if (!forkProp || typeof forkProp.value !== 'string') return undefined
     const [owner, name] = forkProp.value.split('/')
     if (!owner || !name) return undefined
@@ -173,9 +179,11 @@ export const createMirrorHandler = async ({
 
     // Get the organization custom properties
     const orgCustomProps =
-      await privateOctokit.rest.orgs.getAllCustomProperties({
-        org: privateOrg,
-      })
+      await privateOctokit.rest.orgs.customPropertiesForReposGetOrganizationDefinitions(
+        {
+          org: privateOrg,
+        },
+      )
 
     // Creates custom property fork in the org if it doesn't exist
     if (
@@ -183,18 +191,20 @@ export const createMirrorHandler = async ({
         (prop: { property_name: string }) => prop.property_name === 'fork',
       )
     ) {
-      await privateOctokit.rest.orgs.createOrUpdateCustomProperty({
-        org: privateOrg,
-        custom_property_name: 'fork',
-        value_type: 'string',
-      })
+      await privateOctokit.rest.orgs.customPropertiesForReposCreateOrUpdateOrganizationDefinition(
+        {
+          org: privateOrg,
+          custom_property_name: 'fork',
+          value_type: 'string',
+        },
+      )
     }
 
     // Create the mirror repo in the private org
     mirrorRepo = await privateOctokit.rest.repos.createInOrg({
       name: input.newRepoName,
       org: privateOrg,
-      // @ts-expect-error because the rest API accepts internal as an option but the types aren't up to date
+      // @ts-expect-error 'internal' visibility is valid but not in octokit 5 type definitions
       visibility: process.env.CREATE_MIRRORS_WITH_INTERNAL_VISIBILITY
         ? 'internal'
         : 'private',
@@ -395,7 +405,7 @@ export const listMirrorsHandler = async ({
         order: 'desc',
         sort: 'updated',
       },
-      (response) => response.data,
+      (response: { data: SearchRepo[] }) => response.data,
     )
 
     return {

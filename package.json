@@ -22,10 +22,11 @@
     "prepare": "husky || true"
   },
   "dependencies": {
-    "@octokit/auth-app": "6.1.1",
+    "@octokit/auth-app": "^7.1.5",
     "@octokit/graphql-schema": "15.26.0",
     "@primer/octicons-react": "19.15.2",
     "@primer/react": "36.27.0",
+    "@probot/octokit-plugin-config": "^4.0.0",
     "@t3-oss/env-nextjs": "0.13.7",
     "@tanstack/react-query": "4.36.1",
     "@trpc/client": "10.45.3",
@@ -34,9 +35,9 @@
     "fast-safe-stringify": "2.1.1",
     "fuse.js": "7.1.0",
     "next": "16.2.6",
-    "next-auth": "4.24.12",
-    "octokit": "3.2.2",
-    "probot": "13.4.7",
+    "next-auth": "4.24.14",
+    "octokit": "^5.0.5",
+    "probot": "14.3.2",
     "proxy-agent": "6.5.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
@@ -50,6 +51,7 @@
   },
   "devDependencies": {
     "@eslint/js": "9.39.2",
+    "@octokit/openapi-webhooks-types-transition": "^12.1.0",
     "@tanstack/eslint-plugin-query": "5.78.0",
     "@tsconfig/next": "^2.0.6",
     "@types/node": "^22.19.15",

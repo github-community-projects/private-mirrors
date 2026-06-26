@@ -47,8 +47,8 @@ const mockFunctions = {
       updateMembership: vi.fn(),
       listForAuthenticatedUser: vi.fn(),
       listForUser: vi.fn(),
-      getAllCustomProperties: vi.fn(),
-      createOrUpdateCustomProperty: vi.fn(),
+      customPropertiesForReposGetOrganizationDefinitions: vi.fn(),
+      customPropertiesForReposCreateOrUpdateOrganizationDefinition: vi.fn(),
     },
     repos: {
       listForOrg: vi.fn(),
@@ -200,7 +200,7 @@ const mockFunctions = {
       declineInvitation: vi.fn(),
       listForUser: vi.fn(),
       getCommitRefSha: vi.fn(),
-      getCustomPropertiesValues: vi.fn(),
+      customPropertiesForReposGetRepositoryValues: vi.fn(),
       renameBranch: vi.fn(),
     },
     issues: {

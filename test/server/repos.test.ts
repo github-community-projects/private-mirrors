@@ -152,10 +152,10 @@ describe('Repos router', () => {
     om.mockFunctions.rest.repos.get.mockResolvedValueOnce(fakeForkRepo)
     om.mockFunctions.rest.git.getRef.mockResolvedValue(fakeBranchRef)
     om.mockFunctions.rest.git.createRef.mockResolvedValue({ status: 201 })
-    om.mockFunctions.rest.orgs.getAllCustomProperties.mockResolvedValue(
+    om.mockFunctions.rest.orgs.customPropertiesForReposGetOrganizationDefinitions.mockResolvedValue(
       fakeOrgCustomProperties,
     )
-    om.mockFunctions.rest.orgs.createOrUpdateCustomProperty.mockResolvedValue(
+    om.mockFunctions.rest.orgs.customPropertiesForReposCreateOrUpdateOrganizationDefinition.mockResolvedValue(
       fakeOrgCustomProperties,
     )
     om.mockFunctions.rest.repos.createInOrg.mockResolvedValue(fakeMirrorRepo)
@@ -250,9 +250,11 @@ describe('Repos router', () => {
     om.mockFunctions.rest.git.getRef.mockResolvedValue(fakeBranchRef)
     om.mockFunctions.rest.git.createRef.mockResolvedValue({ status: 201 })
     stubbedGit.clone.mockResolvedValue({})
-    om.mockFunctions.rest.orgs.getAllCustomProperties.mockResolvedValue({
-      data: [{ fork: 'test' }],
-    })
+    om.mockFunctions.rest.orgs.customPropertiesForReposGetOrganizationDefinitions.mockResolvedValue(
+      {
+        data: [{ fork: 'test' }],
+      },
+    )
     om.mockFunctions.rest.repos.createInOrg.mockResolvedValue({
       data: { owner: { login: 'github' }, name: 'test' },
     })
@@ -305,9 +307,11 @@ describe('Repos router', () => {
     om.mockFunctions.rest.git.getRef.mockResolvedValue(fakeBranchRef)
     om.mockFunctions.rest.git.createRef.mockResolvedValue({ status: 201 })
     stubbedGit.clone.mockResolvedValue({})
-    om.mockFunctions.rest.orgs.getAllCustomProperties.mockResolvedValue({
-      data: [{ fork: 'test' }],
-    })
+    om.mockFunctions.rest.orgs.customPropertiesForReposGetOrganizationDefinitions.mockResolvedValue(
+      {
+        data: [{ fork: 'test' }],
+      },
+    )
     om.mockFunctions.rest.repos.createInOrg.mockResolvedValue({
       data: { owner: { login: 'github-test' }, name: 'test' },
     })
@@ -360,10 +364,10 @@ describe('Repos router', () => {
     om.mockFunctions.rest.repos.get.mockResolvedValueOnce(fakeForkRepo)
     om.mockFunctions.rest.git.getRef.mockResolvedValue(fakeBranchRef)
     om.mockFunctions.rest.git.createRef.mockResolvedValue({ status: 201 })
-    om.mockFunctions.rest.orgs.getAllCustomProperties.mockResolvedValue(
+    om.mockFunctions.rest.orgs.customPropertiesForReposGetOrganizationDefinitions.mockResolvedValue(
       fakeOrgCustomProperties,
     )
-    om.mockFunctions.rest.orgs.createOrUpdateCustomProperty.mockResolvedValue(
+    om.mockFunctions.rest.orgs.customPropertiesForReposCreateOrUpdateOrganizationDefinition.mockResolvedValue(
       fakeOrgCustomProperties,
     )
     om.mockFunctions.rest.repos.createInOrg.mockResolvedValue(fakeMirrorRepo)
@@ -416,7 +420,7 @@ describe('Repos router', () => {
     om.mockFunctions.rest.repos.get.mockResolvedValueOnce(fakeForkRepo)
     om.mockFunctions.rest.git.getRef.mockResolvedValue(fakeBranchRef)
     om.mockFunctions.rest.git.createRef.mockResolvedValue({ status: 201 })
-    om.mockFunctions.rest.orgs.getAllCustomProperties.mockResolvedValue(
+    om.mockFunctions.rest.orgs.customPropertiesForReposGetOrganizationDefinitions.mockResolvedValue(
       fakeOrgCustomProperties,
     )
     om.mockFunctions.rest.repos.createInOrg.mockResolvedValue(fakeMirrorRepo)
@@ -482,7 +486,7 @@ describe('Repos router', () => {
     om.mockFunctions.rest.repos.get.mockResolvedValueOnce(fakeForkRepo)
     om.mockFunctions.rest.git.getRef.mockResolvedValue(fakeBranchRef)
     om.mockFunctions.rest.git.createRef.mockResolvedValue({ status: 201 })
-    om.mockFunctions.rest.orgs.getAllCustomProperties.mockResolvedValue(
+    om.mockFunctions.rest.orgs.customPropertiesForReposGetOrganizationDefinitions.mockResolvedValue(
       fakeOrgCustomProperties,
     )
     om.mockFunctions.rest.repos.createInOrg.mockResolvedValue(fakeMirrorRepo)
@@ -569,10 +573,12 @@ describe('Repos router', () => {
       om.mockFunctions.rest.apps.getOrgInstallation.mockResolvedValue(
         fakeOrgInstallation,
       )
-      om.mockFunctions.rest.repos.getCustomPropertiesValues.mockResolvedValue({
-        status: 200,
-        data: [{ property_name: 'fork', value: 'github/fork-test' }],
-      })
+      om.mockFunctions.rest.repos.customPropertiesForReposGetRepositoryValues.mockResolvedValue(
+        {
+          status: 200,
+          data: [{ property_name: 'fork', value: 'github/fork-test' }],
+        },
+      )
       om.mockFunctions.rest.repos.update.mockResolvedValue({
         status: 200,
         data: { name: 'renamed' },
@@ -612,10 +618,12 @@ describe('Repos router', () => {
       om.mockFunctions.rest.apps.getOrgInstallation.mockResolvedValue(
         fakeOrgInstallation,
       )
-      om.mockFunctions.rest.repos.getCustomPropertiesValues.mockResolvedValue({
-        status: 200,
-        data: [{ property_name: 'fork', value: 'github/fork-test' }],
-      })
+      om.mockFunctions.rest.repos.customPropertiesForReposGetRepositoryValues.mockResolvedValue(
+        {
+          status: 200,
+          data: [{ property_name: 'fork', value: 'github/fork-test' }],
+        },
+      )
       om.mockFunctions.rest.repos.update.mockResolvedValue({
         status: 200,
         data: { name: 'renamed' },
@@ -645,7 +653,7 @@ describe('Repos router', () => {
       om.mockFunctions.rest.apps.getOrgInstallation.mockResolvedValue(
         fakeOrgInstallation,
       )
-      om.mockFunctions.rest.repos.getCustomPropertiesValues.mockRejectedValue(
+      om.mockFunctions.rest.repos.customPropertiesForReposGetRepositoryValues.mockRejectedValue(
         new Error('nope'),
       )
       om.mockFunctions.rest.repos.update.mockResolvedValue({
@@ -738,10 +746,12 @@ describe('Repos router', () => {
       om.mockFunctions.rest.apps.getOrgInstallation.mockResolvedValue(
         fakeOrgInstallation,
       )
-      om.mockFunctions.rest.repos.getCustomPropertiesValues.mockResolvedValue({
-        status: 200,
-        data: [{ property_name: 'fork', value: 'github/fork-test' }],
-      })
+      om.mockFunctions.rest.repos.customPropertiesForReposGetRepositoryValues.mockResolvedValue(
+        {
+          status: 200,
+          data: [{ property_name: 'fork', value: 'github/fork-test' }],
+        },
+      )
       om.mockFunctions.rest.repos.delete.mockResolvedValue({ status: 204 })
       om.mockFunctions.rest.git.deleteRef.mockResolvedValue({ status: 204 })
 
@@ -798,7 +808,7 @@ describe('Repos router', () => {
       om.mockFunctions.rest.repos.get.mockResolvedValueOnce(fakeForkRepo)
       om.mockFunctions.rest.git.getRef.mockResolvedValue(fakeBranchRef)
       om.mockFunctions.rest.git.createRef.mockResolvedValue({ status: 201 })
-      om.mockFunctions.rest.orgs.getAllCustomProperties.mockResolvedValue(
+      om.mockFunctions.rest.orgs.customPropertiesForReposGetOrganizationDefinitions.mockResolvedValue(
         fakeOrgCustomProperties,
       )
       om.mockFunctions.rest.repos.createInOrg.mockResolvedValue(fakeMirrorRepo)
@@ -836,7 +846,7 @@ describe('Repos router', () => {
       om.mockFunctions.rest.repos.get.mockResolvedValueOnce(fakeForkRepo)
       om.mockFunctions.rest.git.getRef.mockResolvedValue(fakeBranchRef)
       om.mockFunctions.rest.git.createRef.mockResolvedValue({ status: 201 })
-      om.mockFunctions.rest.orgs.getAllCustomProperties.mockResolvedValue(
+      om.mockFunctions.rest.orgs.customPropertiesForReposGetOrganizationDefinitions.mockResolvedValue(
         fakeOrgCustomProperties,
       )
       om.mockFunctions.rest.repos.createInOrg.mockResolvedValue(fakeMirrorRepo)
@@ -881,7 +891,7 @@ describe('Repos router', () => {
       om.mockFunctions.rest.repos.get.mockResolvedValueOnce(fakeForkRepo)
       om.mockFunctions.rest.git.getRef.mockResolvedValue(fakeBranchRef)
       om.mockFunctions.rest.git.createRef.mockResolvedValue({ status: 201 })
-      om.mockFunctions.rest.orgs.getAllCustomProperties.mockResolvedValue(
+      om.mockFunctions.rest.orgs.customPropertiesForReposGetOrganizationDefinitions.mockResolvedValue(
         fakeOrgCustomProperties,
       )
       om.mockFunctions.rest.repos.delete.mockResolvedValue({})
@@ -923,7 +933,7 @@ describe('Repos router', () => {
       om.mockFunctions.rest.repos.get.mockResolvedValueOnce(fakeForkRepo)
       om.mockFunctions.rest.git.getRef.mockResolvedValue(fakeBranchRef)
       om.mockFunctions.rest.git.createRef.mockResolvedValue({ status: 201 })
-      om.mockFunctions.rest.orgs.getAllCustomProperties.mockResolvedValue(
+      om.mockFunctions.rest.orgs.customPropertiesForReposGetOrganizationDefinitions.mockResolvedValue(
         fakeOrgCustomProperties,
       )
       om.mockFunctions.rest.repos.createInOrg.mockResolvedValue(fakeMirrorRepo)
