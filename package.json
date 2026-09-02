@@ -76,7 +76,7 @@
     "vitest": "4.1.5"
   },
   "engines": {
-    "node": "^22 || ^24"
+    "node": "^24"
   },
   "lint-staged": {
     "*": [
@@ -86,5 +86,9 @@
     "'.ts', '.tsx', '.d.ts', '.cts', '.d.cts', '.mts', '.d.mts'": [
       "npm run type-check"
     ]
+  },
+  "allowScripts": {
+    "fsevents@2.3.3": true,
+    "sharp@0.34.5": true
   }
 }
