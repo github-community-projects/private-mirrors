@@ -97,6 +97,36 @@ PRIVATE_ORG=name-of-your-ghec-org     # Where your private mirrors will be creat
 
 The authentication of the UI will still need to be a user's github.com user, but the app will be able to create forks and mirrors in the GHEC instance.
 
+## Integrating the App into GHE.com (Data Residency) or GHES
+
+The app also supports GitHub Enterprise Cloud with Data Residency (`*.ghe.com`) and GitHub Enterprise Server. Configure the server, REST API, and GraphQL API URLs explicitly for your environment.
+
+Set the following environment variables in addition to the GHEC variables above:
+
+```sh
+# Base URL of your GHE instance (no trailing slash).
+# GHE.com Data Residency: https://<tenant>.ghe.com
+# GHES: https://ghes.example.com
+GITHUB_SERVER_URL=https://acme.ghe.com
+
+# REST API and GraphQL URLs for the same GitHub host.
+GITHUB_API_URL=https://api.acme.ghe.com
+GITHUB_GRAPHQL_URL=https://api.acme.ghe.com/graphql
+
+# Committer email domain used on sync commits. Defaults to `users.noreply.github.com`.
+# Set explicitly for GHE/GHES (value depends on instance configuration), e.g.:
+#   users.noreply.acme.ghe.com
+#   users.noreply.ghes.example.com
+GITHUB_USER_EMAIL_DOMAIN=users.noreply.acme.ghe.com
+```
+
+Notes:
+
+- The OAuth App / GitHub App, organizations, members and forks must all live on the same GHE instance.
+- GitHub configuration is read at runtime and safely passed from the server to client-side hooks and UI links. No duplicate `NEXT_PUBLIC_*` variables or Docker build arguments are required.
+- If these variables are unset, the app uses `github.com`, `api.github.com`, and `users.noreply.github.com` defaults.
+- The local webhook relay (`npm run webhook`) uses `github-app-webhook-relay-polling` against the GitHub App hook deliveries endpoint. It is best-effort on GHE; in production, use real webhook deliveries configured directly on your GitHub App.
+
 ## Usage
 
 Once the app is installed, follow this document on [Using the Private Mirrors App](docs/using-the-app.md) to get the repository fork and mirrors set up for work.

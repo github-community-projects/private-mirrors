@@ -24,9 +24,11 @@ import Fuse from 'fuse.js'
 import { OrgHeader } from 'app/components/header/OrgHeader'
 import { OrgBreadcrumbs } from 'app/components/breadcrumbs/OrgBreadcrumbs'
 import { ErrorFlash } from 'app/components/flash/ErrorFlash'
+import { useGitHubEnvironment } from 'app/context/GitHubEnvironmentProvider'
 
 const Organization = () => {
   const { organizationId } = useParams()
+  const { serverUrl } = useGitHubEnvironment()
   const { data, isLoading } = trpc.checkInstallation.useQuery({
     orgId: organizationId as string,
   })
@@ -207,7 +209,7 @@ const Organization = () => {
                           <Text sx={{ color: 'fg.muted' }}>
                             Forked from{' '}
                             <Link
-                              href={`https://github.com/${row.parent.owner.login}/${row.parent.name}`}
+                              href={`${serverUrl}/${row.parent.owner.login}/${row.parent.name}`}
                               target="_blank"
                               rel="noreferrer noopener"
                               sx={{ color: 'fg.muted' }}

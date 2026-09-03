@@ -1,8 +1,9 @@
-import simpleGit, { SimpleGitOptions } from 'simple-git'
+import simpleGit from 'simple-git'
 import { generateAuthUrl } from '../../utils/auth'
 import { temporaryDirectory } from 'tempy'
 import { logger } from '../../utils/logger'
 import { cleanupTempDir } from '../../utils/temp-dir'
+import { getBotGitOptions } from '../../utils/git'
 import { SyncReposSchema } from './schema'
 
 const gitApiLogger = logger.getSubLogger({ name: 'git-api' })
@@ -57,14 +58,10 @@ export const syncReposHandler = async ({
     // First clone the source and destination repos into the same folder
     tempDir = temporaryDirectory()
 
-    const options: Partial<SimpleGitOptions> = {
-      config: [
-        `user.name=pma[bot]`,
-        `user.email=${input.source.octokit.installationId}+pma[bot]@users.noreply.github.com`,
-      ],
-    }
-
-    const git = simpleGit(tempDir, options)
+    const git = simpleGit(
+      tempDir,
+      getBotGitOptions(input.source.octokit.installationId),
+    )
     await git.init()
     await git.addRemote('source', sourceRemote)
     await git.addRemote('destination', destinationRemote)

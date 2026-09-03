@@ -1,18 +1,21 @@
 import { createAppAuth } from '@octokit/auth-app'
+import { request as octokitRequest } from '@octokit/request'
 import { generatePKCS8Key } from 'utils/pem'
 import { logger } from '../utils/logger'
 import { Octokit } from './rest'
+import { env } from '../../env.mjs'
 
-const personalOctokitLogger = logger.getSubLogger({ name: 'personal-octokit' })
+export { personalOctokit } from './rest'
+
 const appOctokitLogger = logger.getSubLogger({ name: 'app-octokit' })
 
 const privateKey =
-  process.env.PRIVATE_KEY &&
-  !process.env.PRIVATE_KEY.includes('-----BEGIN RSA PRIVATE KEY-----')
+  env.PRIVATE_KEY &&
+  !env.PRIVATE_KEY.includes('-----BEGIN RSA PRIVATE KEY-----')
     ? // Support optional base64 decoding of the private key to prevent issues with complicated environment variable passing scenarios
-      Buffer.from(process.env.PRIVATE_KEY, 'base64').toString('utf8')
+      Buffer.from(env.PRIVATE_KEY, 'base64').toString('utf8')
     : // Handle a bug with multiline envs in docker - See https://github.com/moby/moby/issues/46773
-      (process.env.PRIVATE_KEY?.replace(/\\n/g, '\n') ?? '')
+      (env.PRIVATE_KEY?.replace(/\\n/g, '\n') ?? '')
 
 /**
  * Generates an app access token for the app or an installation (if installationId is provided)
@@ -21,12 +24,15 @@ const privateKey =
  */
 export const generateAppAccessToken = async (installationId?: string) => {
   const convertedKey = generatePKCS8Key(privateKey)
+  // Ensure auth requests target the configured (potentially GHE/GHES) API URL.
+  const request = octokitRequest.defaults({ baseUrl: env.GITHUB_API_URL })
 
   if (installationId) {
     const auth = createAppAuth({
-      appId: process.env.APP_ID!,
+      appId: env.APP_ID,
       privateKey: convertedKey,
       installationId: installationId,
+      request,
     })
 
     const appAuthentication = await auth({
@@ -37,10 +43,11 @@ export const generateAppAccessToken = async (installationId?: string) => {
   }
 
   const auth = createAppAuth({
-    appId: process.env.APP_ID!,
+    appId: env.APP_ID,
     privateKey,
-    clientId: process.env.CLIENT_ID!,
-    clientSecret: process.env.CLIENT_SECRET!,
+    clientId: env.GITHUB_CLIENT_ID,
+    clientSecret: env.GITHUB_CLIENT_SECRET,
+    request,
   })
 
   const appAuthentication = await auth({
@@ -60,12 +67,14 @@ export const appOctokit = () => {
   return new Octokit({
     authStrategy: createAppAuth,
     auth: {
-      appId: process.env.APP_ID!,
+      appId: env.APP_ID,
       privateKey: convertedKey,
-      clientId: process.env.CLIENT_ID!,
-      clientSecret: process.env.CLIENT_SECRET!,
+      clientId: env.GITHUB_CLIENT_ID,
+      clientSecret: env.GITHUB_CLIENT_SECRET,
     },
     log: appOctokitLogger,
+    baseUrl: env.GITHUB_API_URL,
+    githubGraphQlUrl: env.GITHUB_GRAPHQL_URL,
   })
 }
 
@@ -80,23 +89,13 @@ export const installationOctokit = (installationId: string) => {
   return new Octokit({
     authStrategy: createAppAuth,
     auth: {
-      appId: process.env.APP_ID!,
+      appId: env.APP_ID,
       privateKey: convertedKey,
       installationId: installationId,
     },
     log: appOctokitLogger,
-  })
-}
-
-/**
- * Creates a new octokit instance that is authenticated as the user
- * @param token personal access token
- * @returns Octokit authorized with the personal access token
- */
-export const personalOctokit = (token: string) => {
-  return new Octokit({
-    auth: token,
-    log: personalOctokitLogger,
+    baseUrl: env.GITHUB_API_URL,
+    githubGraphQlUrl: env.GITHUB_GRAPHQL_URL,
   })
 }
 

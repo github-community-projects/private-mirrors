@@ -9,6 +9,7 @@ import {
 } from '@primer/react'
 import { Dialog } from '@primer/react/drafts'
 import { mirrorNameSchema } from 'server/repos/schema'
+import { useGitHubEnvironment } from 'app/context/GitHubEnvironmentProvider'
 
 import { useEffect, useState } from 'react'
 
@@ -37,6 +38,7 @@ export const EditMirrorDialog = ({
   closeDialog,
   editMirror,
 }: EditMirrorDialogProps) => {
+  const { serverUrl } = useGitHubEnvironment()
   // set to the current mirror name for display purposes
   const [newMirrorName, setNewMirrorName] = useState(mirrorName)
 
@@ -105,7 +107,7 @@ export const EditMirrorDialog = ({
             <FormControl.Caption>
               This is a private mirror of{' '}
               <Link
-                href={`https://github.com/${forkParentOwnerLogin}/${forkParentName}`}
+                href={`${serverUrl}/${forkParentOwnerLogin}/${forkParentName}`}
                 target="_blank"
                 rel="noreferrer noopener"
               >
@@ -149,7 +151,7 @@ export const EditMirrorDialog = ({
                   >
                     Forked from{' '}
                     <Link
-                      href={`https://github.com/${forkParentOwnerLogin}/${forkParentName}`}
+                      href={`${serverUrl}/${forkParentOwnerLogin}/${forkParentName}`}
                       target="_blank"
                       rel="noreferrer noopener"
                       sx={{ color: 'fg.muted' }}

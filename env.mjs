@@ -1,6 +1,11 @@
 import { createEnv } from '@t3-oss/env-nextjs'
 import { z } from 'zod'
 
+const DEFAULT_GITHUB_SERVER_URL = 'https://github.com'
+const DEFAULT_GITHUB_API_URL = 'https://api.github.com'
+const DEFAULT_GITHUB_GRAPHQL_URL = 'https://api.github.com/graphql'
+const DEFAULT_GITHUB_USER_EMAIL_DOMAIN = 'users.noreply.github.com'
+
 export const env = createEnv({
   /*
    * Serverside Environment variables, not available on the client.
@@ -21,6 +26,30 @@ export const env = createEnv({
     NODE_ENV: z.string().optional().default('development'),
     PUBLIC_ORG: z.string().optional(),
     PRIVATE_ORG: z.string().optional(),
+    // GitHub Enterprise (GHE.com Data Residency / GHES) configuration.
+    GITHUB_SERVER_URL: z
+      .string()
+      .url()
+      .optional()
+      .default(DEFAULT_GITHUB_SERVER_URL)
+      .transform((value) => value.replace(/\/+$/, '')),
+    GITHUB_API_URL: z
+      .string()
+      .url()
+      .optional()
+      .default(DEFAULT_GITHUB_API_URL)
+      .transform((value) => value.replace(/\/+$/, '')),
+    GITHUB_GRAPHQL_URL: z
+      .string()
+      .url()
+      .optional()
+      .default(DEFAULT_GITHUB_GRAPHQL_URL)
+      .transform((value) => value.replace(/\/+$/, '')),
+    GITHUB_USER_EMAIL_DOMAIN: z
+      .string()
+      .min(1)
+      .optional()
+      .default(DEFAULT_GITHUB_USER_EMAIL_DOMAIN),
     // Custom validation for a comma separated list of strings
     // ex: ajhenry,github,ahpook
     ALLOWED_HANDLES: z
@@ -122,6 +151,13 @@ export const env = createEnv({
     NODE_ENV: process.env.NODE_ENV,
     PUBLIC_ORG: process.env.PUBLIC_ORG,
     PRIVATE_ORG: process.env.PRIVATE_ORG,
+    GITHUB_SERVER_URL:
+      process.env.GITHUB_SERVER_URL ?? DEFAULT_GITHUB_SERVER_URL,
+    GITHUB_API_URL: process.env.GITHUB_API_URL ?? DEFAULT_GITHUB_API_URL,
+    GITHUB_GRAPHQL_URL:
+      process.env.GITHUB_GRAPHQL_URL ?? DEFAULT_GITHUB_GRAPHQL_URL,
+    GITHUB_USER_EMAIL_DOMAIN:
+      process.env.GITHUB_USER_EMAIL_DOMAIN ?? DEFAULT_GITHUB_USER_EMAIL_DOMAIN,
     ALLOWED_HANDLES: process.env.ALLOWED_HANDLES,
     ALLOWED_ORGS: process.env.ALLOWED_ORGS,
     SKIP_BRANCH_PROTECTION_CREATION:

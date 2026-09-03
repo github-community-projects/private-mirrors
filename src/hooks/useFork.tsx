@@ -1,15 +1,23 @@
-import { personalOctokit } from 'bot/octokit'
+import { GitHubEndpointConfig, personalOctokit } from 'bot/rest'
+import { useGitHubEnvironment } from 'app/context/GitHubEnvironmentProvider'
 import { useSession } from 'next-auth/react'
 import { useParams } from 'next/navigation'
 import { Octokit } from 'octokit'
 import { useEffect, useState } from 'react'
 
-const getForkById = async (accessToken: string, repoId: string) => {
+const getForkById = async (
+  accessToken: string,
+  repoId: string,
+  endpointConfig: GitHubEndpointConfig,
+) => {
   try {
     return (
-      await personalOctokit(accessToken).request('GET /repositories/{id}', {
-        id: repoId,
-      })
+      await personalOctokit(accessToken, endpointConfig).request(
+        'GET /repositories/{id}',
+        {
+          id: repoId,
+        },
+      )
     ).data as Awaited<ReturnType<Octokit['rest']['repos']['get']>>['data']
   } catch (error) {
     console.error('Error fetching fork', { error })
@@ -20,6 +28,7 @@ const getForkById = async (accessToken: string, repoId: string) => {
 export const useForkData = () => {
   const session = useSession()
   const accessToken = session.data?.user.accessToken
+  const endpointConfig = useGitHubEnvironment()
 
   const { organizationId, forkId } = useParams()
 
@@ -37,7 +46,7 @@ export const useForkData = () => {
     setIsLoading(true)
     setError(null)
 
-    getForkById(accessToken, forkId as string)
+    getForkById(accessToken, forkId as string, endpointConfig)
       .then((fork) => {
         setFork(fork)
       })
@@ -47,7 +56,7 @@ export const useForkData = () => {
       .finally(() => {
         setIsLoading(false)
       })
-  }, [accessToken, organizationId, forkId])
+  }, [accessToken, endpointConfig, organizationId, forkId])
 
   return {
     data: fork,
