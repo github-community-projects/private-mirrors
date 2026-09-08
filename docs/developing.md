@@ -2,10 +2,10 @@
 
 ## Prerequisites
 
-- Node.js (version 24 — see the `.nvmrc` file for the exact version)
+- Node.js 24 for development (see the `.nvmrc` file for the exact version)
   - Use your preferred version manager to install Node.js
-- npm (version 11 or higher)
-  - npm comes bundled with Node.js
+  - The app itself runs on Node.js 22 or 24, but development and CI target 24
+- npm (version 11 or higher, bundled with Node.js 24)
 - Docker (optional, for running the app in a container)
 
 ## Getting Started
