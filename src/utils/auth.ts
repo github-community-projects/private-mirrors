@@ -2,6 +2,12 @@ import { TRPCError } from '@trpc/server'
 import { getConfig } from '../bot/config'
 import { personalOctokit } from '../bot/octokit'
 import { logger } from '../utils/logger'
+import { env } from '../../env.mjs'
+
+const githubEndpointConfig = {
+  apiUrl: env.GITHUB_API_URL,
+  graphQlUrl: env.GITHUB_GRAPHQL_URL,
+}
 
 /**
  * Generates a git url with the access token in it
@@ -17,8 +23,9 @@ export const generateAuthUrl = (
 ) => {
   const USER = 'x-access-token'
   const PASS = accessToken
-  const REPO = `github.com/${owner}/${repo}`
-  return `https://${USER}:${PASS}@${REPO}`
+  const serverUrl = new URL(env.GITHUB_SERVER_URL)
+  const REPO = `${serverUrl.host}/${owner}/${repo}`
+  return `${serverUrl.protocol}//${USER}:${PASS}@${REPO}`
 }
 
 const middlewareLogger = logger.getSubLogger({ name: 'middleware' })
@@ -41,7 +48,7 @@ export const checkGitHubAppInstallationAuth = async (
     throw new TRPCError({ code: 'UNAUTHORIZED' })
   }
 
-  const octokit = personalOctokit(accessToken)
+  const octokit = personalOctokit(accessToken, githubEndpointConfig)
 
   const data = await octokit.rest.repos
     .get({
@@ -74,7 +81,7 @@ export const checkGitHubAuth = async (
     throw new TRPCError({ code: 'UNAUTHORIZED' })
   }
 
-  const octokit = personalOctokit(accessToken)
+  const octokit = personalOctokit(accessToken, githubEndpointConfig)
 
   try {
     // Check validity of token

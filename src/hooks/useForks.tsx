@@ -1,5 +1,6 @@
 import { getReposInOrgGQL } from 'bot/graphql'
-import { personalOctokit } from 'bot/octokit'
+import { GitHubEndpointConfig, personalOctokit } from 'bot/rest'
+import { useGitHubEnvironment } from 'app/context/GitHubEnvironmentProvider'
 import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
 import { ForksObject } from 'types/forks'
@@ -7,8 +8,12 @@ import { logger } from '../utils/logger'
 
 const forksLogger = logger.getSubLogger({ name: 'useForks' })
 
-const getForksInOrg = async (accessToken: string, login: string) => {
-  const res = (await personalOctokit(accessToken)
+const getForksInOrg = async (
+  accessToken: string,
+  login: string,
+  endpointConfig: GitHubEndpointConfig,
+) => {
+  const res = (await personalOctokit(accessToken, endpointConfig)
     .graphql.paginate<ForksObject>(getReposInOrgGQL, {
       login,
       isFork: true,
@@ -64,6 +69,7 @@ const getForksInOrg = async (accessToken: string, login: string) => {
 export const useForksData = (login: string | undefined) => {
   const session = useSession()
   const accessToken = session.data?.user.accessToken
+  const endpointConfig = useGitHubEnvironment()
 
   const [forks, setForks] = useState<Awaited<
     ReturnType<typeof getForksInOrg>
@@ -79,7 +85,7 @@ export const useForksData = (login: string | undefined) => {
     setIsLoading(true)
     setError(null)
 
-    getForksInOrg(accessToken, login)
+    getForksInOrg(accessToken, login, endpointConfig)
       .then((forks) => {
         setForks(forks)
       })
@@ -89,7 +95,7 @@ export const useForksData = (login: string | undefined) => {
       .finally(() => {
         setIsLoading(false)
       })
-  }, [login, accessToken])
+  }, [login, accessToken, endpointConfig])
 
   return {
     data: forks,

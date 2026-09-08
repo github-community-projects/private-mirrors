@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import simpleGit, { SimpleGitOptions } from 'simple-git'
+import simpleGit from 'simple-git'
 import { generateAuthUrl } from 'utils/auth'
 import { temporaryDirectory } from 'tempy'
 import { getConfig } from '../../bot/config'
@@ -10,6 +10,7 @@ import {
   installationOctokit,
 } from '../../bot/octokit'
 import { Octokit } from '../../bot/rest'
+import { getBotGitOptions } from '../../utils/git'
 import { logger } from '../../utils/logger'
 import { cleanupTempDir } from '../../utils/temp-dir'
 import {
@@ -229,14 +230,7 @@ export const createMirrorHandler = async ({
     // Create a temporary directory to clone the repo into
     tempDir = temporaryDirectory()
 
-    const options: Partial<SimpleGitOptions> = {
-      config: [
-        `user.name=pma[bot]`,
-        // We want to use the private installation ID as the email so that we can push to the private repo
-        `user.email=${privateInstallationId}+pma[bot]@users.noreply.github.com`,
-      ],
-    }
-    const git = simpleGit(tempDir, options)
+    const git = simpleGit(tempDir, getBotGitOptions(privateInstallationId))
 
     // Run the slow git work (clone + push) with a timeout. If execution exceeds
     // MIRROR_SYNC_TIMEOUT_MS we return a pending response and let the work

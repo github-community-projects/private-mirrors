@@ -1,4 +1,5 @@
-import { personalOctokit } from 'bot/octokit'
+import { GitHubEndpointConfig, personalOctokit } from 'bot/rest'
+import { useGitHubEnvironment } from 'app/context/GitHubEnvironmentProvider'
 import { useSession } from 'next-auth/react'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -6,10 +7,14 @@ import { useEffect, useState } from 'react'
 export const getOrganizationData = async (
   accessToken: string,
   orgId: string,
+  endpointConfig: GitHubEndpointConfig,
 ) => {
   try {
-    return (await personalOctokit(accessToken).rest.orgs.get({ org: orgId }))
-      .data
+    return (
+      await personalOctokit(accessToken, endpointConfig).rest.orgs.get({
+        org: orgId,
+      })
+    ).data
   } catch (error) {
     console.error('Error fetching organization', { error })
     return null
@@ -23,6 +28,7 @@ export const useOrgData = () => {
 
   const session = useSession()
   const accessToken = session.data?.user.accessToken
+  const endpointConfig = useGitHubEnvironment()
 
   const [orgData, setOrgData] = useState<Awaited<
     ReturnType<typeof getOrganizationData>
@@ -38,7 +44,7 @@ export const useOrgData = () => {
     setIsLoading(true)
     setError(null)
 
-    getOrganizationData(accessToken, organizationId as string)
+    getOrganizationData(accessToken, organizationId as string, endpointConfig)
       .then((orgData) => {
         if (!orgData) {
           router.push('/_error')
@@ -52,7 +58,7 @@ export const useOrgData = () => {
       .finally(() => {
         setIsLoading(false)
       })
-  }, [organizationId, accessToken, router])
+  }, [organizationId, accessToken, endpointConfig, router])
 
   return {
     data: orgData,

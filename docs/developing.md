@@ -141,6 +141,12 @@ npm run build
 
 This will create an optimized production build of the app in the `out` directory.
 
+### Building for GHE.com / GHES
+
+GHE.com and GHES settings are runtime environment variables. The server passes the validated GitHub URLs to client-side hooks and UI links, so production builds and Docker images do not require separate `NEXT_PUBLIC_*` variables or build arguments.
+
+See the [GHE.com / GHES section in the README](../README.md#integrating-the-app-into-ghecom-data-residency-or-ghes) for the full list of environment variables.
+
 ## Deployment
 
 To deploy the app, follow the instructions for your preferred hosting provider. The app can be deployed to any hosting provider that supports Next.js/Docker.

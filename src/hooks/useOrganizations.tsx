@@ -1,15 +1,20 @@
-import { personalOctokit } from 'bot/octokit'
+import { GitHubEndpointConfig, personalOctokit } from 'bot/rest'
+import { useGitHubEnvironment } from 'app/context/GitHubEnvironmentProvider'
 import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
 
-const getOrganizationsData = async (accessToken: string) => {
-  const octokit = personalOctokit(accessToken)
+const getOrganizationsData = async (
+  accessToken: string,
+  endpointConfig: GitHubEndpointConfig,
+) => {
+  const octokit = personalOctokit(accessToken, endpointConfig)
   return await octokit.rest.orgs.listForAuthenticatedUser()
 }
 
 export const useOrgsData = () => {
   const session = useSession()
   const accessToken = session.data?.user.accessToken
+  const endpointConfig = useGitHubEnvironment()
 
   const [organizationData, setOrganizationData] = useState<OrgsData | null>(
     null,
@@ -25,7 +30,7 @@ export const useOrgsData = () => {
     setIsLoading(true)
     setError(null)
 
-    getOrganizationsData(accessToken)
+    getOrganizationsData(accessToken, endpointConfig)
       .then((orgs) => {
         setOrganizationData(orgs.data)
       })
@@ -35,7 +40,7 @@ export const useOrgsData = () => {
       .finally(() => {
         setIsLoading(false)
       })
-  }, [accessToken])
+  }, [accessToken, endpointConfig])
 
   return {
     data: organizationData,
