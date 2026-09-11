@@ -34,7 +34,7 @@
     "@trpc/server": "10.45.3",
     "fast-safe-stringify": "2.1.1",
     "fuse.js": "7.1.0",
-    "next": "16.3.0",
+    "next": "16.3.4",
     "next-auth": "4.24.15",
     "octokit": "^5.0.5",
     "probot": "14.3.2",
@@ -60,7 +60,7 @@
     "@types/styled-components": "5.1.36",
     "@typescript-eslint/eslint-plugin": "8.54.0",
     "@typescript-eslint/parser": "8.54.0",
-    "@vitest/coverage-v8": "4.1.5",
+    "@vitest/coverage-v8": "4.1.11",
     "@vitest/eslint-plugin": "1.6.16",
     "concurrently": "9.1.2",
     "dotenv-load": "3.0.0",
@@ -73,7 +73,7 @@
     "prettier": "3.5.3",
     "typescript": "5.8.3",
     "typescript-eslint": "8.54.0",
-    "vitest": "4.1.5"
+    "vitest": "4.1.11"
   },
   "engines": {
     "node": "^22 || ^24"
