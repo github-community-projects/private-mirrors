@@ -1,5 +1,7 @@
 import { ClockIcon, XIcon } from '@primer/octicons-react'
-import { Box, Flash, IconButton, Link, Octicon } from '@primer/react'
+import { Flash, IconButton, Link } from '@primer/react'
+import sharedStyles from 'app/styles/shared.module.css'
+import styles from './flash.module.css'
 
 interface PendingFlashProps {
   mirrorUrl: string
@@ -16,29 +18,17 @@ export const PendingFlash = ({
 }: PendingFlashProps) => {
   return (
     <Flash variant="warning">
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-        }}
-      >
-        <Box>
-          <Octicon icon={ClockIcon}></Octicon>
-        </Box>
-        <Box sx={{ marginLeft: '20px' }}>
+      <div className={sharedStyles.flexRowCenter}>
+        <ClockIcon />
+        <div className={styles.message}>
           Mirror creation is taking longer than expected and will continue in
           the background. Your new private mirror{' '}
           <Link href={mirrorUrl} target="_blank" rel="noreferrer noopener">
             {orgLogin}/{mirrorName}
           </Link>{' '}
           may take some time to be fully populated with commits.
-        </Box>
-        <Box
-          sx={{
-            marginLeft: 'auto',
-          }}
-        >
+        </div>
+        <div className={styles.dismiss}>
           <IconButton
             icon={XIcon}
             variant="invisible"
@@ -46,8 +36,8 @@ export const PendingFlash = ({
             onClick={closeFlash}
             size="small"
           />
-        </Box>
-      </Box>
+        </div>
+      </div>
     </Flash>
   )
 }

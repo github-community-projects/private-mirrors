@@ -1,5 +1,5 @@
-import { Box, Text } from '@primer/react'
-import { Dialog } from '@primer/react/drafts'
+import { Dialog, Text } from '@primer/react'
+import styles from './dialog.module.css'
 
 interface DeleteMirrorDialogProps {
   orgLogin: string
@@ -39,13 +39,13 @@ export const DeleteMirrorDialog = ({
       ]}
       onClose={closeDialog}
     >
-      <Box>
+      <div>
         Are you sure you&apos;d like to delete
-        <Text sx={{ fontWeight: 'bold' }}>
+        <Text className={styles.bold}>
           {' '}
           {orgLogin}/{mirrorName}?
         </Text>
-      </Box>
+      </div>
     </Dialog>
   )
 }

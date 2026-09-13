@@ -1,6 +1,7 @@
 import { SearchIcon, XCircleFillIcon } from '@primer/octicons-react'
-import { Box, FormControl, TextInput } from '@primer/react'
+import { FormControl, TextInput } from '@primer/react'
 import { ChangeEvent } from 'react'
+import styles from './search.module.css'
 
 interface SearchProps {
   placeholder: string
@@ -18,14 +19,7 @@ export const Search = ({
   }
 
   return (
-    <Box
-      sx={{
-        padding: '1px',
-        marginBottom: '10px',
-        overflow: 'hidden',
-        width: '100%',
-      }}
-    >
+    <div className={styles.wrapper}>
       <FormControl>
         <FormControl.Label visuallyHidden>Search</FormControl.Label>
         <TextInput
@@ -42,13 +36,11 @@ export const Search = ({
               }}
               icon={XCircleFillIcon}
               aria-label="Clear input"
-              sx={{
-                color: 'fg.subtle',
-              }}
+              className={styles.clearAction}
             />
           }
         />
       </FormControl>
-    </Box>
+    </div>
   )
 }

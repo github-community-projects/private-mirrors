@@ -1,0 +1,18 @@
+.container {
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}
+
+.stickyHeader {
+  position: sticky;
+  top: 0;
+  height: 64px;
+  display: grid;
+  z-index: 1000;
+}
+
+.content {
+  padding: 40px;
+  margin: 10px 90px;
+}

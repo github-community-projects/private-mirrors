@@ -4,17 +4,8 @@ import { useParams } from 'next/navigation'
 import { trpc } from '../../utils/trpc'
 
 import { DotFillIcon, GitBranchIcon, RepoIcon } from '@primer/octicons-react'
-import {
-  Avatar,
-  Box,
-  Label,
-  Link,
-  Octicon,
-  RelativeTime,
-  Stack,
-  Text,
-} from '@primer/react'
-import { Blankslate, DataTable, Table } from '@primer/react/drafts'
+import { Avatar, Label, Link, RelativeTime, Stack, Text } from '@primer/react'
+import { Blankslate, DataTable, Table } from '@primer/react/experimental'
 import { AppNotInstalledFlash } from 'app/components/flash/AppNotInstalledFlash'
 import { useForksData } from 'hooks/useForks'
 import { useOrgData } from 'hooks/useOrganization'
@@ -25,6 +16,7 @@ import { OrgHeader } from 'app/components/header/OrgHeader'
 import { OrgBreadcrumbs } from 'app/components/breadcrumbs/OrgBreadcrumbs'
 import { ErrorFlash } from 'app/components/flash/ErrorFlash'
 import { useGitHubEnvironment } from 'app/context/GitHubEnvironmentProvider'
+import sharedStyles from 'app/styles/shared.module.css'
 
 const Organization = () => {
   const { organizationId } = useParams()
@@ -48,7 +40,7 @@ const Organization = () => {
   // show loading table
   if (forksData.isLoading) {
     return (
-      <Box>
+      <div>
         <OrgHeader orgData={orgData.data} />
         <OrgBreadcrumbs orgData={orgData.data} />
         <Search
@@ -82,7 +74,7 @@ const Organization = () => {
           />
           <Table.Pagination aria-label="pagination" totalCount={0} />
         </Table.Container>
-      </Box>
+      </div>
     )
   }
 
@@ -92,42 +84,35 @@ const Organization = () => {
     forksData.data.organization.repositories.totalCount === 0
   ) {
     return (
-      <Box>
+      <div>
         <OrgHeader orgData={orgData.data} />
-        <Box sx={{ marginBottom: '10px' }}>
+        <div className={sharedStyles.stackMarginBottom}>
           {forksData.error && (
             <ErrorFlash
               message={`Failed to fetch forks.  ${forksData.error.message}`}
             />
           )}
-        </Box>
+        </div>
         <OrgBreadcrumbs orgData={orgData.data} />
         <Search
           placeholder="Find a fork"
           searchValue={searchValue}
           setSearchValue={setSearchValue}
         />
-        <Box
-          sx={{
-            border: '1px solid',
-            borderColor: 'border.default',
-            padding: '40px',
-            borderRadius: '12px',
-          }}
-        >
+        <div className={sharedStyles.blankslateWrapper}>
           <Blankslate>
-            <Box sx={{ padding: '10px' }}>
+            <div className={sharedStyles.blankslateIconPad}>
               <Blankslate.Visual>
-                <Octicon icon={RepoIcon} size={24} color="fg.muted"></Octicon>
+                <RepoIcon size={24} className={sharedStyles.mutedIcon} />
               </Blankslate.Visual>
-            </Box>
+            </div>
             <Blankslate.Heading>No forks found</Blankslate.Heading>
             <Blankslate.Description>
               Please fork a repo into your organization to get started.
             </Blankslate.Description>
           </Blankslate>
-        </Box>
-      </Box>
+        </div>
+      </div>
     )
   }
 
@@ -151,13 +136,13 @@ const Organization = () => {
   const forksPaginationSet = forksSet.slice(start, end)
 
   return (
-    <Box>
+    <div>
       <OrgHeader orgData={orgData.data} />
-      <Box sx={{ marginBottom: '10px' }}>
+      <div className={sharedStyles.stackMarginBottom}>
         {!isLoading && !data?.installed && (
           <AppNotInstalledFlash orgLogin={orgData?.data?.login as string} />
         )}
-      </Box>
+      </div>
       <OrgBreadcrumbs orgData={orgData.data} />
       <Search
         placeholder="Find a fork"
@@ -169,130 +154,107 @@ const Organization = () => {
           aria-describedby="forks table"
           aria-labelledby="forks table"
           data={forksPaginationSet}
-          columns={
-            [
-              {
-                header: 'Repository',
-                rowHeader: true,
-                field: 'name',
-                sortBy: 'alphanumeric',
-                width: '400px',
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                renderCell: (row: any) => {
-                  return (
-                    <Stack direction="horizontal" align="center">
+          columns={[
+            {
+              header: 'Repository',
+              rowHeader: true,
+              field: 'name',
+              sortBy: 'alphanumeric',
+              width: '400px',
+              renderCell: (row) => {
+                return (
+                  <Stack direction="horizontal" align="center">
+                    <Stack.Item>
+                      <Avatar
+                        src={row.parent.owner.avatarUrl ?? row.owner.avatarUrl}
+                        size={32}
+                      />
+                    </Stack.Item>
+                    <Stack.Item grow={false}>
                       <Stack.Item>
-                        <Avatar
-                          src={
-                            row.parent.owner.avatarUrl ?? row.owner.avatarUrl
-                          }
-                          size={32}
-                        />
+                        <Link
+                          className={sharedStyles.tableLink}
+                          href={`/${orgData?.data?.id}/forks/${row.id}`}
+                        >
+                          {row.name}
+                        </Link>
+                        <Label variant="secondary">
+                          {row.isPrivate ? 'Private' : 'Public'}
+                        </Label>
                       </Stack.Item>
-                      <Stack.Item grow={false}>
-                        <Stack.Item>
+                      <Stack.Item>
+                        <Text className={sharedStyles.mutedText}>
+                          Forked from{' '}
                           <Link
-                            sx={{
-                              paddingRight: '5px',
-                              fontWeight: 'bold',
-                              fontSize: 2,
-                            }}
-                            href={`/${orgData?.data?.id}/forks/${row.id}`}
+                            href={`${serverUrl}/${row.parent.owner.login}/${row.parent.name}`}
+                            target="_blank"
+                            rel="noreferrer noopener"
+                            className={sharedStyles.mutedText}
                           >
-                            {row.name}
+                            {row.parent.owner.login}/{row.parent.name}
                           </Link>
-                          <Label variant="secondary">
-                            {row.isPrivate ? 'Private' : 'Public'}
-                          </Label>
-                        </Stack.Item>
-                        <Stack.Item>
-                          <Text sx={{ color: 'fg.muted' }}>
-                            Forked from{' '}
-                            <Link
-                              href={`${serverUrl}/${row.parent.owner.login}/${row.parent.name}`}
-                              target="_blank"
-                              rel="noreferrer noopener"
-                              sx={{ color: 'fg.muted' }}
-                            >
-                              {row.parent.owner.login}/{row.parent.name}
-                            </Link>
-                          </Text>
-                        </Stack.Item>
+                        </Text>
                       </Stack.Item>
-                    </Stack>
-                  )
-                },
+                    </Stack.Item>
+                  </Stack>
+                )
               },
-              {
-                header: 'Branches',
-                field: 'refs.totalCount',
-                width: 'auto',
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                renderCell: (row: any) => {
-                  return (
-                    <Stack direction="horizontal">
-                      <Stack.Item>
-                        <Box>
-                          <Octicon
-                            icon={GitBranchIcon}
-                            color="fg.muted"
-                            size={16}
-                          ></Octicon>
-                          <Text sx={{ paddingLeft: '3px', color: 'fg.muted' }}>
-                            {row.refs.totalCount}
-                          </Text>
-                        </Box>
-                      </Stack.Item>
-                    </Stack>
-                  )
-                },
+            },
+            {
+              header: 'Branches',
+              field: 'refs.totalCount',
+              width: 'auto',
+              renderCell: (row) => {
+                return (
+                  <Stack direction="horizontal">
+                    <Stack.Item>
+                      <div className={sharedStyles.flexRowCenter}>
+                        <GitBranchIcon
+                          className={sharedStyles.mutedIcon}
+                          size={16}
+                        />
+                        <Text className={sharedStyles.mutedTextPaddedLeft}>
+                          {row.refs.totalCount}
+                        </Text>
+                      </div>
+                    </Stack.Item>
+                  </Stack>
+                )
               },
-              {
-                header: 'Languages',
-                field: 'languages',
-                width: 'auto',
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                renderCell: (row: any) => {
-                  const languages = row.languages.nodes
+            },
+            {
+              header: 'Languages',
+              field: 'languages',
+              width: 'auto',
+              renderCell: (row) => {
+                const languages = row.languages.nodes
 
-                  return (
-                    <Stack direction="horizontal">
-                      {languages.map(
-                        (lang: { name: string; color: string }) => (
-                          <Stack.Item key={lang.name} grow={false}>
-                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                              <Octicon
-                                icon={DotFillIcon}
-                                color={lang.color}
-                                size={16}
-                              ></Octicon>
-                              <Text>{lang.name}</Text>
-                            </Box>
-                          </Stack.Item>
-                        ),
-                      )}
-                    </Stack>
-                  )
-                },
+                return (
+                  <Stack direction="horizontal">
+                    {languages.map((lang: { name: string; color: string }) => (
+                      <Stack.Item key={lang.name} grow={false}>
+                        <div className={sharedStyles.flexRowCenter}>
+                          <DotFillIcon fill={lang.color} size={16} />
+                          <Text>{lang.name}</Text>
+                        </div>
+                      </Stack.Item>
+                    ))}
+                  </Stack>
+                )
               },
-              {
-                header: 'Updated',
-                field: 'updatedAt',
-                sortBy: 'datetime',
-                width: 'auto',
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                renderCell: (row: any) => {
-                  return (
-                    <RelativeTime date={new Date(row.updatedAt)} tense="past" />
-                  )
-                },
+            },
+            {
+              header: 'Updated',
+              field: 'updatedAt',
+              sortBy: 'datetime',
+              width: 'auto',
+              renderCell: (row) => {
+                return (
+                  <RelativeTime date={new Date(row.updatedAt)} tense="past" />
+                )
               },
-              // `satisfies` cannot be used here — under moduleResolution:"bundler", DataTable's generic Data
-              // param isn't inferred from data prop, so `field` only accepts "id". `as any` is the only
-              // workaround until @primer/react fixes DataTable generic inference (draft component).
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ] as any
-          }
+            },
+          ]}
           cellPadding="spacious"
         />
         <Table.Pagination
@@ -304,7 +266,7 @@ const Organization = () => {
           }}
         />
       </Table.Container>
-    </Box>
+    </div>
   )
 }
 

@@ -12,14 +12,14 @@ import {
 import {
   ActionList,
   ActionMenu,
-  Box,
   IconButton,
   Link,
-  Octicon,
   RelativeTime,
   Stack,
+  Tooltip,
 } from '@primer/react'
-import { Blankslate, DataTable, Table, Tooltip } from '@primer/react/drafts'
+import { Blankslate, DataTable, Table } from '@primer/react/experimental'
+import sharedStyles from 'app/styles/shared.module.css'
 import { ForkBreadcrumbs } from 'app/components/breadcrumbs/ForkBreadcrumbs'
 import { CreateMirrorDialog } from 'app/components/dialog/CreateMirrorDialog'
 import { DeleteMirrorDialog } from 'app/components/dialog/DeleteMirrorDialog'
@@ -332,7 +332,7 @@ const Fork = () => {
   // Extracted so any change to flash rendering only needs to be made once.
   const createMirrorFlashes = (
     <>
-      <Box sx={{ marginBottom: '10px' }}>
+      <div className={sharedStyles.stackMarginBottom}>
         {createMirrorData &&
           createMirrorData.success &&
           !createMirrorData.pending &&
@@ -345,8 +345,8 @@ const Fork = () => {
               orgLogin={createMirrorData.data?.owner.login}
             />
           )}
-      </Box>
-      <Box sx={{ marginBottom: '10px' }}>
+      </div>
+      <div className={sharedStyles.stackMarginBottom}>
         {createMirrorData &&
           createMirrorData.success &&
           createMirrorData.pending &&
@@ -358,14 +358,14 @@ const Fork = () => {
               orgLogin={createMirrorData.data?.owner.login}
             />
           )}
-      </Box>
+      </div>
     </>
   )
 
   // show loading table
   if (mirrorsLoading || configLoading) {
     return (
-      <Box>
+      <div>
         <ForkHeader forkData={forkData.data} />
         <ForkBreadcrumbs orgData={orgData.data} forkData={forkData.data} />
         <SearchWithCreate
@@ -399,38 +399,38 @@ const Fork = () => {
           />
           <Table.Pagination aria-label="pagination" totalCount={0} />
         </Table.Container>
-      </Box>
+      </div>
     )
   }
 
   // show blankslate if no mirrors are found
   if (!mirrors || mirrors.length === 0) {
     return (
-      <Box>
+      <div>
         <ForkHeader forkData={forkData.data} />
-        <Box sx={{ marginBottom: '10px' }}>
+        <div className={sharedStyles.stackMarginBottom}>
           {!isLoading && !data?.installed && (
             <AppNotInstalledFlash orgLogin={orgData?.data?.login as string} />
           )}
-        </Box>
-        <Box sx={{ marginBottom: '10px' }}>
+        </div>
+        <div className={sharedStyles.stackMarginBottom}>
           {createMirrorLoading && <Loading message="Creating new mirror..." />}
-        </Box>
-        <Box sx={{ marginBottom: '10px' }}>
+        </div>
+        <div className={sharedStyles.stackMarginBottom}>
           {listMirrorsError && (
             <ErrorFlash
               message={`Failed to fetch mirrors.  ${listMirrorsError.message}`}
             />
           )}
-        </Box>
-        <Box sx={{ marginBottom: '10px' }}>
+        </div>
+        <div className={sharedStyles.stackMarginBottom}>
           {isCreateErrorFlashOpen && (
             <ErrorFlash
               message="Failed to create mirror."
               closeFlash={closeCreateErrorFlash}
             />
           )}
-        </Box>
+        </div>
         {createMirrorFlashes}
         <ForkBreadcrumbs orgData={orgData.data} forkData={forkData.data} />
         <SearchWithCreate
@@ -440,26 +440,19 @@ const Fork = () => {
           setSearchValue={setSearchValue}
           openCreateDialog={openCreateDialog}
         />
-        <Box
-          sx={{
-            border: '1px solid',
-            borderColor: 'border.default',
-            padding: '40px',
-            borderRadius: '12px',
-          }}
-        >
+        <div className={sharedStyles.blankslateWrapper}>
           <Blankslate>
-            <Box sx={{ padding: '10px' }}>
+            <div className={sharedStyles.blankslateIconPad}>
               <Blankslate.Visual>
-                <Octicon icon={RepoIcon} size={24} color="fg.muted"></Octicon>
+                <RepoIcon size={24} className={sharedStyles.mutedIcon} />
               </Blankslate.Visual>
-            </Box>
+            </div>
             <Blankslate.Heading>No mirrors found</Blankslate.Heading>
             <Blankslate.Description>
               Please create a mirror for this fork.
             </Blankslate.Description>
           </Blankslate>
-        </Box>
+        </div>
         <CreateMirrorDialog
           orgLogin={orgData?.data?.login as string}
           forkParentName={forkData?.data?.parent?.name as string}
@@ -468,7 +461,7 @@ const Fork = () => {
           isOpen={isCreateDialogOpen}
           createMirror={handleOnCreateMirror}
         />
-      </Box>
+      </div>
     )
   }
 
@@ -490,62 +483,62 @@ const Fork = () => {
   const mirrorPaginationSet = mirrorSet.slice(start, end)
 
   return (
-    <Box>
+    <div>
       <ForkHeader forkData={forkData.data} />
-      <Box sx={{ marginBottom: '10px' }}>
+      <div className={sharedStyles.stackMarginBottom}>
         {!isLoading && !data?.installed && (
           <AppNotInstalledFlash orgLogin={orgData?.data?.login as string} />
         )}
-      </Box>
-      <Box sx={{ marginBottom: '10px' }}>
+      </div>
+      <div className={sharedStyles.stackMarginBottom}>
         {createMirrorLoading && <Loading message="Creating new mirror..." />}
-      </Box>
-      <Box sx={{ marginBottom: '10px' }}>
+      </div>
+      <div className={sharedStyles.stackMarginBottom}>
         {editMirrorLoading && <Loading message="Updating mirror..." />}
-      </Box>
-      <Box sx={{ marginBottom: '10px' }}>
+      </div>
+      <div className={sharedStyles.stackMarginBottom}>
         {deleteMirrorLoading && <Loading message="Deleting mirror..." />}
-      </Box>
-      <Box sx={{ marginBottom: '10px' }}>
+      </div>
+      <div className={sharedStyles.stackMarginBottom}>
         {configError && (
           <ErrorFlash
             message={`Failed to load config: ${configError.message}`}
           />
         )}
-      </Box>
-      <Box sx={{ marginBottom: '10px' }}>
+      </div>
+      <div className={sharedStyles.stackMarginBottom}>
         {listMirrorsError && (
           <ErrorFlash
             message={`Failed to fetch mirror list: ${listMirrorsError.message}`}
           />
         )}
-      </Box>
-      <Box sx={{ marginBottom: '10px' }}>
+      </div>
+      <div className={sharedStyles.stackMarginBottom}>
         {isCreateErrorFlashOpen && (
           <ErrorFlash
             message={`Failed to create mirror: ${createMirrorError?.message}`}
             closeFlash={closeCreateErrorFlash}
           />
         )}
-      </Box>
-      <Box sx={{ marginBottom: '10px' }}>
+      </div>
+      <div className={sharedStyles.stackMarginBottom}>
         {isEditErrorFlashOpen && (
           <ErrorFlash
             message={`Failed to update mirror: ${editMirrorError?.message}`}
             closeFlash={closeEditErrorFlash}
           />
         )}
-      </Box>
-      <Box sx={{ marginBottom: '10px' }}>
+      </div>
+      <div className={sharedStyles.stackMarginBottom}>
         {isDeleteErrorFlashOpen && (
           <ErrorFlash
             message={`Failed to delete mirror: ${deleteMirrorError?.message}`}
             closeFlash={closeDeleteErrorFlash}
           />
         )}
-      </Box>
+      </div>
       {createMirrorFlashes}
-      <Box sx={{ marginBottom: '10px' }}>
+      <div className={sharedStyles.stackMarginBottom}>
         {editMirrorData && editMirrorData.success && isEditSuccessFlashOpen && (
           <SuccessFlash
             message="You have successfully updated mirror"
@@ -555,7 +548,7 @@ const Fork = () => {
             orgLogin={editMirrorData.data?.owner.login}
           />
         )}
-      </Box>
+      </div>
       <ForkBreadcrumbs orgData={orgData.data} forkData={forkData.data} />
       <SearchWithCreate
         placeholder="Find a mirror"
@@ -579,11 +572,7 @@ const Fork = () => {
               renderCell: (row) => {
                 return (
                   <Link
-                    sx={{
-                      paddingRight: '5px',
-                      fontWeight: 'bold',
-                      fontSize: 2,
-                    }}
+                    className={sharedStyles.tableLink}
                     href={row.html_url}
                     target="_blank"
                     rel="noreferrer noopener"
@@ -620,7 +609,7 @@ const Fork = () => {
                   >
                     <Stack align="center" direction="horizontal">
                       <Stack.Item>
-                        <Octicon icon={TrashIcon}></Octicon>
+                        <TrashIcon />
                       </Stack.Item>
                       <Stack.Item>Delete mirror</Stack.Item>
                     </Stack>
@@ -645,7 +634,7 @@ const Fork = () => {
                         >
                           <Stack align="center" direction="horizontal">
                             <Stack.Item>
-                              <Octicon icon={PencilIcon}></Octicon>
+                              <PencilIcon />
                             </Stack.Item>
                             <Stack.Item>Edit mirror</Stack.Item>
                           </Stack>
@@ -657,7 +646,7 @@ const Fork = () => {
                             direction="s"
                             text="Mirror deletion has been disabled in the application settings"
                           >
-                            <Box as="span">{deleteItem}</Box>
+                            <span>{deleteItem}</span>
                           </Tooltip>
                         )}
                       </ActionList>
@@ -704,7 +693,7 @@ const Fork = () => {
         isOpen={Boolean(deleteMirrorName)}
         deleteMirror={handleOnDeleteMirror}
       />
-    </Box>
+    </div>
   )
 }
 

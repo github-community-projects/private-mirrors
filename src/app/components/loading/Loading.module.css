@@ -1,0 +1,11 @@
+.wrapper {
+  background-color: var(--bgColor-muted, #f6f8fa);
+  padding: 10px;
+  border: 1px solid;
+  border-color: var(--borderColor-default, #d0d7de);
+  border-radius: 6px;
+}
+
+.spinner {
+  margin-top: 5px;
+}

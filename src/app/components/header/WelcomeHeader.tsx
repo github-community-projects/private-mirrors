@@ -1,19 +1,20 @@
 import { RepoForkedIcon } from '@primer/octicons-react'
-import { Octicon, Pagehead, Stack, Text } from '@primer/react'
+import { Stack, Text } from '@primer/react'
+import sharedStyles from 'app/styles/shared.module.css'
 
 export const WelcomeHeader = () => {
   return (
-    <Pagehead>
+    <div className={sharedStyles.pageHead}>
       <Stack align="center" direction="horizontal">
         <Stack.Item>
-          <Octicon icon={RepoForkedIcon} size={48} />
+          <RepoForkedIcon size={48} />
         </Stack.Item>
         <Stack.Item>
-          <Text sx={{ color: 'fg.default', fontSize: '3', fontWeight: 'bold' }}>
+          <Text className={sharedStyles.headerTitle}>
             Welcome to Private Mirrors App!
           </Text>
         </Stack.Item>
       </Stack>
-    </Pagehead>
+    </div>
   )
 }

@@ -1,5 +1,7 @@
 import { AlertIcon, XIcon } from '@primer/octicons-react'
-import { Box, Flash, IconButton, Octicon } from '@primer/react'
+import { Flash, IconButton } from '@primer/react'
+import sharedStyles from 'app/styles/shared.module.css'
+import styles from './flash.module.css'
 
 interface ErrorFlashProps {
   message: string
@@ -9,23 +11,11 @@ interface ErrorFlashProps {
 export const ErrorFlash = ({ message, closeFlash }: ErrorFlashProps) => {
   return (
     <Flash variant="danger">
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-        }}
-      >
-        <Box>
-          <Octicon icon={AlertIcon}></Octicon>
-        </Box>
-        <Box sx={{ marginLeft: '20px' }}>{message}</Box>
+      <div className={sharedStyles.flexRowCenter}>
+        <AlertIcon />
+        <div className={styles.message}>{message}</div>
         {closeFlash && (
-          <Box
-            sx={{
-              marginLeft: 'auto',
-            }}
-          >
+          <div className={styles.dismiss}>
             <IconButton
               icon={XIcon}
               variant="invisible"
@@ -33,9 +23,9 @@ export const ErrorFlash = ({ message, closeFlash }: ErrorFlashProps) => {
               onClick={closeFlash}
               size="small"
             />
-          </Box>
+          </div>
         )}
-      </Box>
+      </div>
     </Flash>
   )
 }

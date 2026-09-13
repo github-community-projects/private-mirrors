@@ -1,0 +1,116 @@
+.stackMarginBottom {
+  margin-bottom: 10px;
+}
+
+.flexRowCenter {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.headerTitle {
+  color: var(--fgColor-default, #1f2328);
+  font-size: var(--base-text-size-lg, 1.25rem);
+  font-weight: var(--base-text-weight-semibold, 600);
+}
+
+.dialogFieldGroup {
+  padding: 15px;
+  border: 1px solid;
+  border-color: var(--borderColor-default, #d0d7de);
+  border-radius: 6px;
+  width: 100%;
+}
+
+.blankslateWrapper {
+  border: 1px solid;
+  border-color: var(--borderColor-default, #d0d7de);
+  padding: 40px;
+  border-radius: 12px;
+}
+
+.centeredCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.pageHead {
+  padding: 24px 0;
+  margin-bottom: 24px;
+  border-bottom: 1px solid;
+  border-color: var(--borderColor-default, #d0d7de);
+}
+
+.mutedIcon {
+  color: var(--fgColor-muted, #636c76);
+}
+
+.defaultIcon {
+  color: var(--fgColor-default, #1f2328);
+}
+
+.mutedText {
+  color: var(--fgColor-muted, #636c76);
+}
+
+.authCard {
+  width: 394px;
+  height: auto;
+  margin: 60px auto auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  border: 1px solid;
+  border-color: var(--borderColor-default, #d0d7de);
+  border-radius: 12px;
+  padding: 40px;
+}
+
+.authCardIcon {
+  margin-bottom: 15px;
+}
+
+.authCardBody {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.authCardTextGroup {
+  margin-bottom: 15px;
+}
+
+.center {
+  text-align: center;
+}
+
+.authCardTitle {
+  font-size: var(--base-text-size-lg, 1.25rem);
+}
+
+.authCardSubtitle {
+  font-size: var(--base-text-size-sm, 0.875rem);
+  color: var(--fgColor-muted, #636c76);
+}
+
+.marginTop15 {
+  margin-top: 15px;
+}
+
+.blankslateIconPad {
+  padding: 10px;
+}
+
+.mutedTextPaddedLeft {
+  padding-left: 3px;
+  color: var(--fgColor-muted, #636c76);
+}
+
+.tableLink {
+  padding-right: 5px;
+  font-weight: var(--base-text-weight-semibold, 600);
+  font-size: var(--base-text-size-md, 1rem);
+}

@@ -1,4 +1,5 @@
-import { Box, Spinner, Stack } from '@primer/react'
+import { Spinner, Stack } from '@primer/react'
+import styles from './Loading.module.css'
 
 interface LoadingProps {
   message: string
@@ -6,21 +7,13 @@ interface LoadingProps {
 
 export const Loading = ({ message }: LoadingProps) => {
   return (
-    <Box
-      sx={{
-        backgroundColor: 'pageHeaderBg',
-        padding: '10px',
-        border: '1px solid',
-        borderColor: 'border.default',
-        borderRadius: '6px',
-      }}
-    >
+    <div className={styles.wrapper}>
       <Stack direction="horizontal" align="center">
         <Stack.Item>
-          <Spinner sx={{ marginTop: '5px' }} />
+          <Spinner className={styles.spinner} />
         </Stack.Item>
         <Stack.Item>{message}</Stack.Item>
       </Stack>
-    </Box>
+    </div>
   )
 }
