@@ -1,0 +1,9 @@
+.wrapper {
+  display: inline-block;
+  padding-right: 10px;
+}
+
+.item {
+  font-size: var(--base-text-size-md, 1rem);
+  font-weight: var(--base-text-weight-semibold, 600);
+}

@@ -1,0 +1,27 @@
+.spinner {
+  margin-top: 5px;
+}
+
+.muted {
+  color: var(--fgColor-muted, #636c76);
+}
+
+.titlePaddingRight {
+  padding-right: 5px;
+}
+
+.mainTitle {
+  color: var(--fgColor-default, #1f2328);
+  font-size: var(--base-text-size-md, 1rem);
+  font-weight: var(--base-text-weight-semibold, 600);
+}
+
+.backgroundBar {
+  background-color: var(--bgColor-muted, #f6f8fa);
+  border-bottom: 1px solid;
+  border-color: var(--borderColor-default, #d0d7de);
+}
+
+.headerItemNoMargin {
+  margin-right: 0;
+}

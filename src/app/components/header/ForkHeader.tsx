@@ -1,14 +1,8 @@
-import {
-  Avatar,
-  Label,
-  Link,
-  Pagehead,
-  Spinner,
-  Stack,
-  Text,
-} from '@primer/react'
+import { Avatar, Label, Link, Spinner, Stack, Text } from '@primer/react'
 import { ForkData } from 'hooks/useFork'
 import { useGitHubEnvironment } from 'app/context/GitHubEnvironmentProvider'
+import sharedStyles from 'app/styles/shared.module.css'
+import styles from './header.module.css'
 
 interface ForkHeaderProps {
   forkData: ForkData
@@ -17,7 +11,7 @@ interface ForkHeaderProps {
 export const ForkHeader = ({ forkData }: ForkHeaderProps) => {
   const { serverUrl } = useGitHubEnvironment()
   return (
-    <Pagehead>
+    <div className={sharedStyles.pageHead}>
       {forkData ? (
         <Stack direction="horizontal" align="center">
           <Stack.Item>
@@ -34,12 +28,7 @@ export const ForkHeader = ({ forkData }: ForkHeaderProps) => {
                 href={forkData.html_url}
                 target="_blank"
                 rel="noreferrer noopener"
-                sx={{
-                  color: 'fg.default',
-                  fontSize: '3',
-                  fontWeight: 'bold',
-                  paddingRight: '5px',
-                }}
+                className={`${sharedStyles.headerTitle} ${styles.titlePaddingRight}`}
               >
                 {forkData.organization?.login}/{forkData.name}
               </Link>
@@ -48,13 +37,13 @@ export const ForkHeader = ({ forkData }: ForkHeaderProps) => {
               </Label>
             </Stack.Item>
             <Stack.Item>
-              <Text sx={{ color: 'fg.muted' }}>
+              <Text className={styles.muted}>
                 Forked from{' '}
                 <Link
                   href={`${serverUrl}/${forkData.parent?.owner.login}/${forkData.parent?.name}`}
                   target="_blank"
                   rel="noreferrer noopener"
-                  sx={{ color: 'fg.muted' }}
+                  className={styles.muted}
                 >
                   {forkData.parent?.owner.login}/{forkData.parent?.name}
                 </Link>
@@ -65,17 +54,15 @@ export const ForkHeader = ({ forkData }: ForkHeaderProps) => {
       ) : (
         <Stack align="center" direction="horizontal">
           <Stack.Item>
-            <Spinner sx={{ marginTop: '5px' }} />
+            <Spinner className={styles.spinner} />
           </Stack.Item>
           <Stack.Item>
-            <Text
-              sx={{ color: 'fg.default', fontSize: '3', fontWeight: 'bold' }}
-            >
+            <Text className={sharedStyles.headerTitle}>
               Loading fork data...
             </Text>
           </Stack.Item>
         </Stack>
       )}
-    </Pagehead>
+    </div>
   )
 }

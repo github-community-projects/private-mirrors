@@ -1,6 +1,7 @@
 import { PlusIcon, SearchIcon, XCircleFillIcon } from '@primer/octicons-react'
-import { Box, Button, FormControl, Stack, TextInput } from '@primer/react'
+import { Button, FormControl, Stack, TextInput } from '@primer/react'
 import { ChangeEvent } from 'react'
+import styles from './search.module.css'
 
 interface SearchWithCreateProps {
   placeholder: string
@@ -22,14 +23,7 @@ export const SearchWithCreate = ({
   }
 
   return (
-    <Box
-      sx={{
-        padding: '1px',
-        marginBottom: '10px',
-        overflow: 'hidden',
-        width: '100%',
-      }}
-    >
+    <div className={styles.wrapper}>
       <Stack align="center" direction="horizontal">
         <Stack.Item grow={true}>
           <FormControl>
@@ -48,9 +42,7 @@ export const SearchWithCreate = ({
                   }}
                   icon={XCircleFillIcon}
                   aria-label="Clear input"
-                  sx={{
-                    color: 'fg.subtle',
-                  }}
+                  className={styles.clearAction}
                 />
               }
             />
@@ -67,6 +59,6 @@ export const SearchWithCreate = ({
           </Button>
         </Stack.Item>
       </Stack>
-    </Box>
+    </div>
   )
 }

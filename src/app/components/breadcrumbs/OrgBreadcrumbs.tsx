@@ -1,5 +1,7 @@
-import { Box, Breadcrumbs } from '@primer/react'
+import { Breadcrumbs } from '@primer/react'
 import { OrgData } from 'hooks/useOrganization'
+import sharedStyles from 'app/styles/shared.module.css'
+import styles from './breadcrumbs.module.css'
 
 interface ForkBreadcrumbsProps {
   orgData: OrgData
@@ -11,15 +13,15 @@ export const OrgBreadcrumbs = ({ orgData }: ForkBreadcrumbsProps) => {
   }
 
   return (
-    <Box sx={{ marginBottom: '10px' }}>
-      <Breadcrumbs sx={{ display: 'inline-block', paddingRight: '10px' }}>
-        <Breadcrumbs.Item href="/" sx={{ fontSize: '2', fontWeight: 'bold' }}>
+    <div className={sharedStyles.stackMarginBottom}>
+      <Breadcrumbs className={styles.wrapper}>
+        <Breadcrumbs.Item href="/" className={styles.item}>
           All organizations
         </Breadcrumbs.Item>
-        <Breadcrumbs.Item selected sx={{ fontSize: '2', fontWeight: 'bold' }}>
+        <Breadcrumbs.Item selected className={styles.item}>
           {orgData?.login}
         </Breadcrumbs.Item>
       </Breadcrumbs>
-    </Box>
+    </div>
   )
 }

@@ -1,5 +1,7 @@
 import { CheckIcon, XIcon } from '@primer/octicons-react'
-import { Box, Flash, IconButton, Link, Octicon } from '@primer/react'
+import { Flash, IconButton, Link } from '@primer/react'
+import sharedStyles from 'app/styles/shared.module.css'
+import styles from './flash.module.css'
 
 interface SuccessFlashProps {
   message: string
@@ -18,28 +20,16 @@ export const SuccessFlash = ({
 }: SuccessFlashProps) => {
   return (
     <Flash variant="success">
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-        }}
-      >
-        <Box>
-          <Octicon icon={CheckIcon}></Octicon>
-        </Box>
-        <Box sx={{ marginLeft: '20px' }}>
+      <div className={sharedStyles.flexRowCenter}>
+        <CheckIcon />
+        <div className={styles.message}>
           {message}{' '}
           <Link href={mirrorUrl} target="_blank" rel="noreferrer noopener">
             {orgLogin}/{mirrorName}
           </Link>
           .
-        </Box>
-        <Box
-          sx={{
-            marginLeft: 'auto',
-          }}
-        >
+        </div>
+        <div className={styles.dismiss}>
           <IconButton
             icon={XIcon}
             variant="invisible"
@@ -47,8 +37,8 @@ export const SuccessFlash = ({
             onClick={closeFlash}
             size="small"
           />
-        </Box>
-      </Box>
+        </div>
+      </div>
     </Flash>
   )
 }

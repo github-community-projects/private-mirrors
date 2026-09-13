@@ -1,33 +1,30 @@
 'use client'
 
 import { AlertIcon } from '@primer/octicons-react'
-import { Box, Octicon } from '@primer/react'
-import { Blankslate } from '@primer/react/drafts'
+import { Blankslate } from '@primer/react/experimental'
+import sharedStyles from 'app/styles/shared.module.css'
+import styles from './not-found.module.css'
 
 const NotFoundPage = () => {
   return (
-    <Box
-      sx={{
-        padding: '40px',
-      }}
-    >
+    <div className={styles.wrapper}>
       <Blankslate>
-        <Box sx={{ padding: '10px' }}>
+        <div className={sharedStyles.blankslateIconPad}>
           <Blankslate.Visual>
-            <Octicon icon={AlertIcon} size={24} color="fg.muted"></Octicon>
+            <AlertIcon size={24} className={sharedStyles.mutedIcon} />
           </Blankslate.Visual>
-        </Box>
+        </div>
         <Blankslate.Heading>Page not found</Blankslate.Heading>
         <Blankslate.Description>
           This is not the page you&apos;re looking for.
         </Blankslate.Description>
-        <Box sx={{ padding: '20px' }}>
+        <div className={styles.actionPad}>
           <Blankslate.SecondaryAction href="/">
             Back to home
           </Blankslate.SecondaryAction>
-        </Box>
+        </div>
       </Blankslate>
-    </Box>
+    </div>
   )
 }
 

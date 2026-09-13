@@ -1,4 +1,4 @@
-import { BaseStyles, Box, ThemeProvider } from '@primer/react'
+import { BaseStyles, ThemeProvider } from '@primer/react'
 import { StyledComponentsRegistry } from '../providers/registry-provider'
 import { TrpcProvider } from '../providers/trpc-provider'
 import { MainHeader } from './components/header/MainHeader'
@@ -7,6 +7,7 @@ import { getServerSession } from 'next-auth'
 import { nextAuthOptions } from './api/auth/lib/nextauth-options'
 import { env } from '../../env.mjs'
 import { GitHubEnvironmentProvider } from './context/GitHubEnvironmentProvider'
+import styles from './layout.module.css'
 
 const RootLayout = async ({ children }: { children: React.ReactNode }) => {
   const session = await getServerSession(nextAuthOptions)
@@ -26,27 +27,12 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
               >
                 <AuthProvider session={session}>
                   <TrpcProvider>
-                    <Box
-                      sx={{
-                        mx: 'auto',
-                        width: '100%',
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          position: 'sticky',
-                          top: 0,
-                          height: 64,
-                          display: 'grid',
-                          zIndex: 1000,
-                        }}
-                      >
+                    <div className={styles.container}>
+                      <div className={styles.stickyHeader}>
                         <MainHeader />
-                      </Box>
-                      <Box sx={{ padding: '40px', margin: '10px 90px' }}>
-                        {children}
-                      </Box>
-                    </Box>
+                      </div>
+                      <div className={styles.content}>{children}</div>
+                    </div>
                   </TrpcProvider>
                 </AuthProvider>
               </GitHubEnvironmentProvider>

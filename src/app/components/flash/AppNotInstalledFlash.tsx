@@ -1,6 +1,8 @@
 import { AlertIcon } from '@primer/octicons-react'
-import { Box, Flash, Link, Octicon } from '@primer/react'
+import { Flash, Link } from '@primer/react'
+import sharedStyles from 'app/styles/shared.module.css'
 import { useGitHubEnvironment } from 'app/context/GitHubEnvironmentProvider'
+import styles from './flash.module.css'
 
 interface AppNotInstalledFlashProps {
   orgLogin: string
@@ -11,29 +13,19 @@ export const AppNotInstalledFlash = ({
 }: AppNotInstalledFlashProps) => {
   const { serverUrl } = useGitHubEnvironment()
   return (
-    <Box>
-      <Flash variant="danger">
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-          }}
-        >
-          <Box>
-            <Octicon icon={AlertIcon}></Octicon>
-          </Box>
-          <Box sx={{ marginLeft: '20px' }}>
-            This organization does not have the required App installed. Visit{' '}
-            <Link
-              href={`${serverUrl}/organizations/${orgLogin}/settings/installations`}
-            >
-              this page
-            </Link>{' '}
-            to install the App to the organization.
-          </Box>
-        </Box>
-      </Flash>
-    </Box>
+    <Flash variant="danger">
+      <div className={sharedStyles.flexRowCenter}>
+        <AlertIcon />
+        <div className={styles.message}>
+          This organization does not have the required App installed. Visit{' '}
+          <Link
+            href={`${serverUrl}/organizations/${orgLogin}/settings/installations`}
+          >
+            this page
+          </Link>{' '}
+          to install the App to the organization.
+        </div>
+      </div>
+    </Flash>
   )
 }

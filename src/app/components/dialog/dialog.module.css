@@ -1,0 +1,31 @@
+.fieldMarginBottom {
+  margin-bottom: 10px;
+}
+
+.locationBox {
+  padding: 15px;
+  border: 1px solid;
+  border-color: var(--borderColor-default, #d0d7de);
+  border-radius: 6px;
+  width: 100%;
+}
+
+.repoName {
+  font-size: var(--base-text-size-md, 1rem);
+  font-weight: var(--base-text-weight-semibold, 600);
+  padding-right: 10px;
+}
+
+.forkedFrom {
+  color: var(--fgColor-muted, #636c76);
+  font-size: var(--base-text-size-xs, 0.75rem);
+  font-weight: var(--base-text-weight-semibold, 600);
+}
+
+.mutedLink {
+  color: var(--fgColor-muted, #636c76);
+}
+
+.bold {
+  font-weight: var(--base-text-weight-semibold, 600);
+}
