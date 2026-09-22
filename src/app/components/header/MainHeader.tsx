@@ -1,30 +1,24 @@
 'use client'
 
 import { MarkGithubIcon } from '@primer/octicons-react'
-import { Avatar, Button, Header, Octicon, Stack, Text } from '@primer/react'
+import { Avatar, Button, Header, Stack, Text } from '@primer/react'
 import { signOut, useSession } from 'next-auth/react'
+import sharedStyles from 'app/styles/shared.module.css'
+import styles from './header.module.css'
 
 export const MainHeader = () => {
   const session = useSession()
 
   return (
-    <Header
-      sx={{
-        backgroundColor: 'pageHeaderBg',
-        borderBottom: '1px solid',
-        borderColor: 'border.default',
-      }}
-    >
+    <Header className={styles.backgroundBar}>
       <Header.Item>
-        <Octicon icon={MarkGithubIcon} color="fg.default" size={32}></Octicon>
+        <MarkGithubIcon className={sharedStyles.defaultIcon} size={32} />
       </Header.Item>
       <Header.Item full>
-        <Text sx={{ color: 'fg.default', fontSize: '2', fontWeight: 'bold' }}>
-          Private Mirrors
-        </Text>
+        <Text className={styles.mainTitle}>Private Mirrors</Text>
       </Header.Item>
       {session && session.data?.user && (
-        <Header.Item sx={{ mr: 0 }}>
+        <Header.Item className={styles.headerItemNoMargin}>
           <Stack align="center" direction="horizontal">
             <Stack.Item>
               <Button

@@ -1,5 +1,5 @@
 import {
-  Box,
+  Dialog,
   FormControl,
   Label,
   Link,
@@ -7,11 +7,11 @@ import {
   Text,
   TextInput,
 } from '@primer/react'
-import { Dialog } from '@primer/react/drafts'
 import { mirrorNameSchema } from 'server/repos/schema'
 import { useGitHubEnvironment } from 'app/context/GitHubEnvironmentProvider'
 
 import { useEffect, useState } from 'react'
+import styles from './dialog.module.css'
 
 interface EditMirrorDialogProps {
   orgLogin: string
@@ -89,8 +89,8 @@ export const EditMirrorDialog = ({
       }}
       width="large"
     >
-      <Box>
-        <FormControl sx={{ marginBottom: '10px' }}>
+      <div>
+        <FormControl className={styles.fieldMarginBottom}>
           <FormControl.Label>Mirror name</FormControl.Label>
           <TextInput
             onChange={(e) => setNewMirrorName(e.target.value)}
@@ -118,43 +118,23 @@ export const EditMirrorDialog = ({
         </FormControl>
         <FormControl>
           <FormControl.Label>Mirror location</FormControl.Label>
-          <Box
-            sx={{
-              padding: '15px',
-              border: '1px solid',
-              borderColor: 'border.default',
-              borderRadius: '6px',
-              width: '100%',
-            }}
-          >
+          <div className={styles.locationBox}>
             <Stack direction="vertical" justify="start" gap="none">
               <Stack.Item grow={false}>
                 <Stack.Item>
-                  <Text
-                    sx={{
-                      fontSize: '2',
-                      fontWeight: 'bold',
-                      paddingRight: '10px',
-                    }}
-                  >
+                  <Text className={styles.repoName}>
                     {orgLogin}/{newMirrorName}
                   </Text>
                   <Label variant="secondary">{'Private'}</Label>
                 </Stack.Item>
                 <Stack.Item grow={false}>
-                  <Text
-                    sx={{
-                      color: 'fg.muted',
-                      fontSize: '0.75rem',
-                      fontWeight: '600',
-                    }}
-                  >
+                  <Text className={styles.forkedFrom}>
                     Forked from{' '}
                     <Link
                       href={`${serverUrl}/${forkParentOwnerLogin}/${forkParentName}`}
                       target="_blank"
                       rel="noreferrer noopener"
-                      sx={{ color: 'fg.muted' }}
+                      className={styles.mutedLink}
                     >
                       {forkParentOwnerLogin}/{forkParentName}
                     </Link>
@@ -162,9 +142,9 @@ export const EditMirrorDialog = ({
                 </Stack.Item>
               </Stack.Item>
             </Stack>
-          </Box>
+          </div>
         </FormControl>
-      </Box>
+      </div>
     </Dialog>
   )
 }

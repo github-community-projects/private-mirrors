@@ -1,5 +1,7 @@
-import { Avatar, Link, Pagehead, Spinner, Stack, Text } from '@primer/react'
+import { Avatar, Link, Spinner, Stack, Text } from '@primer/react'
 import { OrgData } from 'hooks/useOrganization'
+import sharedStyles from 'app/styles/shared.module.css'
+import styles from './header.module.css'
 
 interface OrgHeaderProps {
   orgData: OrgData
@@ -7,7 +9,7 @@ interface OrgHeaderProps {
 
 export const OrgHeader = ({ orgData }: OrgHeaderProps) => {
   return (
-    <Pagehead>
+    <div className={sharedStyles.pageHead}>
       {orgData ? (
         <Stack align="center" direction="horizontal">
           <Stack.Item>
@@ -18,7 +20,7 @@ export const OrgHeader = ({ orgData }: OrgHeaderProps) => {
               href={orgData.html_url}
               target="_blank"
               rel="noreferrer noopener"
-              sx={{ color: 'fg.default', fontSize: '3', fontWeight: 'bold' }}
+              className={sharedStyles.headerTitle}
             >
               {orgData.login}
             </Link>
@@ -27,17 +29,15 @@ export const OrgHeader = ({ orgData }: OrgHeaderProps) => {
       ) : (
         <Stack align="center" direction="horizontal">
           <Stack.Item>
-            <Spinner sx={{ marginTop: '5px' }} />
+            <Spinner className={styles.spinner} />
           </Stack.Item>
           <Stack.Item>
-            <Text
-              sx={{ color: 'fg.default', fontSize: '3', fontWeight: 'bold' }}
-            >
+            <Text className={sharedStyles.headerTitle}>
               Loading organization data...
             </Text>
           </Stack.Item>
         </Stack>
       )}
-    </Pagehead>
+    </div>
   )
 }
