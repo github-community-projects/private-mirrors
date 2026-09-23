@@ -78,6 +78,13 @@
   "engines": {
     "node": "^22 || ^24"
   },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "^24",
+      "onFail": "warn"
+    }
+  },
   "lint-staged": {
     "*": [
       "npm run format",
@@ -86,5 +93,9 @@
     "'.ts', '.tsx', '.d.ts', '.cts', '.d.cts', '.mts', '.d.mts'": [
       "npm run type-check"
     ]
+  },
+  "allowScripts": {
+    "fsevents@2.3.3": true,
+    "sharp@0.34.5": true
   }
 }
