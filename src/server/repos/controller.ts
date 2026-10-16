@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import simpleGit from 'simple-git'
+import { simpleGit } from 'simple-git'
 import { generateAuthUrl } from 'utils/auth'
 import { temporaryDirectory } from 'tempy'
 import { getConfig } from '../../bot/config'

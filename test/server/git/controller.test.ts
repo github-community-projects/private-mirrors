@@ -3,7 +3,7 @@ import { syncReposHandler } from '../../../src/server/git/controller'
 import * as auth from '../../../src/utils/auth'
 import * as tempy from 'tempy'
 import { cleanupTempDir } from '../../../src/utils/temp-dir'
-import simpleGit from 'simple-git'
+import { simpleGit } from 'simple-git'
 import type { Mock } from 'vitest'
 import type { SyncReposSchema } from '../../../src/server/git/schema'
 

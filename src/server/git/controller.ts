@@ -1,4 +1,4 @@
-import simpleGit from 'simple-git'
+import { simpleGit } from 'simple-git'
 import { generateAuthUrl } from '../../utils/auth'
 import { temporaryDirectory } from 'tempy'
 import { logger } from '../../utils/logger'

@@ -12,7 +12,7 @@ const stubbedGit = {
 }
 
 vi.mock('simple-git', () => ({
-  default: () => stubbedGit,
+  simpleGit: () => stubbedGit,
 }))
 
 vi.mock('tempy', () => ({
