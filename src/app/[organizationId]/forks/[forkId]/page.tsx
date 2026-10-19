@@ -16,7 +16,6 @@ import {
   Link,
   RelativeTime,
   Stack,
-  Tooltip,
 } from '@primer/react'
 import { Blankslate, DataTable, Table } from '@primer/react/experimental'
 import sharedStyles from 'app/styles/shared.module.css'
@@ -602,7 +601,11 @@ const Fork = () => {
                 const deleteItem = (
                   <ActionList.Item
                     variant="danger"
-                    disabled={!mirrorDeletionEnabled}
+                    inactiveText={
+                      !mirrorDeletionEnabled
+                        ? 'Mirror deletion has been disabled'
+                        : undefined
+                    }
                     onSelect={() =>
                       openDeleteDialog(row.name, mirrorPaginationSet.length)
                     }
@@ -639,16 +642,7 @@ const Fork = () => {
                             <Stack.Item>Edit mirror</Stack.Item>
                           </Stack>
                         </ActionList.Item>
-                        {mirrorDeletionEnabled ? (
-                          deleteItem
-                        ) : (
-                          <Tooltip
-                            direction="s"
-                            text="Mirror deletion has been disabled in the application settings"
-                          >
-                            <span>{deleteItem}</span>
-                          </Tooltip>
-                        )}
+                        {deleteItem}
                       </ActionList>
                     </ActionMenu.Overlay>
                   </ActionMenu>

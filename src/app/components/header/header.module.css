@@ -17,9 +17,16 @@
 }
 
 .backgroundBar {
-  background-color: var(--bgColor-muted, #f6f8fa);
-  border-bottom: 1px solid;
-  border-color: var(--borderColor-default, #d0d7de);
+  /*
+   * Primer's Header is dark by default; it reads its background from the
+   * --header-bgColor variable. Redefining that variable on the element gives
+   * the intended light header regardless of CSS source order (a plain
+   * `background-color` override would only tie Primer's `.prc-Header-Header`
+   * class and lose when Primer's stylesheet loads last). The dark logo/title
+   * colors come from .defaultIcon / .mainTitle.
+   */
+  --header-bgColor: var(--bgColor-muted, #f6f8fa);
+  border-bottom: 1px solid var(--borderColor-default, #d0d7de);
 }
 
 .headerItemNoMargin {

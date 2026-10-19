@@ -14,26 +14,11 @@
   font-weight: var(--base-text-weight-semibold, 600);
 }
 
-.dialogFieldGroup {
-  padding: 15px;
-  border: 1px solid;
-  border-color: var(--borderColor-default, #d0d7de);
-  border-radius: 6px;
-  width: 100%;
-}
-
 .blankslateWrapper {
   border: 1px solid;
   border-color: var(--borderColor-default, #d0d7de);
   padding: 40px;
   border-radius: 12px;
-}
-
-.centeredCard {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
 }
 
 .pageHead {
