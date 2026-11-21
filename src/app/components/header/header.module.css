@@ -26,6 +26,7 @@
    * colors come from .defaultIcon / .mainTitle.
    */
   --header-bgColor: var(--bgColor-muted, #f6f8fa);
+
   border-bottom: 1px solid var(--borderColor-default, #d0d7de);
 }
 
