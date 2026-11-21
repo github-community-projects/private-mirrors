@@ -1,5 +1,4 @@
 import { BaseStyles, ThemeProvider } from '@primer/react'
-import { StyledComponentsRegistry } from '../providers/registry-provider'
 import { TrpcProvider } from '../providers/trpc-provider'
 import { MainHeader } from './components/header/MainHeader'
 import { AuthProvider } from './context/AuthProvider'
@@ -15,30 +14,28 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
   return (
     <html lang="en">
       <body>
-        <StyledComponentsRegistry>
-          <ThemeProvider>
-            <BaseStyles>
-              <GitHubEnvironmentProvider
-                value={{
-                  serverUrl: env.GITHUB_SERVER_URL,
-                  apiUrl: env.GITHUB_API_URL,
-                  graphQlUrl: env.GITHUB_GRAPHQL_URL,
-                }}
-              >
-                <AuthProvider session={session}>
-                  <TrpcProvider>
-                    <div className={styles.container}>
-                      <div className={styles.stickyHeader}>
-                        <MainHeader />
-                      </div>
-                      <div className={styles.content}>{children}</div>
+        <ThemeProvider>
+          <BaseStyles>
+            <GitHubEnvironmentProvider
+              value={{
+                serverUrl: env.GITHUB_SERVER_URL,
+                apiUrl: env.GITHUB_API_URL,
+                graphQlUrl: env.GITHUB_GRAPHQL_URL,
+              }}
+            >
+              <AuthProvider session={session}>
+                <TrpcProvider>
+                  <div className={styles.container}>
+                    <div className={styles.stickyHeader}>
+                      <MainHeader />
                     </div>
-                  </TrpcProvider>
-                </AuthProvider>
-              </GitHubEnvironmentProvider>
-            </BaseStyles>
-          </ThemeProvider>
-        </StyledComponentsRegistry>
+                    <div className={styles.content}>{children}</div>
+                  </div>
+                </TrpcProvider>
+              </AuthProvider>
+            </GitHubEnvironmentProvider>
+          </BaseStyles>
+        </ThemeProvider>
       </body>
     </html>
   )
