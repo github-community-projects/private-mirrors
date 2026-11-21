@@ -129,7 +129,7 @@ To check for linting errors, use the following command:
 npm run lint
 ```
 
-This will run ESLint and display any linting errors in the terminal.
+This will run stylelint on CSS files and ESLint on everything else, and display any linting errors in the terminal. To fix auto-fixable issues, run `npm run lint:fix`.
 
 ## Building
 
