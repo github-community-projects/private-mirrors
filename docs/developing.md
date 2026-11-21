@@ -87,6 +87,15 @@ To use the app, you'll need to create a GitHub App and configure it to point to 
 9. Note the **App ID** and **Client ID** and add them to your `.env` file as `APP_ID` and `GITHUB_CLIENT_ID`, respectively.
 10. Generate a new **Client Secret** and add it to your `.env` file as `GITHUB_CLIENT_SECRET`.
 
+### Using a public URL (tunnel)
+
+To expose your local dev server through a tunnel (e.g. [Tailscale Funnel](https://tailscale.com/kb/1223/funnel) or [ngrok](https://ngrok.com/)):
+
+1. Start the tunnel pointing at port 3000, for example `tailscale funnel --bg 3000`.
+2. Set `NEXTAUTH_URL` in your `.env` file to the tunnel URL, e.g. `https://my-machine.my-tailnet.ts.net`. The dev server allows this hostname via `allowedDevOrigins` in `next.config.mjs`.
+3. In your GitHub App settings, use the tunnel URL in place of `http://localhost:3000` for the Homepage and Webhook URLs, and set the **Callback URL** to `<tunnel-url>/api/auth/callback/github`.
+4. Restart `npm run dev` and open the app at the tunnel URL, not `localhost`. Mixing the two causes sign-in to fail with a missing state cookie.
+
 ## Running the App with Docker
 
 If you prefer to run the app in a Docker container, follow these steps:
