@@ -21,7 +21,7 @@ import sharedStyles from 'app/styles/shared.module.css'
 const Organization = () => {
   const { organizationId } = useParams()
   const { serverUrl } = useGitHubEnvironment()
-  const { data, isLoading } = trpc.checkInstallation.useQuery({
+  const { data, isPending } = trpc.checkInstallation.useQuery({
     orgId: organizationId as string,
   })
 
@@ -139,7 +139,7 @@ const Organization = () => {
     <div>
       <OrgHeader orgData={orgData.data} />
       <div className={sharedStyles.stackMarginBottom}>
-        {!isLoading && !data?.installed && (
+        {!isPending && !data?.installed && (
           <AppNotInstalledFlash orgLogin={orgData?.data?.login as string} />
         )}
       </div>

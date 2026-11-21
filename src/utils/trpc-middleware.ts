@@ -1,31 +1,28 @@
 import { checkGitHubAppInstallationAuth, checkGitHubAuth } from './auth'
 import { Middleware } from './trpc-server'
 
+// Middleware runs before input validation, so read the raw input
+const getInput = async (opts: { getRawInput: () => Promise<unknown> }) =>
+  (await opts.getRawInput()) as Record<string, string> | undefined
+
 export const verifyGitHubAppAuth: Middleware = async (opts) => {
-  const { ctx, rawInput } = opts
+  const input = await getInput(opts)
 
   // Check app authentication
   await checkGitHubAppInstallationAuth(
-    (rawInput as Record<string, string>)?.accessToken,
-    (rawInput as Record<string, string>)?.mirrorOwner,
-    (rawInput as Record<string, string>)?.mirrorName,
+    input?.accessToken,
+    input?.mirrorOwner,
+    input?.mirrorName,
   )
 
-  return opts.next({
-    ctx,
-  })
+  return opts.next({ ctx: opts.ctx })
 }
 
 export const verifyAuth: Middleware = async (opts) => {
-  const { ctx, rawInput } = opts
+  const input = await getInput(opts)
 
   // Verify valid github session
-  await checkGitHubAuth(
-    ctx.session?.user?.accessToken,
-    (rawInput as Record<string, string>)?.orgId, // Fetch orgId if there is one
-  )
+  await checkGitHubAuth(opts.ctx.session?.user?.accessToken, input?.orgId)
 
-  return opts.next({
-    ctx,
-  })
+  return opts.next({ ctx: opts.ctx })
 }
