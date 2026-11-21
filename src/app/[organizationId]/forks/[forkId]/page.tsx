@@ -37,7 +37,7 @@ import { useCallback, useState } from 'react'
 
 const Fork = () => {
   const { organizationId } = useParams()
-  const { data, isLoading } = trpc.checkInstallation.useQuery({
+  const { data, isPending } = trpc.checkInstallation.useQuery({
     orgId: organizationId as string,
   })
 
@@ -168,7 +168,7 @@ const Fork = () => {
 
   const {
     data: getConfigData,
-    isLoading: configLoading,
+    isPending: configLoading,
     error: configError,
   } = trpc.getConfig.useQuery({
     orgId: organizationId as string,
@@ -178,14 +178,14 @@ const Fork = () => {
 
   const {
     data: createMirrorData,
-    isLoading: createMirrorLoading,
+    isPending: createMirrorLoading,
     mutateAsync: createMirror,
     error: createMirrorError,
   } = trpc.createMirror.useMutation()
 
   const {
     data: mirrorsData,
-    isLoading: mirrorsLoading,
+    isPending: mirrorsLoading,
     refetch: refetchMirrors,
     error: listMirrorsError,
   } = trpc.listMirrors.useQuery(
@@ -202,13 +202,13 @@ const Fork = () => {
 
   const {
     data: editMirrorData,
-    isLoading: editMirrorLoading,
+    isPending: editMirrorLoading,
     mutateAsync: editMirror,
     error: editMirrorError,
   } = trpc.editMirror.useMutation()
 
   const {
-    isLoading: deleteMirrorLoading,
+    isPending: deleteMirrorLoading,
     mutateAsync: deleteMirror,
     error: deleteMirrorError,
   } = trpc.deleteMirror.useMutation()
@@ -408,7 +408,7 @@ const Fork = () => {
       <div>
         <ForkHeader forkData={forkData.data} />
         <div className={sharedStyles.stackMarginBottom}>
-          {!isLoading && !data?.installed && (
+          {!isPending && !data?.installed && (
             <AppNotInstalledFlash orgLogin={orgData?.data?.login as string} />
           )}
         </div>
@@ -485,7 +485,7 @@ const Fork = () => {
     <div>
       <ForkHeader forkData={forkData.data} />
       <div className={sharedStyles.stackMarginBottom}>
-        {!isLoading && !data?.installed && (
+        {!isPending && !data?.installed && (
           <AppNotInstalledFlash orgLogin={orgData?.data?.login as string} />
         )}
       </div>
