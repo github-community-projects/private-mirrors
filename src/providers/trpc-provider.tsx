@@ -16,6 +16,7 @@ export const TrpcProvider = ({ children }: { children: React.ReactNode }) => {
         }),
         httpBatchLink({
           url: `${getBaseUrl()}/api/trpc`,
+          transformer: superjson,
           fetch: async (input, init?) => {
             const fetch = getFetch()
             return fetch(input, {
@@ -25,7 +26,6 @@ export const TrpcProvider = ({ children }: { children: React.ReactNode }) => {
           },
         }),
       ],
-      transformer: superjson,
     }),
   )
 
