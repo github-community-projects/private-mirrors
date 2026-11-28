@@ -1,15 +1,21 @@
 'use client'
 
 import { QueryClientProvider } from '@tanstack/react-query'
-import { getFetch, httpBatchLink, loggerLink } from '@trpc/client'
+import {
+  createTRPCClient,
+  getFetch,
+  httpBatchLink,
+  loggerLink,
+} from '@trpc/client'
 import { useState } from 'react'
 import superjson from 'superjson'
 import queryClient from '../utils/query-client'
-import { getBaseUrl, trpc } from '../utils/trpc'
+import type { AppRouter } from '../app/api/trpc/trpc-router'
+import { getBaseUrl, TRPCProvider } from '../utils/trpc'
 
 export const TrpcProvider = ({ children }: { children: React.ReactNode }) => {
   const [trpcClient] = useState(() =>
-    trpc.createClient({
+    createTRPCClient<AppRouter>({
       links: [
         loggerLink({
           enabled: () => true,
@@ -30,8 +36,10 @@ export const TrpcProvider = ({ children }: { children: React.ReactNode }) => {
   )
 
   return (
-    <trpc.Provider client={trpcClient} queryClient={queryClient}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    </trpc.Provider>
+    <QueryClientProvider client={queryClient}>
+      <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
+        {children}
+      </TRPCProvider>
+    </QueryClientProvider>
   )
 }
