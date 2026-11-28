@@ -1,7 +1,8 @@
 'use client'
 
 import { useParams } from 'next/navigation'
-import { trpc } from '../../utils/trpc'
+import { useQuery } from '@tanstack/react-query'
+import { useTRPC } from '../../utils/trpc'
 
 import { DotFillIcon, GitBranchIcon, RepoIcon } from '@primer/octicons-react'
 import { Avatar, Label, Link, RelativeTime, Stack, Text } from '@primer/react'
@@ -20,10 +21,13 @@ import sharedStyles from 'app/styles/shared.module.css'
 
 const Organization = () => {
   const { organizationId } = useParams()
+  const trpc = useTRPC()
   const { serverUrl } = useGitHubEnvironment()
-  const { data, isPending } = trpc.checkInstallation.useQuery({
-    orgId: organizationId as string,
-  })
+  const { data, isPending } = useQuery(
+    trpc.checkInstallation.queryOptions({
+      orgId: organizationId as string,
+    }),
+  )
 
   const orgData = useOrgData()
   const forksData = useForksData(orgData?.data?.login)

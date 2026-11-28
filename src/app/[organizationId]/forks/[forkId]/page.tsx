@@ -1,7 +1,8 @@
 'use client'
 
 import { useParams } from 'next/navigation'
-import { trpc } from '../../../../utils/trpc'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { useTRPC } from '../../../../utils/trpc'
 
 import {
   KebabHorizontalIcon,
@@ -37,9 +38,12 @@ import { useCallback, useState } from 'react'
 
 const Fork = () => {
   const { organizationId } = useParams()
-  const { data, isPending } = trpc.checkInstallation.useQuery({
-    orgId: organizationId as string,
-  })
+  const trpc = useTRPC()
+  const { data, isPending } = useQuery(
+    trpc.checkInstallation.queryOptions({
+      orgId: organizationId as string,
+    }),
+  )
 
   const orgData = useOrgData()
   const forkData = useForkData()
@@ -170,9 +174,11 @@ const Fork = () => {
     data: getConfigData,
     isPending: configLoading,
     error: configError,
-  } = trpc.getConfig.useQuery({
-    orgId: organizationId as string,
-  })
+  } = useQuery(
+    trpc.getConfig.queryOptions({
+      orgId: organizationId as string,
+    }),
+  )
 
   const orgLogin = getConfigData?.privateOrg ?? orgData?.data?.login
 
@@ -181,21 +187,23 @@ const Fork = () => {
     isPending: createMirrorLoading,
     mutateAsync: createMirror,
     error: createMirrorError,
-  } = trpc.createMirror.useMutation()
+  } = useMutation(trpc.createMirror.mutationOptions())
 
   const {
     data: mirrorsData,
     isPending: mirrorsLoading,
     refetch: refetchMirrors,
     error: listMirrorsError,
-  } = trpc.listMirrors.useQuery(
-    {
-      orgId: organizationId as string,
-      forkName: forkData?.data?.name ?? '',
-    },
-    {
-      enabled: Boolean(organizationId) && Boolean(forkData?.data?.name),
-    },
+  } = useQuery(
+    trpc.listMirrors.queryOptions(
+      {
+        orgId: organizationId as string,
+        forkName: forkData?.data?.name ?? '',
+      },
+      {
+        enabled: Boolean(organizationId) && Boolean(forkData?.data?.name),
+      },
+    ),
   )
   const mirrors = mirrorsData?.mirrors
   const mirrorDeletionEnabled = mirrorsData?.mirrorDeletionEnabled ?? false
@@ -205,13 +213,13 @@ const Fork = () => {
     isPending: editMirrorLoading,
     mutateAsync: editMirror,
     error: editMirrorError,
-  } = trpc.editMirror.useMutation()
+  } = useMutation(trpc.editMirror.mutationOptions())
 
   const {
     isPending: deleteMirrorLoading,
     mutateAsync: deleteMirror,
     error: deleteMirrorError,
-  } = trpc.deleteMirror.useMutation()
+  } = useMutation(trpc.deleteMirror.mutationOptions())
 
   const handleOnCreateMirror = useCallback(
     async ({ repoName }: { repoName: string }) => {

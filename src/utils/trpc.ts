@@ -1,4 +1,4 @@
-import { createTRPCReact } from '@trpc/react-query'
+import { createTRPCContext } from '@trpc/tanstack-react-query'
 import type { AppRouter } from '../app/api/trpc/trpc-router'
 
 export const getBaseUrl = () => {
@@ -15,4 +15,4 @@ export const getBaseUrl = () => {
   return `http://localhost:${process.env.PORT ?? 3000}`
 }
 
-export const trpc = createTRPCReact<AppRouter>()
+export const { TRPCProvider, useTRPC } = createTRPCContext<AppRouter>()
